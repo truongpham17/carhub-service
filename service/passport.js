@@ -6,11 +6,11 @@ import constants from '../config/constants';
 import User from '../module/user/user.model';
 
 const localOpts = {
-  usernameField: 'email',
+  usernameField: 'username',
 };
-const localStrategy = new LocalStrategy(localOpts, async (email, password, done) => {
+const localStrategy = new LocalStrategy(localOpts, async (username, password, done) => {
   try {
-    const user = await User.findOne({ email, isRemoved: false });
+    const user = await User.findOne({ username });
 
     if (!user) {
       return done(null, false);
@@ -34,9 +34,6 @@ export const authLocal = async (req, res, next) =>
     if (!user) {
       return res.status(HTTPStatus.UNAUTHORIZED).json('Invalid username or password');
     }
-    // if (!user.isConfirmed) {
-    //   return res.status(HTTPStatus.PRECONDITION_REQUIRED).json('Please confirm your email to login');
-    // }
 
     return res.status(HTTPStatus.OK).json(user.toAuthJSON());
   })(req, res, next);
@@ -51,7 +48,7 @@ const jwtOpts = {
 
 const jwtStrategy = new JWTStrategy(jwtOpts, async (payload, done) => {
   try {
-    const user = await User.findOne({ _id: payload._id, isRemoved: false });
+    const user = await User.findOne({ _id: payload._id });
     if (!user) {
       return done(null, false);
     }

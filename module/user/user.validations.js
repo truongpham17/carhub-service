@@ -5,42 +5,39 @@ export default {
     body: {
       password: Joi.string()
         .min(6)
-        .max(120),
-      name: Joi.string()
-        .min(3)
-        .max(80)
-        .required(),
-      email: Joi.string()
         .max(120)
         .required(),
-      avatar: Joi.string(),
-      role: Joi.number(),
-    },
-    options: {
-      allowUnknownBody: false,
+      username: Joi.string()
+        .min(5)
+        .max(20)
+        .required(),
     },
   },
   createUser: {
     body: {
       password: Joi.string()
         .min(6)
-        .max(120),
-      name: Joi.string()
-        .min(3)
-        .max(80)
-        .required(),
-      email: Joi.string()
         .max(120)
         .required(),
-      avatar: Joi.string(),
+      username: Joi.string()
+        .min(5)
+        .max(20)
+        .required(),
     },
   },
   login: {
     body: {
-      email: Joi.string()
+      password: Joi.string()
+        .min(6)
         .max(120)
         .required(),
-      password: Joi.string().required(),
+      username: Joi.string()
+        .min(5)
+        .max(20)
+        .required(),
+    },
+    options: {
+      allowUnknownBody: false,
     },
   },
   editProfile: {
@@ -48,12 +45,9 @@ export default {
       password: Joi.string()
         .min(6)
         .max(120),
-      name: Joi.string()
-        .min(3)
-        .max(80),
-      email: Joi.string().max(120),
-      avatar: Joi.string(),
-      role: Joi.number(),
+      username: Joi.string()
+        .min(5)
+        .max(20),
     },
     options: {
       allowUnknownBody: false,

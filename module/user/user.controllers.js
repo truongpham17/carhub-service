@@ -9,8 +9,8 @@ export const getUserList = async (req, res) => {
   try {
     let users;
     const queries = !search
-      ? { isRemoved: false }
-      : { $text: { $search: search }, isRemoved: false };
+      ? {}
+      : { $text: { $search: search } };
     if (search) {
       users = await User.find(queries, { score: { $meta: 'textScore' } })
         .sort({ score: { $meta: 'textScore' } })
@@ -25,16 +25,16 @@ export const getUserList = async (req, res) => {
     const total = await User.count(queries);
     return res.status(HTTPStatus.OK).json({ users, total });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
   }
 };
 
 export const getUser = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id, isRemoved: false });
+    const user = await User.findOne({ _id: req.params.id });
     return res.status(HTTPStatus.OK).json(user.toJSON());
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
   }
 };
 
@@ -43,13 +43,13 @@ export const createUser = async (req, res) => {
     const user = await User.create(req.body);
     return res.status(HTTPStatus.CREATED).json(user.toJSON());
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
   }
 };
 
 export const updateUser = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id, isRemoved: false });
+    const user = await User.findOne({ _id: req.params.id });
     if (!user) {
       throw new Error('Not found');
     }
@@ -59,22 +59,19 @@ export const updateUser = async (req, res) => {
     await user.save();
     return res.status(HTTPStatus.OK).json(user.toJSON());
   } catch (e) {
-    console.log(e);
-    return res.status(HTTPStatus.BAD_REQUEST).json(e.message);
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 };
 
 export const deleteUser = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.params.id, isRemoved: false });
+    const user = await User.findOneAndRemove({ _id: req.params.id });
     if (!user) {
       throw new Error('Not found');
     }
 
-    user.isRemoved = true;
-    await user.save();
     return res.status(HTTPStatus.OK).json(user.toJSON());
   } catch (e) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(e.message);
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 };
