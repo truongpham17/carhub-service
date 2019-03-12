@@ -11,9 +11,12 @@ try {
 
 mongoose.connection
   .once('open', () =>
-    console.log(`    MongoDB is running!
-    ---`)
+    console.log(`      MONGODB:    ${constants.MONGO_URL} 🌱
+
+    `)
   )
   .on('error', e => {
-    throw e;
+    console.log(`      MONGODB:    ${e.message} 🥀
+
+    `);
   });
