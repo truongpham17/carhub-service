@@ -8,6 +8,17 @@ export default {
       productQuantity: Joi.number().min(0),
     },
   },
+  importStore: {
+    body: {
+      storeId: Joi.string().required(),
+      productList: Joi.array().items(Joi.object({
+        importPrice: Joi.number().required(),
+        exportPrice: Joi.number().required(),
+        quantity: Joi.number().required(),
+      })),
+      note: Joi.string(),
+    },
+  },
   editStore: {
     body: {
       name: Joi.string(),

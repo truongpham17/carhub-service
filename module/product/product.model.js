@@ -1,22 +1,34 @@
 import mongoose, { Schema } from 'mongoose';
 
-const StoreSchema = new Schema(
+const ProductSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
-    totalImportProduct: {
+    store: {
+      type: Schema.Types.ObjectId,
+      ref: 'Store',
+    },
+    importPrice: {
       type: Number,
       default: 0,
     },
-    productQuantity: {
+    exportPrice: {
       type: Number,
       default: 0,
+    },
+    quantity: {
+      type: Number,
+      default: 0,
+    },
+    total: {
+      type: Number,
+      default: 0,
+    },
+    isReturned: {
+      type: Boolean,
+      default: false,
     },
     isRemoved: {
       type: Boolean,
@@ -28,22 +40,25 @@ const StoreSchema = new Schema(
   }
 );
 
-StoreSchema.methods = {
+ProductSchema.methods = {
   toJSON() {
     return {
       _id: this._id,
-      name: this.name,
+      importPrice: this.importPrice,
+      exportPrice: this.exportPrice,
+      quantity: this.quantity,
+      total: this.total,
+      store: this.store,
+      isReturned: this.isReturned,
       createdBy: this.createdBy,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      totalImportProduct: this.totalImportProduct,
-      productQuantity: this.productQuantity,
     };
   },
 };
 
-StoreSchema.statics = {
-  createStore(args, userID) {
+ProductSchema.statics = {
+  createProduct(args, userID) {
     return this.create({
       ...args,
       createdBy: userID,
@@ -58,6 +73,4 @@ StoreSchema.statics = {
   },
 };
 
-StoreSchema.index({ name: 'text' });
-
-export default mongoose.model('Store', StoreSchema);
+export default mongoose.model('Product', ProductSchema);

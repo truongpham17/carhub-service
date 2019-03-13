@@ -1,23 +1,28 @@
 import mongoose, { Schema } from 'mongoose';
 
-const StoreSchema = new Schema(
+const StoreHistorySchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-    createdBy: {
+    store: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Store',
     },
-    totalImportProduct: {
+    quantity: {
       type: Number,
       default: 0,
     },
-    productQuantity: {
+    total: {
       type: Number,
       default: 0,
     },
+    note: {
+      type: String,
+    },
+    productList: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Product',
+      }
+    ],
     isRemoved: {
       type: Boolean,
       default: false,
@@ -28,22 +33,22 @@ const StoreSchema = new Schema(
   }
 );
 
-StoreSchema.methods = {
+StoreHistorySchema.methods = {
   toJSON() {
     return {
       _id: this._id,
-      name: this.name,
-      createdBy: this.createdBy,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      totalImportProduct: this.totalImportProduct,
-      productQuantity: this.productQuantity,
+      store: this.store,
+      quantity: this.quantity,
+      total: this.total,
+      note: this.note,
+      productList: this.productList,
+      date: this.createdAt,
     };
   },
 };
 
-StoreSchema.statics = {
-  createStore(args, userID) {
+StoreHistorySchema.statics = {
+  createStoreHistory(args, userID) {
     return this.create({
       ...args,
       createdBy: userID,
@@ -58,6 +63,6 @@ StoreSchema.statics = {
   },
 };
 
-StoreSchema.index({ name: 'text' });
+StoreHistorySchema.index({ name: 'text' });
 
-export default mongoose.model('Store', StoreSchema);
+export default mongoose.model('StoreHistory', StoreHistorySchema);

@@ -8,6 +8,7 @@ const routes = new Router();
 
 routes.get('/', authJwt, StoreControllers.getStoreList);
 routes.post('/', authJwt, validate(Validations.createStore), StoreControllers.createStore);
+routes.post('/import', authJwt, validate(Validations.importStore), StoreControllers.importStore);
 routes.patch('/:id', authJwt, validate(Validations.editStore), StoreControllers.updateStore);
 routes.delete('/:id', authJwt, StoreControllers.deleteStore);
 
