@@ -15,6 +15,31 @@ export async function getStoreList(req, res) {
   }
 }
 
+export async function getStoreInfo(req, res) {
+  try {
+    const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
+    if (!store) {
+      throw new Error('Store not found!');
+    }
+    const products = await Product.find({ store: store._id, isRemoved: false });
+    let totalFund = 0;
+    let totalSoldMoney = 0;
+    products.forEach(item => {
+      totalFund += item.importPrice * item.total;
+      totalSoldMoney += (item.total - item.quantity) * item.exportPrice;
+    });
+    const result = {
+      ...await store.toJSON(),
+      totalSoldProduct: store.totalImportProduct - store.productQuantity,
+      totalFund,
+      totalSoldMoney,
+    }
+    return res.status(HTTPStatus.OK).json(result);
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
 export async function createStore(req, res) {
   try {
     const store = await Store.createStore(req.body, req.user._id);
@@ -29,13 +54,14 @@ export async function importStore(req, res) {
     const { storeId, productList, note } = req.body;
     const store = await Store.findById(storeId);
     if (!store) {
-      throw new Error({ message: 'Store not found!' });
+      throw new Error('Store not found!');
     }
     let countQuantity = 0;
     let countTotal = 0;
     const products = await Promise.all(
       productList.map(async ({ importPrice, exportPrice, quantity }) => {
-        const product = await Product.findOne({ importPrice, exportPrice });
+        const product = await Product
+          .findOne({ store: storeId, importPrice, exportPrice });
         if (product) {
           product.quantity += quantity;
           product.total += quantity;
@@ -72,7 +98,7 @@ export async function updateStore(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
-      throw new Error('Not found');
+      throw new Error('Store not found!');
     }
 
     Object.keys(req.body).forEach(key => {
