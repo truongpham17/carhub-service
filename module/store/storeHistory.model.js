@@ -54,9 +54,10 @@ StoreHistorySchema.statics = {
       createdBy: userID,
     });
   },
-  list({ skip = 0, limit = 50, type } = {}) {
-    const queries = { isRemoved: false };
+  list({ skip = 0, limit = 50, store } = {}) {
+    const queries = store ? { store, isRemoved: false } : { isRemoved: false };
     return this.find(queries)
+      .populate('productList')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

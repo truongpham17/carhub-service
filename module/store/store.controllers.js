@@ -56,6 +56,22 @@ export async function getStoreProducts(req, res) {
   }
 }
 
+export async function getStoreHistory(req, res) {
+  const limit = parseInt(req.query.limit, 0) || 50;
+  const skip = parseInt(req.query.skip, 0) || 0;
+  try {
+    const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
+    if (!store) {
+      throw new Error('Store not found!');
+    }
+    const list = await StoreHistory.list({ skip, limit, store: store._id });
+    const total = await StoreHistory.count({ store: store._id, isRemoved: false });
+    return res.status(HTTPStatus.OK).json({ list, total });
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
 export async function createStore(req, res) {
   try {
     const store = await Store.createStore(req.body, req.user._id);
