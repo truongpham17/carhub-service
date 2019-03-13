@@ -64,8 +64,8 @@ ProductSchema.statics = {
       createdBy: userID,
     });
   },
-  list({ skip = 0, limit = 50, type } = {}) {
-    const queries = { isRemoved: false };
+  list({ skip = 0, limit = 50, store } = {}) {
+    const queries = store ? { isRemoved: false, store } : { isRemoved: false };
     return this.find(queries)
       .sort({ createdAt: -1 })
       .skip(skip)

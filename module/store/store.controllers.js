@@ -7,7 +7,7 @@ export async function getStoreList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
   const skip = parseInt(req.query.skip, 0) || 0;
   try {
-    const list = await Store.list({ limit, skip });
+    const list = await Store.list({ skip, limit });
     const total = await Store.count({ isRemoved: false });
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (e) {
@@ -35,6 +35,22 @@ export async function getStoreInfo(req, res) {
       totalSoldMoney,
     }
     return res.status(HTTPStatus.OK).json(result);
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
+export async function getStoreProducts(req, res) {
+  const limit = parseInt(req.query.limit, 0) || 50;
+  const skip = parseInt(req.query.skip, 0) || 0;
+  try {
+    const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
+    if (!store) {
+      throw new Error('Store not found!');
+    }
+    const list = await Product.list({ skip, limit, store: store._id });
+    const total = await Product.count({ store: store._id, isRemoved: false });
+    return res.status(HTTPStatus.OK).json({ list, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
