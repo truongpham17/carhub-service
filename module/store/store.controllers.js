@@ -90,8 +90,10 @@ export async function importStore(req, res) {
     }
     let countQuantity = 0;
     let countTotal = 0;
+    let countTotalImport = 0;
     const products = await Promise.all(
       productList.map(async ({ importPrice, exportPrice, quantity }) => {
+        countTotalImport += quantity;
         const product = await Product
           .findOne({ store: storeId, importPrice, exportPrice });
         if (product) {
@@ -113,6 +115,9 @@ export async function importStore(req, res) {
         }
       })
     );
+    store.totalImportProduct += countTotalImport;
+    store.productQuantity += countTotalImport;
+    await store.save();
     const result = await StoreHistory.createStoreHistory({
       store: storeId,
       quantity: countQuantity,
