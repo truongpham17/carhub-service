@@ -7,7 +7,7 @@ const StoreSchema = new Schema(
       required: true,
     },
     createdBy: {
-      type: mongoose.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
     },
     totalImportProduct: {
