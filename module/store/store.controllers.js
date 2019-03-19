@@ -67,14 +67,16 @@ export async function getStoreHistory(req, res) {
     const histories = await StoreHistory.list({ skip, limit, store: store._id });
     let totalQuantity = 0;
     let totalPrice = 0;
-    const list = histories.map(item => {
+    histories.forEach(item => {
       totalQuantity += item.quantity;
-      item.forEach(product => {
-        totalPrice += product.importPrice * product.quantity
-      })
-    })
+      let price = 0;
+      item.productList.forEach(pd => {
+        price = pd.product.importPrice * pd.quantity;
+      });
+      totalPrice += price;
+    });
     const total = await StoreHistory.count({ store: store._id, isRemoved: false });
-    return res.status(HTTPStatus.OK).json({ list, totalQuantity, totalPrice, total });
+    return res.status(HTTPStatus.OK).json({ list: histories, totalQuantity, totalPrice, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
