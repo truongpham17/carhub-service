@@ -7,6 +7,7 @@ export default {
         product: Joi.string().required(),
         quantity: Joi.number().required(),
         discount: Joi.number(),
+        isReturned: Joi.boolean(),
       })).min(1).required(),
       customer: Joi.object().keys({
         name: Joi.string().required(),
@@ -26,6 +27,7 @@ export default {
         product: Joi.string().required(),
         quantity: Joi.number().required(),
         discount: Joi.number(),
+        isReturned: Joi.boolean(),
       })).min(1),
       customer: Joi.object().keys({
         name: Joi.string().required(),

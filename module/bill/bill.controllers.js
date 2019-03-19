@@ -24,10 +24,37 @@ export async function createBill(req, res) {
       if (!product) {
         throw new Error('Invalid product!');
       }
-      product.quantity -= item.quantity;
       const store = await Store.findById({ _id: product.store, isRemoved: false });
-      store.productQuantity -= item.quantity;
-      return await Promise.all([await product.save(), await store.save()])
+
+      if (item.isReturned) {
+        let returnedProduct = await Product.findOne({
+          importPrice: product.importPrice,
+          exportPrice: product.exportPrice,
+          isReturned: true,
+          isRemoved: false,
+        });
+        if (returnedProduct) {
+          returnedProduct.quantity += item.quantity;
+          returnedProduct.total += item.quantity;
+          store.productQuantity += item.quantity;
+          await returnedProduct.save();
+        } else {
+          returnedProduct = await Product.createProduct({
+            importPrice: product.importPrice,
+            exportPrice: product.exportPrice,
+            store: product.store,
+            quantity: item.quantity,
+            total: item.quantity,
+            isReturned: true,
+          }, req.user._id);
+          store.productQuantity += 1;
+        }
+      } else {
+        product.quantity -= item.quantity;
+        store.productQuantity -= item.quantity;
+        await product.save();
+      }
+      return await store.save();
     }));
     const bill = await Bill.createBill(req.body, req.user._id);
     return res.status(HTTPStatus.CREATED).json(bill);
