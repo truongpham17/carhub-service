@@ -64,11 +64,14 @@ export async function getStoreHistory(req, res) {
     if (!store) {
       throw new Error('Store not found!');
     }
-    const list = await StoreHistory.list({ skip, limit, store: store._id });
+    const histories = await StoreHistory.list({ skip, limit, store: store._id });
     let totalQuantity = 0;
     let totalPrice = 0;
-    list.map(item => {
-
+    const list = histories.map(item => {
+      totalQuantity += item.quantity;
+      item.forEach(product => {
+        totalPrice += product.importPrice * product.quantity
+      })
     })
     const total = await StoreHistory.count({ store: store._id, isRemoved: false });
     return res.status(HTTPStatus.OK).json({ list, totalQuantity, totalPrice, total });
@@ -96,9 +99,11 @@ export async function importStore(req, res) {
     // let countQuantity = 0;
     let countTotal = 0;
     let countTotalImport = 0;
+    let totalPrice = 0;
     const products = await Promise.all(
       productList.map(async ({ importPrice, exportPrice, quantity }) => {
         countTotalImport += quantity;
+        totalPrice += importPrice * quantity;
         const product = await Product
           .findOne({ store: storeId, importPrice, exportPrice });
         if (product) {
@@ -106,17 +111,23 @@ export async function importStore(req, res) {
           product.total += quantity;
           // countQuantity += product.quantity;
           countTotal += product.total;
-          return await product.save();
+          return {
+            product: await product.save(),
+            quantity,
+          };
         } else {
           // countQuantity += quantity;
           countTotal += quantity;
-          return await Product.createProduct({
-            importPrice,
-            exportPrice,
+          return {
+            product: await Product.createProduct({
+              importPrice,
+              exportPrice,
+              quantity,
+              total: quantity,
+              store: storeId,
+            }, req.user._id),
             quantity,
-            total: quantity,
-            store: storeId,
-          }, req.user._id);
+          };
         }
       })
     );
@@ -128,7 +139,11 @@ export async function importStore(req, res) {
       quantity: countTotalImport,
       total: countTotal,
       note,
-      productList: products.map(item => item._id),
+      totalPrice,
+      productList: products.map(item => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      })),
     }, req.user._id);
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {
