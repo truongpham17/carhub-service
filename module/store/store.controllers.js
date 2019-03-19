@@ -64,9 +64,19 @@ export async function getStoreHistory(req, res) {
     if (!store) {
       throw new Error('Store not found!');
     }
-    const list = await StoreHistory.list({ skip, limit, store: store._id });
+    const histories = await StoreHistory.list({ skip, limit, store: store._id });
+    let totalQuantity = 0;
+    let totalPrice = 0;
+    histories.forEach(item => {
+      totalQuantity += item.quantity;
+      let price = 0;
+      item.productList.forEach(pd => {
+        price = pd.product.importPrice * pd.quantity;
+      });
+      totalPrice += price;
+    });
     const total = await StoreHistory.count({ store: store._id, isRemoved: false });
-    return res.status(HTTPStatus.OK).json({ list, total });
+    return res.status(HTTPStatus.OK).json({ list: histories, totalQuantity, totalPrice, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
@@ -88,30 +98,38 @@ export async function importStore(req, res) {
     if (!store) {
       throw new Error('Store not found!');
     }
-    let countQuantity = 0;
+    // let countQuantity = 0;
     let countTotal = 0;
     let countTotalImport = 0;
+    let totalPrice = 0;
     const products = await Promise.all(
       productList.map(async ({ importPrice, exportPrice, quantity }) => {
         countTotalImport += quantity;
+        totalPrice += importPrice * quantity;
         const product = await Product
           .findOne({ store: storeId, importPrice, exportPrice });
         if (product) {
           product.quantity += quantity;
           product.total += quantity;
-          countQuantity += product.quantity;
+          // countQuantity += product.quantity;
           countTotal += product.total;
-          return await product.save();
-        } else {
-          countQuantity += quantity;
-          countTotal += quantity;
-          return await Product.createProduct({
-            importPrice,
-            exportPrice,
+          return {
+            product: await product.save(),
             quantity,
-            total: quantity,
-            store: storeId,
-          }, req.user._id);
+          };
+        } else {
+          // countQuantity += quantity;
+          countTotal += quantity;
+          return {
+            product: await Product.createProduct({
+              importPrice,
+              exportPrice,
+              quantity,
+              total: quantity,
+              store: storeId,
+            }, req.user._id),
+            quantity,
+          };
         }
       })
     );
@@ -120,10 +138,14 @@ export async function importStore(req, res) {
     await store.save();
     const result = await StoreHistory.createStoreHistory({
       store: storeId,
-      quantity: countQuantity,
+      quantity: countTotalImport,
       total: countTotal,
       note,
-      productList: products.map(item => item._id),
+      totalPrice,
+      productList: products.map(item => ({
+        product: item.product._id,
+        quantity: item.quantity,
+      })),
     }, req.user._id);
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {

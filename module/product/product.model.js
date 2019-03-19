@@ -67,7 +67,7 @@ ProductSchema.statics = {
   list({ skip = 0, limit = 50, store } = {}) {
     const queries = store ? { isRemoved: false, store } : { isRemoved: false };
     return this.find(queries)
-      .sort({ createdAt: -1 })
+      .sort({ exportPrice: 1 })
       .skip(skip)
       .limit(limit);
   },

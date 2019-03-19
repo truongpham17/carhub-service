@@ -14,13 +14,23 @@ const StoreHistorySchema = new Schema(
       type: Number,
       default: 0,
     },
+    totalPrice: {
+      type: Number,
+      default: 0,
+    },
     note: {
       type: String,
     },
     productList: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'Product',
+        product: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+        },
+        quantity: {
+          type: Number,
+          default: 0,
+        },
       }
     ],
     isRemoved: {
@@ -40,6 +50,7 @@ StoreHistorySchema.methods = {
       store: this.store,
       quantity: this.quantity,
       total: this.total,
+      totalPrice: this.totalPrice,
       note: this.note,
       productList: this.productList,
       date: this.createdAt,
@@ -57,7 +68,7 @@ StoreHistorySchema.statics = {
   list({ skip = 0, limit = 50, store } = {}) {
     const queries = store ? { store, isRemoved: false } : { isRemoved: false };
     return this.find(queries)
-      .populate('productList')
+      .populate('productList.product')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
