@@ -35,7 +35,11 @@ const BillSchema = new Schema(
           type: Number,
           default: 0,
         },
-      }
+        isReturned: {
+          type: Boolean,
+          default: false,
+        },
+      },
     ],
     customer: {
       name: {
