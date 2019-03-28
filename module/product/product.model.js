@@ -48,7 +48,10 @@ ProductSchema.methods = {
       exportPrice: this.exportPrice,
       quantity: this.quantity,
       total: this.total,
+      soldQuantity: this.total - this.quantity,
       store: this.store,
+      capitalAmount: this.total * this.importPrice,
+      soldAmount: (this.total - this.quantity) * this.exportPrice,
       isReturned: this.isReturned,
       createdBy: this.createdBy,
       createdAt: this.createdAt,
@@ -67,6 +70,7 @@ ProductSchema.statics = {
   list({ skip = 0, limit = 50, store } = {}) {
     const queries = store ? { isRemoved: false, store } : { isRemoved: false };
     return this.find(queries)
+      .populate('store')
       .sort({ exportPrice: 1 })
       .skip(skip)
       .limit(limit);

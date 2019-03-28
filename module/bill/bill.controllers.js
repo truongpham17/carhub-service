@@ -16,6 +16,25 @@ export async function getBillList(req, res) {
   }
 }
 
+export async function getBillDetail(req, res) {
+  try {
+    const bill = await Bill
+      .findOne({ _id: req.params.id, isRemoved: false })
+      .populate({
+        path: 'productList.product',
+        populate: {
+          path: 'store',
+        },
+      });
+    if (!bill) {
+      return res.sendStatus(HTTPStatus.NOT_FOUND);
+    }
+    return res.status(HTTPStatus.OK).json(await bill.toDetailJSON());
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
 export async function createBill(req, res) {
   try {
     const { productList } = req.body;

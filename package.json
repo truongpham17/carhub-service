@@ -23,7 +23,8 @@
     "passport": "^0.4.0",
     "passport-facebook": "^3.0.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "shortid": "^2.2.14"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
