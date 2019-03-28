@@ -55,7 +55,6 @@ export async function createBill(req, res) {
         if (returnedProduct) {
           returnedProduct.quantity += item.quantity;
           returnedProduct.total += item.quantity;
-          store.productQuantity += item.quantity;
           await returnedProduct.save();
         } else {
           returnedProduct = await Product.createProduct({
@@ -66,8 +65,11 @@ export async function createBill(req, res) {
             total: item.quantity,
             isReturned: true,
           }, req.user._id);
-          store.productQuantity += 1;
         }
+        product.quantity -= item.quantity;
+        product.total -= item.quantity;
+        await product.save();
+        // store.productQuantity += item.quantity;
       } else {
         product.quantity -= item.quantity;
         store.productQuantity -= item.quantity;
