@@ -16,6 +16,25 @@ export async function getBillList(req, res) {
   }
 }
 
+export async function getBillDetail(req, res) {
+  try {
+    const bill = await Bill
+      .findOne({ _id: req.params.id, isRemoved: false })
+      .populate({
+        path: 'productList.product',
+        populate: {
+          path: 'store',
+        },
+      });
+    if (!bill) {
+      return res.sendStatus(HTTPStatus.NOT_FOUND);
+    }
+    return res.status(HTTPStatus.OK).json(await bill.toDetailJSON());
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
 export async function createBill(req, res) {
   try {
     const { productList } = req.body;
@@ -36,7 +55,6 @@ export async function createBill(req, res) {
         if (returnedProduct) {
           returnedProduct.quantity += item.quantity;
           returnedProduct.total += item.quantity;
-          store.productQuantity += item.quantity;
           await returnedProduct.save();
         } else {
           returnedProduct = await Product.createProduct({
@@ -47,8 +65,11 @@ export async function createBill(req, res) {
             total: item.quantity,
             isReturned: true,
           }, req.user._id);
-          store.productQuantity += 1;
         }
+        product.quantity -= item.quantity;
+        product.total -= item.quantity;
+        await product.save();
+        // store.productQuantity += item.quantity;
       } else {
         product.quantity -= item.quantity;
         store.productQuantity -= item.quantity;

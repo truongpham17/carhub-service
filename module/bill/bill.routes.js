@@ -7,6 +7,7 @@ import { authJwt } from '../../service/passport';
 const routes = new Router();
 
 routes.get('/', authJwt, Controllers.getBillList);
+routes.get('/:id', authJwt, Controllers.getBillDetail);
 routes.post('/', authJwt, validate(Validations.createBill), Controllers.createBill);
 
 export default routes;

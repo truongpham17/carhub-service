@@ -1,7 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
+import shortid from 'shortid';
 
 const BillSchema = new Schema(
   {
+    _id: {
+      type: String,
+      default: shortid.generate,
+    },
     totalQuantity: {
       type: Number,
       default: 0,
@@ -69,7 +74,7 @@ const BillSchema = new Schema(
 );
 
 BillSchema.methods = {
-  toJSON() {
+  toDetailJSON() {
     return {
       _id: this._id,
       totalQuantity: this.totalQuantity,
@@ -80,6 +85,16 @@ BillSchema.methods = {
       productList: this.productList,
       customer: this.customer,
       createdBy: this.createdBy,
+      createdAt: this.createdAt,
+      paymentStatus: this.totalPaid >= this.totalPrice ? 'paid' : 'indebted',
+    };
+  },
+  toJSON() {
+    return {
+      _id: this._id,
+      totalPrice: this.totalPrice,
+      createdAt: this.createdAt,
+      paymentStatus: this.totalPaid >= this.totalPrice ? 'paid' : 'indebted',
     };
   },
 };
@@ -94,7 +109,13 @@ BillSchema.statics = {
   list({ skip = 0, limit = 50 } = {}) {
     const queries = { isRemoved: false };
     return this.find(queries)
-      .populate('productList.product')
+      // .populate('productList.product productList.product.store')
+      .populate({
+        path: 'productList.product',
+        populate: {
+          path: 'store',
+        },
+      })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
