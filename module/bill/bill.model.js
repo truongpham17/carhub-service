@@ -73,6 +73,17 @@ const BillSchema = new Schema(
   }
 );
 
+BillSchema.pre('save', function (next) {
+  if (this.isNew) {
+    billModel.count().then(res => {
+      this._id = res.toString().padStart(5, "0");
+      next();
+    });
+  } else {
+    next();
+  }
+})
+
 BillSchema.methods = {
   toDetailJSON() {
     return {
@@ -122,4 +133,6 @@ BillSchema.statics = {
   },
 };
 
-export default mongoose.model('Bill', BillSchema);
+const billModel = mongoose.model('Bill', BillSchema);
+
+export default billModel;
