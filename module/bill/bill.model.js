@@ -49,7 +49,6 @@ const BillSchema = new Schema(
     customer: {
       name: {
         type: String,
-        required: true,
         trim: true,
       },
       phone: {
