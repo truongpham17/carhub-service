@@ -1,6 +1,7 @@
 import HTTPStatus from 'http-status';
 import Store from './store.model';
 import Product from '../product/product.model';
+import Bill from '../bill/bill.model';
 import StoreHistory from './storeHistory.model';
 
 export async function getStoreList(req, res) {
@@ -15,12 +16,13 @@ export async function getStoreList(req, res) {
   }
 }
 
-export async function getStoreInfo(req, res) {
+export async function getStoreInfoOld(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
       throw new Error('Store not found!');
     }
+    // * Calc from bill
     const products = await Product.find({ store: store._id, isRemoved: false });
     let totalFund = 0;
     let totalSoldMoney = 0;
@@ -33,6 +35,48 @@ export async function getStoreInfo(req, res) {
       totalSoldProduct: store.totalImportProduct - store.productQuantity,
       totalFund,
       totalSoldMoney,
+    }
+    return res.status(HTTPStatus.OK).json(result);
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
+export async function getStoreInfo(req, res) {
+  try {
+    const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
+    if (!store) {
+      throw new Error('Store not found!');
+    }
+    // * Calc from bill
+
+    const products = await Product.find({ store: store._id, isRemoved: false });
+    let totalFund = 0;
+    let totalSoldMoneyOld = 0;
+    let totalSoldMoney = 0;
+    const bills = await Bill
+      .find({ isRemoved: false })
+      .populate('productList.product');
+    bills.forEach(item => {
+      console.log(item);
+      item.productList.forEach(prod => {
+        if (prod.product.store.toString() === req.params.id) {
+          totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+        }
+      })
+    })
+    products.forEach(item => {
+      totalFund += item.importPrice * item.total;
+      totalSoldMoneyOld += (item.total - item.quantity) * item.exportPrice;
+    });
+
+    const result = {
+      ...await store.toJSON(),
+      totalSoldProduct: store.totalImportProduct - store.productQuantity,
+      totalFund,
+      totalSoldMoney,
+      // totalSoldMoneyOld,
+      totalLoiNhuan: totalFund - totalSoldMoney,
     }
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {

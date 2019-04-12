@@ -35,6 +35,25 @@ export async function getBillDetail(req, res) {
   }
 }
 
+export async function returnToSupplier(req, res) {
+  try {
+    const { productList } = req.body;
+    await Promise.all(productList.map(async item => {
+      const product = await Product.findOne({ _id: item.product, isRemoved: false });
+      if (!product) {
+        throw new Error('Invalid product!');
+      }
+      const store = await Store.findById({ _id: product.store, isRemoved: false });
+      product.quantity -= item.quantity;
+      product.total -= item.quantity;
+      store.productQuantity -= item.quantity;
+      await product.save();
+    }));
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}
+
 export async function createBill(req, res) {
   try {
     const { productList } = req.body;
