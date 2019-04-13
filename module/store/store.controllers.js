@@ -58,7 +58,6 @@ export async function getStoreInfo(req, res) {
       .find({ isRemoved: false })
       .populate('productList.product');
     bills.forEach(item => {
-      console.log(item);
       item.productList.forEach(prod => {
         if (prod.product.store.toString() === req.params.id) {
           totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
