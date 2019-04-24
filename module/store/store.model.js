@@ -18,6 +18,14 @@ const StoreSchema = new Schema(
       type: Number,
       default: 0,
     },
+    returnedQuantity: {
+      type: Number,
+      default: 0,
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
     isRemoved: {
       type: Boolean,
       default: false,
@@ -38,6 +46,8 @@ StoreSchema.methods = {
       updatedAt: this.updatedAt,
       totalImportProduct: this.totalImportProduct,
       productQuantity: this.productQuantity,
+      returnedQuantity: this.returnedQuantity,
+      isDefault: this.isDefault,
     };
   },
 };

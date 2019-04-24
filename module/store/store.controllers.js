@@ -52,30 +52,49 @@ export async function getStoreInfo(req, res) {
 
     const products = await Product.find({ store: store._id, isRemoved: false });
     let totalFund = 0;
-    let totalSoldMoneyOld = 0;
+    // let totalSoldMoneyOld = 0;
     let totalSoldMoney = 0;
+    let totalSoldFund = 0;
+    let totalSoldProduct = 0;
+    let totalReturnedProduct = 0;
+    let totalLoiNhuan = 0;
     const bills = await Bill
       .find({ isRemoved: false })
       .populate('productList.product');
     bills.forEach(item => {
       item.productList.forEach(prod => {
         if (prod.product.store.toString() === req.params.id) {
-          totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+          if (prod.isReturned) {
+            totalSoldMoney -= prod.product.exportPrice * prod.quantity;
+            totalSoldFund += prod.product.importPrice * prod.quantity;
+            totalReturnedProduct += prod.quantity;
+            totalLoiNhuan -= (prod.product.exportPrice * prod.quantity - prod.product.importPrice * prod.quantity);
+          } else {
+            const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
+            const soldFund = prod.product.importPrice * prod.quantity;
+            totalSoldMoney += soldMoney;
+            totalSoldFund += soldFund;
+            totalSoldProduct += prod.quantity;
+            totalLoiNhuan += soldMoney - soldFund;
+          }
         }
+        // loc isReturned = true -$
       })
     })
     products.forEach(item => {
       totalFund += item.importPrice * item.total;
-      totalSoldMoneyOld += (item.total - item.quantity) * item.exportPrice;
+      // totalSoldMoneyOld += (item.total - item.quantity) * item.exportPrice;
     });
 
     const result = {
       ...await store.toJSON(),
-      totalSoldProduct: store.totalImportProduct - store.productQuantity,
+      totalProduct: store.productQuantity,
+      totalSoldProduct,
+      totalReturnedProduct: store.returnedQuantity,
       totalFund,
       totalSoldMoney,
       // totalSoldMoneyOld,
-      totalLoiNhuan: totalFund - totalSoldMoney,
+      totalLoiNhuan,
     }
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {
@@ -146,7 +165,7 @@ export async function importStore(req, res) {
     let countTotalImport = 0;
     let totalPrice = 0;
     const products = await Promise.all(
-      productList.map(async ({ importPrice, exportPrice, quantity }) => {
+      productList.map(async ({ importPrice, exportPrice, quantity = 0 }) => {
         countTotalImport += quantity;
         totalPrice += importPrice * quantity;
         const product = await Product

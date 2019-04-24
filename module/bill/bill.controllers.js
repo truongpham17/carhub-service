@@ -64,7 +64,9 @@ export async function createBill(req, res) {
       }
       const store = await Store.findById({ _id: product.store, isRemoved: false });
 
+      // Trả hàng
       if (item.isReturned) {
+        // Tìm hàng trả có sẵn
         let returnedProduct = await Product.findOne({
           importPrice: product.importPrice,
           exportPrice: product.exportPrice,
@@ -85,6 +87,7 @@ export async function createBill(req, res) {
             isReturned: true,
           }, req.user._id);
         }
+
         product.quantity -= item.quantity;
         product.total -= item.quantity;
         await product.save();
