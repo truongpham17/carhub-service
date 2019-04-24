@@ -21,6 +21,26 @@ export default {
       totalPaid: Joi.number().required(),
     },
   },
+  createReturnedBill: {
+    body: {
+      productList: Joi.array().items(Joi.object({
+        product: Joi.string().required(),
+        quantity: Joi.number().required(),
+        discount: Joi.number(),
+        isReturned: Joi.boolean(),
+      })).min(1).required(),
+      customer: Joi.object().keys({
+        name: Joi.string().allow(''),
+        phone: Joi.string().allow(''),
+        address: Joi.string().allow(''),
+      }),
+      note: Joi.string().allow(''),
+      totalQuantity: Joi.number().required(),
+      totalPrice: Joi.number().required(),
+      otherCost: Joi.number().allow(null),
+      totalPaid: Joi.number().allow(null),
+    },
+  },
   editBill: {
     body: {
       productList: Joi.array().items(Joi.object({

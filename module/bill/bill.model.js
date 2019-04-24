@@ -58,6 +58,10 @@ const BillSchema = new Schema(
         type: String,
       },
     },
+    isReturned: {
+      type: Boolean,
+      default: false,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -116,8 +120,8 @@ BillSchema.statics = {
       createdBy: userID,
     });
   },
-  list({ skip = 0, limit = 50 } = {}) {
-    const queries = { isRemoved: false };
+  list({ skip = 0, limit = 50, isReturned = false } = {}) {
+    const queries = { isRemoved: false, isReturned };
     return this.find(queries)
       // .populate('productList.product productList.product.store')
       .populate({
