@@ -14,7 +14,7 @@ export default {
       productList: Joi.array().items(Joi.object({
         importPrice: Joi.number().required(),
         exportPrice: Joi.number().required(),
-        quantity: Joi.number().required(),
+        quantity: Joi.number(),
       })),
       note: Joi.string(),
     },

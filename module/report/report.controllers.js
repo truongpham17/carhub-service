@@ -11,6 +11,7 @@ export async function report(req, res) {
   try {
     const list = await Bill.find({
       isRemoved: false,
+      isReturned: false,
       createdAt: {
         "$gte": moment(start).startOf('day').toDate(),
         "$lte": moment(end).endOf('day').toDate(),
@@ -32,6 +33,7 @@ export async function report(req, res) {
     const reportByTime = [];
     await Promise.all(months.map(async month => {
       const billList = await Bill.find({
+        isReturned: false,
         isRemoved: false,
         createdAt: {
           "$gte": moment(month, 'MM/YYYY').startOf('month').toDate(),
