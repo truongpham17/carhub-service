@@ -7,9 +7,10 @@ import Product from '../product/product.model';
 export async function getBillList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
   const skip = parseInt(req.query.skip, 0) || 0;
+  const search = req.query.search;
   try {
-    const list = await Bill.list({ skip, limit });
-    const total = await Bill.count({ isRemoved: false, isReturned: false });
+    const list = await Bill.list({ skip, limit, search });
+    const total = await Bill.count({ isRemoved: false, isReturned: false, _id: new RegExp(search, 'i') });
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
@@ -113,7 +114,7 @@ export async function createBill(req, res) {
         product.quantity -= item.quantity;
         product.total -= item.quantity;
         await product.save();
-        // store.productQuantity += item.quantity;
+        store.productQuantity += item.quantity;
       } else {
         product.quantity -= item.quantity;
         store.productQuantity -= item.quantity;

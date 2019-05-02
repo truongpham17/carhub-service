@@ -68,6 +68,7 @@ export async function getStoreInfo(req, res) {
             totalSoldMoney -= prod.product.exportPrice * prod.quantity;
             totalSoldFund += prod.product.importPrice * prod.quantity;
             totalReturnedProduct += prod.quantity;
+            totalSoldProduct -= prod.quantity;
             totalLoiNhuan -= (prod.product.exportPrice * prod.quantity - prod.product.importPrice * prod.quantity);
           } else {
             const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
@@ -83,7 +84,6 @@ export async function getStoreInfo(req, res) {
     })
     products.forEach(item => {
       totalFund += item.importPrice * item.total;
-      // totalSoldMoneyOld += (item.total - item.quantity) * item.exportPrice;
     });
 
     const result = {
@@ -93,7 +93,6 @@ export async function getStoreInfo(req, res) {
       totalReturnedProduct: store.returnedQuantity,
       totalFund,
       totalSoldMoney,
-      // totalSoldMoneyOld,
       totalLoiNhuan,
     }
     return res.status(HTTPStatus.OK).json(result);
