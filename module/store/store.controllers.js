@@ -16,32 +16,6 @@ export async function getStoreList(req, res) {
   }
 }
 
-export async function getStoreInfoOld(req, res) {
-  try {
-    const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
-    if (!store) {
-      throw new Error('Store not found!');
-    }
-    // * Calc from bill
-    const products = await Product.find({ store: store._id, isRemoved: false });
-    let totalFund = 0;
-    let totalSoldMoney = 0;
-    products.forEach(item => {
-      totalFund += item.importPrice * item.total;
-      totalSoldMoney += (item.total - item.quantity) * item.exportPrice;
-    });
-    const result = {
-      ...await store.toJSON(),
-      totalSoldProduct: store.totalImportProduct - store.productQuantity,
-      totalFund,
-      totalSoldMoney,
-    }
-    return res.status(HTTPStatus.OK).json(result);
-  } catch (e) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
-  }
-}
-
 export async function getStoreInfo(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
@@ -62,25 +36,27 @@ export async function getStoreInfo(req, res) {
       .find({ isRemoved: false })
       .populate('productList.product');
     bills.forEach(item => {
-      item.productList.forEach(prod => {
-        if (prod.product.store.toString() === req.params.id) {
-          if (prod.isReturned) {
-            totalSoldMoney -= prod.product.exportPrice * prod.quantity;
-            totalSoldFund += prod.product.importPrice * prod.quantity;
-            totalReturnedProduct += prod.quantity;
-            totalSoldProduct -= prod.quantity;
-            totalLoiNhuan -= (prod.product.exportPrice * prod.quantity - prod.product.importPrice * prod.quantity);
-          } else {
-            const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
-            const soldFund = prod.product.importPrice * prod.quantity;
-            totalSoldMoney += soldMoney;
-            totalSoldFund += soldFund;
-            totalSoldProduct += prod.quantity;
-            totalLoiNhuan += soldMoney - soldFund;
+      if (!item.isReturned) {
+        item.productList.forEach(prod => {
+          if (prod.product.store.toString() === req.params.id) {
+            if (prod.isReturned) {
+              totalSoldMoney -= prod.product.exportPrice * prod.quantity;
+              totalSoldFund += prod.product.importPrice * prod.quantity;
+              totalReturnedProduct += prod.quantity;
+              totalSoldProduct -= prod.quantity;
+              totalLoiNhuan -= (prod.product.exportPrice * prod.quantity - prod.product.importPrice * prod.quantity);
+            } else {
+              const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
+              const soldFund = prod.product.importPrice * prod.quantity;
+              totalSoldMoney += soldMoney;
+              totalSoldFund += soldFund;
+              totalSoldProduct += prod.quantity;
+              totalLoiNhuan += soldMoney - soldFund;
+            }
           }
-        }
-        // loc isReturned = true -$
-      })
+          // loc isReturned = true -$
+        })
+      }
     })
     products.forEach(item => {
       totalFund += item.importPrice * item.total;
