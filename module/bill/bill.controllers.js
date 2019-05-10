@@ -111,7 +111,7 @@ export async function createBill(req, res) {
           }, req.user._id);
         }
 
-        product.quantity -= item.quantity;
+        // product.quantity;
         product.total -= item.quantity;
         await product.save();
         store.productQuantity += item.quantity;
