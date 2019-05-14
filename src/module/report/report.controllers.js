@@ -30,8 +30,7 @@ export async function report(req, res) {
     })
     const billCount = await Bill.count({ isRemoved: false });
 
-    const reportByTime = [];
-    await Promise.all(months.map(async month => {
+    const reportByTime = await Promise.all(months.map(async month => {
       const billList = await Bill.find({
         isReturned: false,
         isRemoved: false,
@@ -46,10 +45,10 @@ export async function report(req, res) {
           monthSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
         })
       })
-      reportByTime.push({
+      return {
         time: month,
         total: monthSoldMoney,
-      })
+      };
     }))
 
     let reportByStore = [];
