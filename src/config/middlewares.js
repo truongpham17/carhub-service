@@ -17,5 +17,5 @@ export default app => {
   app.use(bodyParser.json({ limit: '5mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(passport.initialize());
-  app.use(cors());
+  app.use(cors({ origin: '*' }));
 }
