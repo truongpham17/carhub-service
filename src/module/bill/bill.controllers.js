@@ -8,9 +8,16 @@ export async function getBillList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
   const skip = parseInt(req.query.skip, 0) || 0;
   const search = req.query.search;
+  const customer = req.query.customer;
   try {
-    const list = await Bill.list({ skip, limit, search });
-    const total = await Bill.count({ isRemoved: false, isReturned: false, _id: new RegExp(search, 'i') });
+    let list = await Bill.list({ skip, limit, search, customer });
+    let total = await Bill.count({
+      isRemoved: false,
+      isReturned: false,
+      _id: new RegExp(search, 'i'),
+      'customer.name': new RegExp(customer, 'i'),
+    });
+
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);

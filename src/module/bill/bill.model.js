@@ -120,10 +120,13 @@ BillSchema.statics = {
       createdBy: userID,
     });
   },
-  list({ skip = 0, limit = 50, isReturned = false, search } = {}) {
-    const queries = !search
-      ? { isRemoved: false, isReturned }
-      : { isRemoved: false, isReturned, _id: new RegExp(search, 'i') };
+  list({ skip = 0, limit = 50, isReturned = false, search, customer } = {}) {
+    const queries = {
+      isRemoved: false,
+      isReturned,
+      _id: new RegExp(search, 'i'),
+      'customer.name': new RegExp(customer, 'i'),
+    };
 
     return this.find(queries)
       // .populate('productList.product productList.product.store')
@@ -141,6 +144,6 @@ BillSchema.statics = {
 
 const billModel = mongoose.model('Bill', BillSchema);
 
-BillSchema.index({ _id: 'text' });
+BillSchema.index({ _id: 'text', 'customer.name': 'text' });
 
 export default billModel;
