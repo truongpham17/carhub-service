@@ -22,6 +22,10 @@ const StoreSchema = new Schema(
       type: Number,
       default: 0,
     },
+    debt: {
+      type: Number,
+      default: 0,
+    },
     isDefault: {
       type: Boolean,
       default: false,
@@ -47,6 +51,7 @@ StoreSchema.methods = {
       totalImportProduct: this.totalImportProduct,
       productQuantity: this.productQuantity,
       returnedQuantity: this.returnedQuantity,
+      debt: this.debt,
       isDefault: this.isDefault,
     };
   },
