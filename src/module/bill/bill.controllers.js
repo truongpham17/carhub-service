@@ -58,23 +58,22 @@ export async function getBillDetail(req, res) {
 export async function returnToSupplier(req, res) {
   try {
     const { productList, ...rest } = req.body;
-    await Promise.all(productList.map(async item => {
+
+    for (let i = 0; i <= productList.length - 1; i++) {
+      const item = productList[i];
       const product = await Product.findOne({ _id: item.product, isRemoved: false });
       if (!product) {
         throw new Error('Invalid product!');
       }
       const store = await Store.findById({ _id: product.store, isRemoved: false });
-      if (!store.isDefault) {
-        product.quantity -= item.quantity;
-        //
-        product.total -= item.quantity;
-        //
-        store.productQuantity -= item.quantity;
-        store.returnedQuantity += item.quantity;
-        await product.save();
-        await store.save();
-      }
-    }));
+      store.productQuantity -= item.quantity;
+      store.returnedQuantity += item.quantity;
+      await store.save();
+      product.quantity -= item.quantity;
+      product.total -= item.quantity;
+      await product.save();
+    }
+
     const bill = await Bill.createBill({
       productList,
       ...rest,
