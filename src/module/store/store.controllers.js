@@ -144,7 +144,7 @@ export async function importStore(req, res) {
         countTotalImport += quantity;
         totalPrice += importPrice * quantity;
         const product = await Product
-          .findOne({ store: storeId, importPrice, exportPrice });
+          .findOne({ store: storeId, importPrice, exportPrice, isRemoved: false });
         if (product) {
           product.quantity += quantity;
           product.total += quantity;
