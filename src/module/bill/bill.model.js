@@ -100,15 +100,16 @@ BillSchema.methods = {
       customer: this.customer,
       createdBy: this.createdBy,
       createdAt: this.createdAt,
-      paymentStatus: this.totalPaid >= this.totalPrice ? 'paid' : 'indebted',
+      paymentStatus: this.totalPaid >= this.totalPrice + this.otherCost ? 'paid' : 'indebted',
     };
   },
   toJSON() {
     return {
       _id: this._id,
       totalPrice: this.totalPrice,
+      otherCost: this.otherCost,
       createdAt: this.createdAt,
-      paymentStatus: this.totalPaid >= this.totalPrice ? 'paid' : 'indebted',
+      paymentStatus: this.totalPaid >= this.totalPrice + this.otherCost ? 'paid' : 'indebted',
     };
   },
 };

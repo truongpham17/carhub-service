@@ -141,3 +141,27 @@ export async function createBill(req, res) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 }
+
+export async function paidBill(req, res) {
+  try {
+    const bill = await Bill
+      .findOne({ _id: req.params.id, isRemoved: false })
+      .populate({
+        path: 'productList.product',
+        populate: {
+          path: 'store',
+        },
+      });
+    if (!bill) {
+      return res.sendStatus(HTTPStatus.NOT_FOUND);
+    }
+    if (bill.totalPaid >= bill.totalPrice + bill.otherCost) {
+      return res.status(HTTPStatus.OK).json({ message: 'Bill\'ve already paid!' });
+    }
+    bill.totalPaid = bill.totalPrice + bill.otherCost;
+    await bill.save();
+    return res.status(HTTPStatus.OK).json({ message: 'Paid success!' });
+  } catch (e) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
+  }
+}

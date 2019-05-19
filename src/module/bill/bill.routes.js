@@ -11,5 +11,6 @@ routes.get('/return', authJwt, Controllers.getReturnedBillList);
 routes.get('/:id', authJwt, Controllers.getBillDetail);
 routes.post('/', authJwt, validate(Validations.createBill), Controllers.createBill);
 routes.post('/return', authJwt, validate(Validations.createReturnedBill), Controllers.returnToSupplier);
+routes.patch('/paid/:id', authJwt, Controllers.paidBill);
 
 export default routes;
