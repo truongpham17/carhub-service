@@ -3,6 +3,8 @@ import Joi from 'joi';
 export default {
   register: {
     body: {
+      fullname: Joi.string(),
+      role: Joi.number(),
       password: Joi.string()
         .min(6)
         .max(120)
@@ -19,6 +21,8 @@ export default {
         .min(6)
         .max(120)
         .required(),
+      fullname: Joi.string(),
+      role: Joi.number(),
       username: Joi.string()
         .min(5)
         .max(20)
@@ -48,6 +52,8 @@ export default {
       username: Joi.string()
         .min(5)
         .max(20),
+      fullname: Joi.string(),
+      role: Joi.number(),
     },
     options: {
       allowUnknownBody: false,

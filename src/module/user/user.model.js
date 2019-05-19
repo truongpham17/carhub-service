@@ -16,6 +16,8 @@ const UserSchema = new Schema(
       type: String,
       minlength: [6, 'Password must equal or longer than 6'],
     },
+    fullname: String,
+    role: Number,
   },
   {
     timestamps: true,
@@ -52,6 +54,8 @@ UserSchema.methods = {
     return {
       _id: this._id,
       username: this.username,
+      fullname: this.fullname,
+      role: this.role,
     };
   },
   toAuthJSON() {
