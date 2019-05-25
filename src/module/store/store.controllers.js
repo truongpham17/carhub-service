@@ -1,8 +1,8 @@
-import HTTPStatus from 'http-status';
-import Store from './store.model';
-import Product from '../product/product.model';
-import Bill from '../bill/bill.model';
-import StoreHistory from './storeHistory.model';
+import HTTPStatus from "http-status";
+import Store from "./store.model";
+import Product from "../product/product.model";
+import Bill from "../bill/bill.model";
+import StoreHistory from "./storeHistory.model";
 
 export async function getStoreList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
@@ -20,7 +20,7 @@ export async function getStoreInfo(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
-      throw new Error('Store not found!');
+      throw new Error("Store not found!");
     }
     // * Calc from bill
 
@@ -32,9 +32,9 @@ export async function getStoreInfo(req, res) {
     let totalSoldProduct = 0;
     let totalReturnedProduct = 0;
     let totalLoiNhuan = 0;
-    const bills = await Bill
-      .find({ isRemoved: false })
-      .populate('productList.product');
+    const bills = await Bill.find({ isRemoved: false }).populate(
+      "productList.product"
+    );
     bills.forEach(item => {
       if (!item.isReturned) {
         item.productList.forEach(prod => {
@@ -44,9 +44,12 @@ export async function getStoreInfo(req, res) {
               totalSoldFund += prod.product.importPrice * prod.quantity;
               totalReturnedProduct += prod.quantity;
               totalSoldProduct -= prod.quantity;
-              totalLoiNhuan -= (prod.product.exportPrice * prod.quantity - prod.product.importPrice * prod.quantity);
+              totalLoiNhuan -=
+                prod.product.exportPrice * prod.quantity -
+                prod.product.importPrice * prod.quantity;
             } else {
-              const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
+              const soldMoney =
+                (prod.product.exportPrice - prod.discount) * prod.quantity;
               const soldFund = prod.product.importPrice * prod.quantity;
               totalSoldMoney += soldMoney;
               totalSoldFund += soldFund;
@@ -55,22 +58,22 @@ export async function getStoreInfo(req, res) {
             }
           }
           // loc isReturned = true -$
-        })
+        });
       }
-    })
+    });
     products.forEach(item => {
       totalFund += item.importPrice * item.total;
     });
 
     const result = {
-      ...await store.toJSON(),
+      ...(await store.toJSON()),
       totalProduct: store.productQuantity,
       totalSoldProduct,
       totalReturnedProduct: store.returnedQuantity,
       totalFund,
       totalSoldMoney,
-      totalLoiNhuan,
-    }
+      totalLoiNhuan
+    };
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
@@ -83,7 +86,7 @@ export async function getStoreProducts(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
-      throw new Error('Store not found!');
+      throw new Error("Store not found!");
     }
     const list = await Product.list({ skip, limit, store: store._id });
     const total = await Product.count({ store: store._id, isRemoved: false });
@@ -99,9 +102,13 @@ export async function getStoreHistory(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
-      throw new Error('Store not found!');
+      throw new Error("Store not found!");
     }
-    const histories = await StoreHistory.list({ skip, limit, store: store._id });
+    const histories = await StoreHistory.list({
+      skip,
+      limit,
+      store: store._id
+    });
     let totalQuantity = 0;
     let totalPrice = 0;
     histories.forEach(item => {
@@ -112,8 +119,13 @@ export async function getStoreHistory(req, res) {
       });
       totalPrice += price;
     });
-    const total = await StoreHistory.count({ store: store._id, isRemoved: false });
-    return res.status(HTTPStatus.OK).json({ list: histories, totalQuantity, totalPrice, total });
+    const total = await StoreHistory.count({
+      store: store._id,
+      isRemoved: false
+    });
+    return res
+      .status(HTTPStatus.OK)
+      .json({ list: histories, totalQuantity, totalPrice, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
@@ -130,10 +142,10 @@ export async function createStore(req, res) {
 
 export async function importStore(req, res) {
   try {
-    const { storeId, productList, note } = req.body;
+    const { storeId, productList, note, shoudSaveAsHistory } = req.body;
     const store = await Store.findById(storeId);
     if (!store) {
-      throw new Error('Store not found!');
+      throw new Error("Store not found!");
     }
     // let countQuantity = 0;
     let countTotal = 0;
@@ -143,8 +155,12 @@ export async function importStore(req, res) {
       productList.map(async ({ importPrice, exportPrice, quantity = 0 }) => {
         countTotalImport += quantity;
         totalPrice += importPrice * quantity;
-        const product = await Product
-          .findOne({ store: storeId, importPrice, exportPrice, isRemoved: false });
+        const product = await Product.findOne({
+          store: storeId,
+          importPrice,
+          exportPrice,
+          isRemoved: false
+        });
         if (product) {
           product.quantity += quantity;
           product.total += quantity;
@@ -152,20 +168,23 @@ export async function importStore(req, res) {
           countTotal += product.total;
           return {
             product: await product.save(),
-            quantity,
+            quantity
           };
         } else {
           // countQuantity += quantity;
           countTotal += quantity;
           return {
-            product: await Product.createProduct({
-              importPrice,
-              exportPrice,
-              quantity,
-              total: quantity,
-              store: storeId,
-            }, req.user._id),
-            quantity,
+            product: await Product.createProduct(
+              {
+                importPrice,
+                exportPrice,
+                quantity,
+                total: quantity,
+                store: storeId
+              },
+              req.user._id
+            ),
+            quantity
           };
         }
       })
@@ -173,18 +192,26 @@ export async function importStore(req, res) {
     store.totalImportProduct += countTotalImport;
     store.productQuantity += countTotalImport;
     await store.save();
-    const result = await StoreHistory.createStoreHistory({
-      store: storeId,
-      quantity: countTotalImport,
-      total: countTotal,
-      note,
-      totalPrice,
-      productList: products.map(item => ({
-        product: item.product._id,
-        quantity: item.quantity,
-      })),
-    }, req.user._id);
-    return res.status(HTTPStatus.OK).json(result);
+    if (shoudSaveAsHistory) {
+      const result = await StoreHistory.createStoreHistory(
+        {
+          store: storeId,
+          quantity: countTotalImport,
+          total: countTotal,
+          note,
+          totalPrice,
+          productList: products.map(item => ({
+            product: item.product._id,
+            quantity: item.quantity
+          }))
+        },
+        req.user._id
+      );
+      return res.status(HTTPStatus.OK).json(result);
+    }
+    return res
+      .status(HTTPStatus.OK)
+      .json({ store: storeId, quantity: countTotalImport });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
@@ -194,7 +221,7 @@ export async function updateStore(req, res) {
   try {
     const store = await Store.findOne({ _id: req.params.id, isRemoved: false });
     if (!store) {
-      throw new Error('Store not found!');
+      throw new Error("Store not found!");
     }
 
     Object.keys(req.body).forEach(key => {

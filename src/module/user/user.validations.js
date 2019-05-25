@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from "joi";
 
 export default {
   register: {
@@ -12,8 +12,8 @@ export default {
       username: Joi.string()
         .min(5)
         .max(20)
-        .required(),
-    },
+        .required()
+    }
   },
   createUser: {
     body: {
@@ -26,8 +26,8 @@ export default {
       username: Joi.string()
         .min(5)
         .max(20)
-        .required(),
-    },
+        .required()
+    }
   },
   login: {
     body: {
@@ -38,11 +38,11 @@ export default {
       username: Joi.string()
         .min(5)
         .max(20)
-        .required(),
+        .required()
     },
     options: {
-      allowUnknownBody: false,
-    },
+      allowUnknownBody: false
+    }
   },
   editProfile: {
     body: {
@@ -54,9 +54,10 @@ export default {
         .max(20),
       fullname: Joi.string(),
       role: Joi.number(),
+      active: Joi.boolean()
     },
     options: {
-      allowUnknownBody: false,
-    },
-  },
+      allowUnknownBody: false
+    }
+  }
 };
