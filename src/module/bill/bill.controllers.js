@@ -127,14 +127,15 @@ export async function createBill(req, res) {
           _id: productList[i].product,
           isRemoved: false
         });
+        if(product.quantity < productList[i].quantity) {
+          throw new Error("Het san pham nay roi, huhu");
+        }
       }
       console.log(product);
       if (!product) {
         throw new Error("Invalid product!");
       }
-      if(product.quantity < productList[i].quantity) {
-        throw new Error("Het san pham nay roi, huhu");
-      }
+
 
         // create new Product
       const store = await Store.findById({
