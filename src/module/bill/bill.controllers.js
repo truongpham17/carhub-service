@@ -127,11 +127,11 @@ export async function createBill(req, res) {
           _id: productList[i].product,
           isRemoved: false
         });
-        if(product.quantity < productList[i].quantity) {
+        console.log(productList[i]);
+        if(product && product.quantity < productList[i].quantity && !productList[i].isReturned) {
           throw new Error("Het san pham nay roi, huhu");
         }
       }
-      console.log(product);
       if (!product) {
         throw new Error("Invalid product!");
       }
