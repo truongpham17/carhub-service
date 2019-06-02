@@ -4,7 +4,7 @@ export default {
   createBill: {
     body: {
       productList: Joi.array().items(Joi.object({
-        product: Joi.string().required(),
+        // product: Joi.string().required(),
         quantity: Joi.number().required(),
         discount: Joi.number(),
         isReturned: Joi.boolean(),

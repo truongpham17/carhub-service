@@ -99,17 +99,44 @@ export async function returnToSupplier(req, res) {
 export async function createBill(req, res) {
   try {
     const { productList } = req.body;
+    /*
+    { product: { importPrice: 23, exportPrice: 23 },
+    quantity: 23,
+    discount: 0,
+    isNew: true }
+
+
+    { product: [Object], quantity: 23, discount: 0, isNew: true }
+    */
+
+
+    const defaultStore = await Store.findOne({isDefault: true});
     let stores = [];
     let products = [];
     for (let i = 0; i < productList.length; i++) {
-      const product = await Product.findOne({
-        _id: productList[i].product,
-        isRemoved: false
-      });
+      let product = {};
+      if(productList[i].product.importPrice) {
+        product = await Product.findOne({
+          importPrice: productList[i].product.importPrice,
+          exportPrice: productList[i].product.exportPrice,
+          store: defaultStore._id
+        })
+        productList[i].product = product._id.toString();
+      } else {
+        product = await Product.findOne({
+          _id: productList[i].product,
+          isRemoved: false
+        });
+      }
+      console.log(product);
       if (!product) {
         throw new Error("Invalid product!");
       }
+      if(product.quantity < productList[i].quantity) {
+        throw new Error("Het san pham nay roi, huhu");
+      }
 
+        // create new Product
       const store = await Store.findById({
         _id: product.store.toString(),
         isRemoved: false

@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"heroku_95fxngz7.storehistories"},{"v":2,"key":{"_fts":"text","_ftsx":1},"name":"name_text","ns":"heroku_95fxngz7.storehistories","background":true,"weights":{"name":1},"default_language":"english","language_override":"language","textIndexVersion":3}],"uuid":"d07a117f5d334e01a7fcd77561d60213"}
