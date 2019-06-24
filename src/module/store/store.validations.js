@@ -25,7 +25,7 @@ export default {
       name: Joi.string(),
       totalImportProduct: Joi.number().min(0),
       productQuantity: Joi.number().min(0),
-      debt: Joi.number(),
+      debt: Joi.number().min(0),
     },
   },
 };

@@ -64,8 +64,15 @@ StoreSchema.statics = {
       createdBy: userID,
     });
   },
-  list({ skip = 0, limit = 50, type } = {}) {
-    const queries = { isRemoved: false };
+  list({ skip = 0, limit = 50, type, isDebt } = {}) {
+    let queries = {isRemoved: false}
+    if(isDebt) {
+      queries = {
+        isRemoved: false,
+        debt: {$gt: 0}
+      }
+
+    }
     return this.find(queries)
       .sort({ createdAt: -1 })
       .skip(skip)

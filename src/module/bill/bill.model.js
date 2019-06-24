@@ -47,16 +47,8 @@ const BillSchema = new Schema(
       },
     ],
     customer: {
-      name: {
-        type: String,
-        trim: true,
-      },
-      phone: {
-        type: String,
-      },
-      address: {
-        type: String,
-      },
+      type: Schema.Types.ObjectId,
+      ref: 'Customer'
     },
     isReturned: {
       type: Boolean,
@@ -121,14 +113,14 @@ BillSchema.statics = {
       createdBy: userID,
     });
   },
+   //'customer.name': new RegExp(customer, 'i')
+  //
   list({ skip = 0, limit = 50, isReturned = false, search, customer } = {}) {
-    const queries = {
+    const queries =  {
       isRemoved: false,
       isReturned,
       _id: new RegExp(search, 'i'),
-      'customer.name': new RegExp(customer, 'i'),
-    };
-
+    }
     return this.find(queries)
       // .populate('productList.product productList.product.store')
       .populate({

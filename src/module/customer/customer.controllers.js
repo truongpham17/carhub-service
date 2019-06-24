@@ -6,10 +6,18 @@ export const getCustomerList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   const search = req.query.search;
+  const isDebt = req.query.isDebt;
+  console.log(search);
   try {
     let list;
-    const queries = !search ? {} : { $text: { $search: search } };
-    if (search) {
+    let queries;
+    if(isDebt) {
+      queries = {  debt: {$gt: 0} };
+    }
+    else {
+      queries = !search ? {} : { $text: { $search: search } };
+    }
+    if (search && search.length > 0) {
       list = await Customer.find(queries, { score: { $meta: "textScore" } })
         .sort({ score: { $meta: "textScore" } })
         .skip(skip)
@@ -48,7 +56,7 @@ export const addCustomerDebt = async (req, res) => {
     }
 
     // if customer already exist
-    customer.debt = customer.debt + req.body.debt;
+    customer.debt = req.body.debt >= 0 ? req.body.debt : 0;
     customer.username =req.body.username || customer.username;
     customer.phone = req.body.phone || customer.phone;
     customer.address = req.body.address || customer.address;

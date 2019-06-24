@@ -7,9 +7,10 @@ import StoreHistory from "./storeHistory.model";
 export async function getStoreList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
   const skip = parseInt(req.query.skip, 0) || 0;
+  const { isDebt } = req.query;
   try {
-    const list = await Store.list({ skip, limit });
-    const total = await Store.count({ isRemoved: false });
+    const list = await Store.list({ skip, limit , isDebt});
+    const total = isDebt ? await Store.count({isRemoved: false, debt: {$gt: 0}}) : await Store.count({ isRemoved: false });
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
@@ -35,6 +36,7 @@ export async function getStoreInfo(req, res) {
     const bills = await Bill.find({ isRemoved: false }).populate(
       "productList.product"
     );
+    // console.log(bills.productList);
     bills.forEach(item => {
       if (!item.isReturned) {
         item.productList.forEach(prod => {
@@ -76,6 +78,7 @@ export async function getStoreInfo(req, res) {
     };
     return res.status(HTTPStatus.OK).json(result);
   } catch (e) {
+    console.log(e)
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 }
@@ -140,13 +143,7 @@ export async function createStore(req, res) {
   }
 }
 
-export async function importStore(req, res) {
-  try {
-    const { storeId, productList, note, shoudSaveAsHistory } = req.body;
-    const store = await Store.findById(storeId);
-    if (!store) {
-      throw new Error("Store not found!");
-    }
+export async function importProduct(productList, store, note, shoudSaveAsHistory, debt, user) {
     // let countQuantity = 0;
     let countTotal = 0;
     let countTotalImport = 0;
@@ -156,7 +153,7 @@ export async function importStore(req, res) {
         countTotalImport += quantity;
         totalPrice += importPrice * quantity;
         const product = await Product.findOne({
-          store: storeId,
+          store: store._id,
           importPrice,
           exportPrice,
           isRemoved: false
@@ -180,9 +177,9 @@ export async function importStore(req, res) {
                 exportPrice,
                 quantity,
                 total: quantity,
-                store: storeId
+                store: store._id
               },
-              req.user._id
+              user
             ),
             quantity
           };
@@ -191,11 +188,13 @@ export async function importStore(req, res) {
     );
     store.totalImportProduct += countTotalImport;
     store.productQuantity += countTotalImport;
+    store.debt += debt;
     await store.save();
+
     if (shoudSaveAsHistory) {
       const result = await StoreHistory.createStoreHistory(
         {
-          store: storeId,
+          store: store._id.toString(),
           quantity: countTotalImport,
           total: countTotal,
           note,
@@ -205,13 +204,24 @@ export async function importStore(req, res) {
             quantity: item.quantity
           }))
         },
-        req.user._id
+        user
       );
-      return res.status(HTTPStatus.OK).json(result);
     }
+}
+
+export async function importStore(req, res) {
+  try {
+    const { storeId, productList, note, shoudSaveAsHistory, debt } = req.body;
+    const store = await Store.findById(storeId);
+    if (!store) {
+      throw new Error("Store not found!");
+    }
+
+    importProduct(productList, store, note, shoudSaveAsHistory, debt || 0, req.user._id);
+
     return res
       .status(HTTPStatus.OK)
-      .json({ store: storeId, quantity: countTotalImport });
+      .json({ store: storeId });
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }

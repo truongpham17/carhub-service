@@ -29,10 +29,21 @@ CustomerSchema.methods = {
       username: this.username,
       phone: this.phone,
       address: this.address,
-      debt: this.debt
+      debt: this.debt,
+      id: this._id.toString()
     };
   },
 };
 
+CustomerSchema.statics = {
+  createCustomer(args) {
+    return this.create({
+      ...args
+    });
+  },
+};
+
+
+CustomerSchema.index({ username: 'text' });
 
 export default mongoose.model("Customer", CustomerSchema);
