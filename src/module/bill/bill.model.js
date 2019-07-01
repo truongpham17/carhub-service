@@ -102,6 +102,7 @@ BillSchema.methods = {
       otherCost: this.otherCost,
       createdAt: this.createdAt,
       paymentStatus: this.totalPaid >= this.totalPrice + this.otherCost ? 'paid' : 'indebted',
+      isReturned: this.isReturned
     };
   },
 };
@@ -115,10 +116,12 @@ BillSchema.statics = {
   },
    //'customer.name': new RegExp(customer, 'i')
   //
-  list({ skip = 0, limit = 50, isReturned = false, search, customer } = {}) {
+
+  // test here
+  list({ skip = 0, limit = 50, search, customer } = {}) {
     const queries =  {
       isRemoved: false,
-      isReturned,
+      // isReturned,
       _id: new RegExp(search, 'i'),
     }
     return this.find(queries)

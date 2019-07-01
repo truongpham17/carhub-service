@@ -194,7 +194,6 @@ export async function getBillDetail(req, res) {
     const bill = await Bill.findOne({
       _id: req.params.id,
       isRemoved: false,
-      isReturned: false
     }).populate({
       path: "productList.product createdBy customer",
       populate: {
@@ -210,10 +209,14 @@ export async function getBillDetail(req, res) {
   }
 }
 
+// productList: {product, quantity}
+
 export async function returnToSupplier(req, res) {
   try {
     const { productList, ...rest } = req.body;
-
+    let productInDb = [];
+    let totalQuantity = 0;
+    let totalPrice = 0;
     for (let i = 0; i <= productList.length - 1; i++) {
       const item = productList[i];
       const product = await Product.findOne({
@@ -223,6 +226,9 @@ export async function returnToSupplier(req, res) {
       if (!product) {
         throw new Error("Invalid product!");
       }
+      productInDb.push({product, quantity: item.quantity});
+      totalPrice += product.importPrice * item.quantity;
+      totalQuantity += item.quantity;
       const store = await Store.findById({
         _id: product.store,
         isRemoved: false
@@ -235,11 +241,47 @@ export async function returnToSupplier(req, res) {
       await product.save();
     }
 
+     /*
+     [ { product:
+     { importPrice: 20,
+       exportPrice: 30,
+       quantity: 8,
+       total: 19,
+       isReturned: false,
+       isRemoved: false,
+       _id: 5d1038d4e9aa7520c612b5b6,
+       store: 5d0ea6a9fd06500cd83b9ffa,
+       createdBy: 5c7c148b85119e4d1a4a5bc2,
+       createdAt: 2019-06-24T02:43:32.597Z,
+       updatedAt: 2019-07-01T18:04:55.218Z,
+       __v: 0 },
+    quantity: 1,
+    discount: 0,
+    isReturned: false } ]
+    */
+
+    //  const bill = await Bill.createBill({ customer: dbCustomer && dbCustomer._id, totalQuantity, totalPrice, totalPaid, note, productList: saveList}, req.user._id);
+
+    const a =   productInDb.map(item => ({
+      product: item.product,
+      quantity: item.quantity,
+      discount: 0,
+      isReturned: true
+    }));
+    console.log('result product List: ', a);
     const bill = await Bill.createBill(
       {
-        productList,
-        ...rest,
-        isReturned: true
+        productList: productInDb.map(item => ({
+          product: item.product,
+          quantity: item.quantity,
+          discount: 0,
+          isReturned: true
+        })),
+        isReturned: true,
+        totalQuantity,
+        totalPrice,
+        totalPaid: totalPrice,
+        note: '',
       },
       req.user._id
     );
