@@ -4,7 +4,6 @@ import Bill from "./bill.model";
 import Store from "../store/store.model";
 import Product from "../product/product.model";
 import Customer from '../customer/customer.model';
-import { importProduct } from '../store/store.controllers';
 
 export async function getBillList(req, res) {
   const limit = parseInt(req.query.limit, 0) || 50;
@@ -52,10 +51,12 @@ export async function createBill(req, res){
     let totalPaid = 0;
     let saveList = [];
 
-    console.log(req.body);
+    // console.log(req.body);
     const defaultStore = await Store.findOne({isDefault: true});
+    const productProcess = [];
 
-    // this bill have customer -> add new field
+    // add field customer for bill
+    // if new customer -> create one
     let dbCustomer = null;
     if(customer.id || customer.isNew) {
       if(customer.isNew) {
@@ -70,118 +71,110 @@ export async function createBill(req, res){
       }
     }
 
-    for(let i = 0; i < productList.length; i++) {
-      if(productList[i].store.storeId !== defaultStore._id.toString() || productList[i].isReturned) {
-        const checkProductNull = await Product.findOne({
-          exportPrice: productList[i].exportPrice,
-          store: productList[i].store.storeId
-        });
-        if(!checkProductNull) {
-          throw new Error("Invalid product");
-        }
-      }
-    }
-
-    // first, import all product that in default store
-    const productNeedToImport = productList.filter(item => item.store.storeId === defaultStore._id.toString() && !item.isReturned);
-    await importProduct(productNeedToImport, defaultStore, '', false, 0,  req.user._id);
-
-    let stores = [];
-    let products = [];
-
-    for (let i = 0; i < productList.length; i++) {
-      let product = null;
-      if(productList[i].store.storeId === defaultStore._id.toString() && !productList[i].isReturned) {
-        product = await Product.findOne({
-          importPrice: productList[i].importPrice,
-          exportPrice: productList[i].exportPrice,
-          store: defaultStore._id
-        })
-      } else if(productList[i].isReturned){
-        product = await Product.findOne({
-          exportPrice: productList[i].exportPrice,
-          store: productList[i].store.storeId,
-        })
-        if(product && product.total < product.quantity + productList[i].quantity) {
-          throw new Error("Over max quantity");
-        }
-      } else {
-        product = await Product.findOne({
-          exportPrice: productList[i].exportPrice,
-          store: productList[i].store.storeId,
-          quantity: {$gt: productList[i].quantity - 1}
-        })
-      }
-      if(!product) {
-        throw new Error("Product is invalid");
-      }
-
-      const store = await Store.findById({
-        _id: product.store.toString(),
-        isRemoved: false
-      });
-
-      products.push(product);
-      const checkDuplicate = stores.find(
-        item => item._id.toString() === store._id.toString()
-      );
-      // neu checkduplicate === undefined -> cho add vao
-      if (!checkDuplicate) {
-        stores.push(store);
-      }
+    for(let i = 0; i < productList.length; i++ ) {
       const productItem = productList[i];
 
+      let store = await Store.findById({_id: productItem.store.storeId});
+      // if(!store) {
+      //   store = defaultStore;
+      // }
+
+      let productDB = await Product.findOne({
+        exportPrice: productItem.exportPrice,
+        store: productItem.store.storeId,
+      })
+
+      // neu khong tim duoc san pham, create new
+      if(!productDB) {
+        // ban hang
+        if(!productItem.isReturned) {
+          console.log("ban hang - khong ton tai hang");
+          productDB = await Product.createProduct({
+            importPrice: productItem.exportPrice - 20,
+            exportPrice: productItem.exportPrice,
+            quantity: 0,
+            total: productItem.quantity,
+            store: productItem.store.storeId
+          });
+          store.totalImportProduct += productItem.quantity;
+          await store.save();
+        } else {
+          // tra hang
+          console.log("tra hang - khong ton tai hang")
+          productDB = await Product.createProduct({
+            importPrice: productItem.exportPrice - 20,
+            exportPrice: productItem.exportPrice,
+            quantity: productItem.quantity,
+            total: productItem.quantity,
+            store: productItem.store.storeId
+          });
+          store.totalImportProduct += productItem.quantity;
+          store.productQuantity += productItem.quantity;
+          await store.save();
+        }
+      } else {
+        // ton tai product
+        // ban hang
+        if(!productItem.isReturned) {
+          const delta = productDB.quantity  - productItem.quantity;
+          // con hang
+          if(delta >= 0) {
+            console.log("co san pham - ban hang - con hang")
+            productDB.quantity -= productItem.quantity;
+            store.productQuantity -= productItem.quantity
+            await store.save();
+            await productDB.save();
+          } else {
+            // khong con hang
+            console.log("co san pham - ban hang - thieu hang")
+            store.productQuantity -= productDB.quantity;
+            store.totalImportProduct -= delta;
+            productDB.quantity = 0;
+            productDB.total -= delta;
+            await store.save();
+            productDB.save();
+          }
+        } else {
+          // tra hang
+          const delta = productDB.total - productDB.quantity - productItem.quantity;
+          //du so luong
+          if(delta >= 0) {
+            console.log(" co san pham - tra hang - du hang");
+            productDB.quantity += productItem.quantity;
+            store.productQuantity += productItem.quantity
+            await productDB.save();
+            await store.save();
+          } else {
+            // khong du so luong
+            console.log(" co san pham - tra hang - khong du hang")
+            productDB.quantity += productItem.quantity;
+            productDB.total -= delta;
+            store.productQuantity += productItem.quantity;
+            store.totalImportProduct -= delta;
+            await productDB.save();
+            await store.save();
+          }
+        }
+
+      }
+      productProcess.push(productDB);
       totalQuantity += productItem.quantity * (productItem.isReturned ? -1 : 1);
       totalPrice += productItem.quantity * (productItem.exportPrice - (productItem.discount || 0)) * (productItem.isReturned ? -1 : 1);
       saveList.push({
-        product,
+        product: productDB,
         quantity: productItem.quantity,
         discount: productItem.discount || 0,
         isReturned: productItem.isReturned
-      })
-    };
+      });
+    }
     totalPaid = totalPrice - debt;
-
-    await Promise.all(
-      productList.map(async (item, index) => {
-        const product = products[index];
-        if (!product) {
-          throw new Error("Invalid product!");
-        }
-        const store = stores.find(
-          item => item._id.toString() === product.store.toString()
-        );
-        if (!store) {
-          throw new Error("Invalid Product!");
-        }
-        // Trả hàng
-        if (item.isReturned) {
-          product.quantity += item.quantity;
-          store.productQuantity += item.quantity;
-        } else {
-          product.quantity -= item.quantity;
-          store.productQuantity -= item.quantity;
-        }
-        return null;
-        // return await store.save();
-      })
-    );
-
-    for (let i = 0; i < stores.length; i++) {
-      await stores[i].save();
-    }
-    for (let i = 0; i < products.length; i++) {
-      await products[i].save();
-    }
-
-    if(debt && dbCustomer) {
+      if(debt && dbCustomer) {
       dbCustomer.debt += debt;
       await dbCustomer.save();
     }
 
     const bill = await Bill.createBill({ customer: dbCustomer && dbCustomer._id, totalQuantity, totalPrice, totalPaid, note, productList: saveList}, req.user._id);
     return res.status(HTTPStatus.CREATED).json(bill);
-
 
   } catch(err) {
       console.log(err);

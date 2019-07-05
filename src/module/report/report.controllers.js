@@ -25,7 +25,7 @@ export async function reportByMonth(req, res) {
     let totalSoldMoney = 0;
     list.forEach(item => {
       item.productList.forEach(prod => {
-        totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+        totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
       })
     })
     const billCount = await Bill.count({
@@ -49,7 +49,7 @@ export async function reportByMonth(req, res) {
       let monthSoldMoney = 0;
       billList.forEach(item => {
         item.productList.forEach(prod => {
-          monthSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+          monthSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
         })
       })
       return {
@@ -62,7 +62,8 @@ export async function reportByMonth(req, res) {
     list.forEach(item => {
       let soldMoney = 0;
       item.productList.forEach(prod => {
-        const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
+        const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
+        console.log(soldMoney)
         if (reportByStore.find(i => i.store._id === prod.product.store._id)) {
           reportByStore = reportByStore.map(rp => rp.store._id === prod.product.store._id
             ? { ...rp, total: rp.total + soldMoney }
@@ -108,7 +109,8 @@ export async function reportByDay(req, res) {
     let totalSoldMoney = 0;
     list.forEach(item => {
       item.productList.forEach(prod => {
-        totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+        console.log(prod);
+        totalSoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
       })
     })
     const billCount = await Bill.count({
@@ -132,7 +134,7 @@ export async function reportByDay(req, res) {
       let daySoldMoney = 0;
       billList.forEach(item => {
         item.productList.forEach(prod => {
-          daySoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity;
+          daySoldMoney += (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
         })
       })
       return {
@@ -145,7 +147,7 @@ export async function reportByDay(req, res) {
     list.forEach(item => {
       let soldMoney = 0;
       item.productList.forEach(prod => {
-        const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity;
+        const soldMoney = (prod.product.exportPrice - prod.discount) * prod.quantity * (prod.isReturned ? -1 : 1);
         if (reportByStore.find(i => i.store._id === prod.product.store._id)) {
           reportByStore = reportByStore.map(rp => rp.store._id === prod.product.store._id
             ? { ...rp, total: rp.total + soldMoney }
