@@ -143,11 +143,19 @@ export async function createStore(req, res) {
   }
 }
 
-export async function importProduct(productList, store, note, shoudSaveAsHistory, debt, user) {
-    // let countQuantity = 0;
+
+export async function importStore(req, res) {
+  try {
+    const { storeId, productList, note, shoudSaveAsHistory, debt } = req.body;
+    const store = await Store.findById(storeId);
+    if (!store) {
+      throw new Error("Store not found!");
+    }
+
     let countTotal = 0;
     let countTotalImport = 0;
     let totalPrice = 0;
+
     const products = await Promise.all(
       productList.map(async ({ importPrice, exportPrice, quantity = 0 }) => {
         countTotalImport += quantity;
@@ -179,7 +187,7 @@ export async function importProduct(productList, store, note, shoudSaveAsHistory
                 total: quantity,
                 store: store._id
               },
-              user
+              req.user._id
             ),
             quantity
           };
@@ -188,8 +196,7 @@ export async function importProduct(productList, store, note, shoudSaveAsHistory
     );
     store.totalImportProduct += countTotalImport;
     store.productQuantity += countTotalImport;
-    store.debt += debt;
-    await store.save();
+    store.debt += totalPrice;
 
     if (shoudSaveAsHistory) {
       const result = await StoreHistory.createStoreHistory(
@@ -204,25 +211,15 @@ export async function importProduct(productList, store, note, shoudSaveAsHistory
             quantity: item.quantity
           }))
         },
-        user
+        req.user._id
       );
     }
-}
-
-export async function importStore(req, res) {
-  try {
-    const { storeId, productList, note, shoudSaveAsHistory, debt } = req.body;
-    const store = await Store.findById(storeId);
-    if (!store) {
-      throw new Error("Store not found!");
-    }
-
-    importProduct(productList, store, note, shoudSaveAsHistory, debt || 0, req.user._id);
 
     return res
       .status(HTTPStatus.OK)
-      .json({ store: storeId });
+      .json(await store.save());
   } catch (e) {
+    console.log(e);
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 }

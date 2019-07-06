@@ -45,11 +45,13 @@ export async function getReturnedBillList(req, res) {
 
 export async function createBill(req, res){
   try {
-    const { productList, customer, debt, note } = req.body;
+    const { productList, customer, paidMoney, note } = req.body;
     let totalQuantity = 0;
     let totalPrice = 0;
     let totalPaid = 0;
     let saveList = [];
+    // console.log("paid money is: ", paidMoney)
+    console.log(req.body);
 
     // console.log(req.body);
     const defaultStore = await Store.findOne({isDefault: true});
@@ -167,13 +169,20 @@ export async function createBill(req, res){
         isReturned: productItem.isReturned
       });
     }
-    totalPaid = totalPrice - debt;
-      if(debt && dbCustomer) {
-      dbCustomer.debt += debt;
+
+    let currentDebt = 0;
+    if(dbCustomer) {
+      currentDebt = dbCustomer.debt;
+    }
+    console.log("total price: ", totalPrice);
+    console.log("paid money: " + paidMoney);
+    console.log("customer debt: " + customer.debt);
+    if(dbCustomer) {
+      dbCustomer.debt = totalPrice - paidMoney + dbCustomer.debt;
       await dbCustomer.save();
     }
 
-    const bill = await Bill.createBill({ customer: dbCustomer && dbCustomer._id, totalQuantity, totalPrice, totalPaid, note, productList: saveList}, req.user._id);
+    const bill = await Bill.createBill({ customer: dbCustomer && dbCustomer._id, totalQuantity, totalPrice, totalPaid: paidMoney, note, productList: saveList, currentDebt }, req.user._id);
     return res.status(HTTPStatus.CREATED).json(bill);
 
   } catch(err) {
@@ -206,10 +215,10 @@ export async function getBillDetail(req, res) {
 
 export async function returnToSupplier(req, res) {
   try {
-    const { productList, ...rest } = req.body;
+    const { productList, totalPrice, totalQuantity, ...rest } = req.body;
+    console.log(req.body);
     let productInDb = [];
-    let totalQuantity = 0;
-    let totalPrice = 0;
+    let store;
     for (let i = 0; i <= productList.length - 1; i++) {
       const item = productList[i];
       const product = await Product.findOne({
@@ -220,38 +229,23 @@ export async function returnToSupplier(req, res) {
         throw new Error("Invalid product!");
       }
       productInDb.push({product, quantity: item.quantity});
-      totalPrice += product.importPrice * item.quantity;
-      totalQuantity += item.quantity;
-      const store = await Store.findById({
-        _id: product.store,
-        isRemoved: false
-      });
+      if(!store) {
+        store = await Store.findById({
+          _id: product.store,
+          isRemoved: false
+        });
+      }
       store.productQuantity -= item.quantity;
       store.returnedQuantity += item.quantity;
-      await store.save();
+      store.totalImportProduct -= item.quantity
       product.quantity -= item.quantity;
       product.total -= item.quantity;
       await product.save();
     }
 
-     /*
-     [ { product:
-     { importPrice: 20,
-       exportPrice: 30,
-       quantity: 8,
-       total: 19,
-       isReturned: false,
-       isRemoved: false,
-       _id: 5d1038d4e9aa7520c612b5b6,
-       store: 5d0ea6a9fd06500cd83b9ffa,
-       createdBy: 5c7c148b85119e4d1a4a5bc2,
-       createdAt: 2019-06-24T02:43:32.597Z,
-       updatedAt: 2019-07-01T18:04:55.218Z,
-       __v: 0 },
-    quantity: 1,
-    discount: 0,
-    isReturned: false } ]
-    */
+    store.debt -= totalPrice
+    await store.save();
+
 
     //  const bill = await Bill.createBill({ customer: dbCustomer && dbCustomer._id, totalQuantity, totalPrice, totalPaid, note, productList: saveList}, req.user._id);
 

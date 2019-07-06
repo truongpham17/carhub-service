@@ -62,6 +62,14 @@ const BillSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    currentDebt: {
+      type: Number,
+      default: 0
+    },
+    paidMoney: {
+      type: Number,
+      default: 0
+    }
   },
   {
     timestamps: true,
@@ -93,6 +101,7 @@ BillSchema.methods = {
       createdBy: this.createdBy,
       createdAt: this.createdAt,
       paymentStatus: this.totalPaid >= this.totalPrice + this.otherCost ? 'paid' : 'indebted',
+      currentDebt: this.currentDebt
     };
   },
   toJSON() {
