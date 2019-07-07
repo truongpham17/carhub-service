@@ -235,11 +235,21 @@ export async function returnToSupplier(req, res) {
           isRemoved: false
         });
       }
-      store.productQuantity -= item.quantity;
-      store.returnedQuantity += item.quantity;
-      store.totalImportProduct -= item.quantity
-      product.quantity -= item.quantity;
-      product.total -= item.quantity;
+      let delta = item.quantity
+      if(product.quantity < item.quantity) {
+        store.productQuantity -= product.quantity;
+        store.getReturnedBillList += item.quantity;
+        store.totalImportProduct -= product.quantity;
+        product.total -= product.quantity;
+        product.quantity = 0;
+      } else {
+        store.productQuantity -= item.quantity;
+        store.returnedQuantity += item.quantity;
+        store.totalImportProduct -= item.quantity
+        product.quantity -= item.quantity;
+        product.total -= item.quantity;
+      }
+
       await product.save();
     }
 
