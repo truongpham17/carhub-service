@@ -45,7 +45,7 @@ export async function getReturnedBillList(req, res) {
 
 export async function createBill(req, res){
   try {
-    const { productList, customer, paidMoney, note } = req.body;
+    const { productList, customer, paidMoney, note, specialDiscount } = req.body;
     let totalQuantity = 0;
     let totalPrice = 0;
     let totalPaid = 0;
@@ -173,6 +173,7 @@ export async function createBill(req, res){
     let currentDebt = 0;
     if(dbCustomer) {
       currentDebt = dbCustomer.debt;
+      console.log(currentDebt);
     }
     console.log("total price: ", totalPrice);
     console.log("paid money: " + paidMoney);

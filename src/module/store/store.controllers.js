@@ -42,12 +42,12 @@ export async function getStoreInfo(req, res) {
         item.productList.forEach(prod => {
           if (prod.product.store.toString() === req.params.id) {
             if (prod.isReturned) {
-              totalSoldMoney -= prod.product.exportPrice * prod.quantity;
+              totalSoldMoney -= (prod.product.exportPrice - prod.discount) * prod.quantity;
               totalSoldFund += prod.product.importPrice * prod.quantity;
               totalReturnedProduct += prod.quantity;
               totalSoldProduct -= prod.quantity;
               totalLoiNhuan -=
-                prod.product.exportPrice * prod.quantity -
+                (prod.product.exportPrice - prod.discount) * prod.quantity -
                 prod.product.importPrice * prod.quantity;
             } else {
               const soldMoney =
