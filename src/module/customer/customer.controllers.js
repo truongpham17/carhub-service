@@ -7,7 +7,6 @@ export const getCustomerList = async (req, res) => {
   const skip = parseInt(req.query.skip, 10) || 0;
   const search = req.query.search;
   const isDebt = req.query.isDebt;
-  console.log(search);
   try {
     let list;
     let queries;
@@ -15,7 +14,18 @@ export const getCustomerList = async (req, res) => {
       queries = {  debt: {$gt: 0} };
     }
     else {
-      queries = !search ? {} : { $text: { $search: search } };
+      if(!search) {
+        queries = {}
+      } else {
+        const phone = Number(search);
+        if(phone.toString().length >= 4 ) {
+         queries = {phone:  { "$regex": search, "$options": "i" }}
+        } else {
+          queries = { $text: { $search: search } };
+        }
+      }
+  
+
     }
     if (search && search.length > 0) {
       list = await Customer.find(queries, { score: { $meta: "textScore" } })
@@ -28,6 +38,9 @@ export const getCustomerList = async (req, res) => {
         .skip(skip)
         .limit(limit);
     }
+
+   
+    console.log('customer result: ',list);
     const total = await Customer.count(queries);
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (error) {
