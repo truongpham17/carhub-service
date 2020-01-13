@@ -10,22 +10,12 @@ configMiddleware(app);
 
 routesConfig(app);
 
-app.listen(constants.PORT, () =>
-  {
-    console.log(`
-
-      ███████╗██╗   ██╗██╗     ███████╗    ██████╗  ██████╗ ███████╗
-      ██╔════╝██║   ██║██║     ██╔════╝    ██╔══██╗██╔═══██╗██╔════╝
-      ███████╗██║   ██║██║     █████╗      ██████╔╝██║   ██║███████╗
-      ╚════██║██║   ██║██║     ██╔══╝      ██╔═══╝ ██║   ██║╚════██║
-      ███████║╚██████╔╝███████╗███████╗    ██║     ╚██████╔╝███████║
-      ╚══════╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝      ╚═════╝ ╚══════╝
-    `);
-    console.log(`
+app.listen(constants.PORT, () => {
+  console.log('CAR HUB SERVICE STARTS');
+  console.log(`
       PORT:       ${constants.PORT}
       ENV:        ${process.env.NODE_ENV}`);
-  }
-);
+});
 
 process.on('SIGINT', () => {
   console.log('Bye bye!');

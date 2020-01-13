@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "wesbos"
+  ],
+  "rules": {
+    // "no-unused-vars": "off",
+    "no-use-before-define": "off",
+    "import/no-cycle": "off",
+    "no-const-assign": "off"
+  }
+}

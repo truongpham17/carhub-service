@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   getUserList,
   getUser,
+  getTestRecord,
   createUser,
   updateUser,
   deleteUser,
@@ -13,6 +14,7 @@ import { authLocal, authJwt } from '../../service/passport';
 const routes = new Router();
 
 routes.get('/', authJwt, getUserList);
+routes.get('/test', getTestRecord);
 routes.get('/:id', authJwt, getUser);
 routes.post('/login', validate(Validations.login), authLocal);
 routes.post('/add', authJwt, validate(Validations.createUser), createUser);

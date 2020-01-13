@@ -8,31 +8,39 @@ import User from '../module/user/user.model';
 const localOpts = {
   usernameField: 'username',
 };
-const localStrategy = new LocalStrategy(localOpts, async (username, password, done) => {
-  try {
-    const user = await User.findOne({ username });
+const localStrategy = new LocalStrategy(
+  localOpts,
+  async (username, password, done) => {
+    try {
+      const user = await User.findOne({ username });
 
-    if (!user) {
-      return done(null, false);
-    } else if (!user.validatePassword(password)) {
-      return done(null, false);
+      if (!user) {
+        return done(null, false);
+      }
+      if (!user.validatePassword(password)) {
+        return done(null, false);
+      }
+
+      return done(null, user);
+    } catch (error) {
+      return done(error, false);
     }
-
-    return done(null, user);
-  } catch (error) {
-    return done(error, false);
   }
-});
+);
 
 passport.use(localStrategy);
 
 export const authLocal = async (req, res, next) =>
   passport.authenticate('local', { session: false }, (err, user) => {
     if (err) {
-      return res.status(HTTPStatus.UNAUTHORIZED).json('Invalid username or password');
+      return res
+        .status(HTTPStatus.UNAUTHORIZED)
+        .json('Invalid username or password');
     }
     if (!user) {
-      return res.status(HTTPStatus.UNAUTHORIZED).json('Invalid username or password');
+      return res
+        .status(HTTPStatus.UNAUTHORIZED)
+        .json('Invalid username or password');
     }
 
     return res.status(HTTPStatus.OK).json(user.toAuthJSON());

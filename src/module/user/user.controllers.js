@@ -1,17 +1,17 @@
-import HTTPStatus from "http-status";
-import User from "./user.model";
-import constants from "../../config/constants";
+import HTTPStatus from 'http-status';
+import User from './user.model';
+import constants from '../../config/constants';
 
 export const getUserList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
-  const search = req.query.search;
+  const { search } = req.query;
   try {
     let list;
     const queries = !search ? {} : { $text: { $search: search } };
     if (search) {
-      list = await User.find(queries, { score: { $meta: "textScore" } })
-        .sort({ score: { $meta: "textScore" } })
+      list = await User.find(queries, { score: { $meta: 'textScore' } })
+        .sort({ score: { $meta: 'textScore' } })
         .skip(skip)
         .limit(limit);
     } else {
@@ -23,16 +23,19 @@ export const getUserList = async (req, res) => {
     const total = await User.count(queries);
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
+
+export const getTestRecord = async (req, res) =>
+  res.status(HTTPStatus.OK).json({ success: true });
 
 export const getUser = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.params.id });
     return res.status(HTTPStatus.OK).json(user.toJSON());
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -40,17 +43,17 @@ export const createUser = async (req, res) => {
   try {
     const { username } = req.body;
     if (!username || username.length <= 5) {
-      throw new Error("Min length is 6");
+      throw new Error('Min length is 6');
     }
     const checkDuplicate = await User.findOne({ username: req.body.username });
     if (checkDuplicate) {
-      throw new Error("Duplicate user!");
+      throw new Error('Duplicate user!');
     }
     const user = await User.create(req.body);
     return res.status(HTTPStatus.CREATED).json(user.toJSON());
   } catch (error) {
     console.log(error);
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message || e);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -59,7 +62,7 @@ export const updateUser = async (req, res) => {
     const user = await User.findOne({ _id: req.params.id });
     console.log(user);
     if (!user) {
-      throw new Error("Not found");
+      throw new Error('Not found');
     }
     Object.keys(req.body).forEach(key => {
       user[key] = req.body[key];
@@ -75,7 +78,7 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findOneAndRemove({ _id: req.params.id });
     if (!user) {
-      throw new Error("Not found");
+      throw new Error('Not found');
     }
 
     return res.status(HTTPStatus.OK).json(user.toJSON());
