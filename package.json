@@ -9,7 +9,7 @@
     "build": "babel ./src -d build"
   },
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
   },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",
