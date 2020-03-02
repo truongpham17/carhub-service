@@ -6,7 +6,7 @@ export const getRental = async (req, res) => {
   const rentals = await Rental.find({ isActive: true })
     .skip(skip)
     .limit(limit);
-  const total = await Rental.count({ isActive: true });
+  const total = await Rental.countDocuments({ isActive: true });
   return res.json({ rentals, total });
 };
 
