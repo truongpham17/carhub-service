@@ -6,7 +6,7 @@ export const getPayment = async (req, res) => {
   const payments = await Payment.find({ isActive: true })
     .skip(skip)
     .limit(limit);
-  const total = await Payment.count();
+  const total = await Payment.countDocuments({ isActive: true });
   return res.json({ payments, total });
 };
 
@@ -25,7 +25,11 @@ export const createPayment = async (req, res) => {
 export const updatePayment = async (req, res) => {
   try {
     const { id } = req.params;
-    const payment = await Payment.findByIdAndUpdate({ _id: id }, req.body);
+    const now = new Date();
+    const payment = await Payment.findByIdAndUpdate(
+      { _id: id },
+      { ...req.body, modifiedDate: now }
+    );
     return res.json({ msg: 'Updated!', payment });
   } catch (error) {
     res.status(404).json(error);

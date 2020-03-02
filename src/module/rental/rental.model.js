@@ -4,10 +4,12 @@ const RentalSchema = new Schema({
   carMapping: {
     type: Schema.Types.ObjectId,
     ref: 'Car',
+    default: null,
   },
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    default: null,
   },
   type: {
     type: String,
@@ -16,20 +18,25 @@ const RentalSchema = new Schema({
   leaser: {
     type: Schema.Types.ObjectId,
     ref: 'User',
+    default: null,
   },
   startDate: {
     type: Date,
+    default: new Date(),
   },
   endDate: {
     type: Date,
+    default: new Date(),
   },
   pickupHub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
+    default: null,
   },
   pickoffHub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
+    default: null,
   },
   price: {
     type: Number,
@@ -46,6 +53,7 @@ const RentalSchema = new Schema({
   payment: {
     type: Schema.Types.ObjectId,
     ref: 'Payment',
+    default: null,
   },
   extra: {
     type: [

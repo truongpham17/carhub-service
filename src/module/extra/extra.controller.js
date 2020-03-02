@@ -6,7 +6,7 @@ export const getExtra = async (req, res) => {
   const extras = await Extra.find({ isActive: true })
     .skip(skip)
     .limit(limit);
-  const total = await Extra.countDocuments();
+  const total = await Extra.countDocuments({ isActive: true });
   return res.json({ extras, total });
 };
 
