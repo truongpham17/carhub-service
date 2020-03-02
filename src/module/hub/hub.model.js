@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { boolean } from 'joi';
 
 const HubSchema = new Schema({
   name: {
