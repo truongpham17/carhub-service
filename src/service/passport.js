@@ -4,6 +4,9 @@ import LocalStrategy from 'passport-local';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import Account from '../module/account/account.model';
+import Manager from '../module/manager/manager.model';
+import Customer from '../module/customer/customer.model';
+import Employee from '../module/employee/employee.model';
 import constants from '../config/constants';
 import enums from '../enum';
 
@@ -98,6 +101,21 @@ export const auth = async (req, res, next) => {
 
     const user = await Account.findOne({ _id, isActive: true });
     req.user = user;
+    if (user.role === 'MANAGER') {
+      const manager = await Manager.findOne({ account: user._id });
+      req.manager = manager;
+    }
+
+    if (user.role === 'EMPLOYEE') {
+      const employee = await Employee.findOne({ account: user._id });
+      req.employee = employee;
+    }
+
+    if (user.role === 'CUSTOMER') {
+      const customer = await Customer.findOne({ account: user._id });
+      req.customer = customer;
+    }
+
     return next();
   } catch (error) {
     next(error);
