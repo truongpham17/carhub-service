@@ -6,9 +6,9 @@ const CarMappingSchema = new Schema({
     ref: 'Car',
   },
 
-  user: {
+  customer: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Customer',
   },
 
   hub: {
@@ -26,7 +26,7 @@ const CarMappingSchema = new Schema({
   },
   images: {
     type: String,
-    required: true,
+    required: false,
   },
   description: {
     type: String,
@@ -38,11 +38,11 @@ const CarMappingSchema = new Schema({
   },
   feature: {
     type: String,
-    required: true,
+    required: false,
   },
   isActive: {
     type: Boolean,
-    required: true,
+    default: true,
   },
 });
 

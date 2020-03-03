@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose';
-import { number, boolean } from 'joi';
 
 const CarSchema = new Schema({
   name: {
