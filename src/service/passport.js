@@ -2,7 +2,11 @@ import passport from 'passport';
 import HTTPStatus from 'http-status';
 import LocalStrategy from 'passport-local';
 import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import jwt from 'jsonwebtoken';
+import Account from '../module/account/account.model';
 import constants from '../config/constants';
+import enums from '../enum';
+
 import User from '../module/user/user.model';
 
 const localOpts = {
@@ -67,5 +71,37 @@ const jwtStrategy = new JWTStrategy(jwtOpts, async (payload, done) => {
 });
 
 passport.use(jwtStrategy);
+
+export const auth = async (req, res, next) => {
+  try {
+    const authHeader = req.header('Authorization');
+
+    if (!authHeader) {
+      return res.status(HTTPStatus.UNAUTHORIZED).json('Unnauthorized');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+
+    let decodedToken;
+
+    try {
+      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(HTTPStatus.UNAUTHORIZED).json('Unauthorized');
+    }
+
+    const { _id } = decodedToken;
+
+    if (!decodedToken || !_id) {
+      return res.status(HTTPStatus.UNAUTHORIZED);
+    }
+
+    const user = await Account.findOne({ _id, isActive: true });
+    req.user = user;
+    return next();
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const authJwt = passport.authenticate('jwt', { session: false });
