@@ -18,4 +18,4 @@ const LeaseSchema = new Schema({
   },
 });
 
-export default mongoose.model('LeaseSchema', LeaseSchema);
+export default mongoose.model('Lease', LeaseSchema);

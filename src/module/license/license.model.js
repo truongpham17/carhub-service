@@ -31,4 +31,4 @@ const LicenseSchema = new Schema({
   },
 });
 
-export default mongoose.model('LicenseSchema', LicenseSchema);
+export default mongoose.model('License', LicenseSchema);

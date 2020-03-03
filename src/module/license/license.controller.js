@@ -16,6 +16,20 @@ export const getLicenseList = async (req, res) => {
   }
 };
 
+export const getLicense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const license = await License.findById(id);
+    if (!license) {
+      throw new Error('License Not found');
+    }
+
+    return res.status(HTTPStatus.OK).json(license.toJSON());
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
 export const addLicense = async (req, res) => {
   try {
     const license = await License.create(req.body);
@@ -38,14 +52,10 @@ export const deleteLicense = async (req, res) => {
 
 export const updateLicense = async (req, res) => {
   try {
-    const license = await License.findOne({ _id: req.params.id });
-    if (!license) {
-      throw new Error('Not found');
-    }
-    Object.keys(req.body).forEach(key => {
-      license[key] = req.body[key];
-    });
-    await license.save();
+    const license = await License.findByIdAndUpdate(
+      { _id: req.params.id },
+      req.body
+    );
     return res.status(HTTPStatus.OK).json(license);
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);

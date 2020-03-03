@@ -16,6 +16,20 @@ export const getCardList = async (req, res) => {
   }
 };
 
+export const getCard = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const card = await Card.findById(id);
+    if (!card) {
+      throw new Error('License Not found');
+    }
+
+    return res.status(HTTPStatus.OK).json(card.toJSON());
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
 export const addCard = async (req, res) => {
   try {
     const card = await Card.create(req.body);
@@ -38,14 +52,7 @@ export const deleteCard = async (req, res) => {
 
 export const updateCard = async (req, res) => {
   try {
-    const card = await Card.findOne({ _id: req.params.id });
-    if (!card) {
-      throw new Error('Not found');
-    }
-    Object.keys(req.body).forEach(key => {
-      card[key] = req.body[key];
-    });
-    await card.save();
+    const card = await Card.findByIdAndUpdate({ _id: req.params.id }, req.body);
     return res.status(HTTPStatus.OK).json(card);
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
