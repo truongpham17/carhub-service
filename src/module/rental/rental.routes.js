@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import validate from 'express-validation';
 import {
   addRental,
   getRental,
@@ -6,13 +7,15 @@ import {
   removeRental,
   updateRental,
 } from './rental.controller';
+import { auth } from '../../service/passport';
+import Validations from './rental.validations';
 
 const routes = new Router();
 
-routes.get('/', getRental);
-routes.get('/:id', getRentalById);
-routes.post('/', addRental);
-routes.put('/:id', updateRental);
-routes.delete('/:id', removeRental);
+routes.get('/', auth, getRental);
+routes.get('/:id', auth, getRentalById);
+routes.post('/', auth, validate(Validations.addRental), addRental);
+routes.put('/:id', auth, validate(Validations.updateRental), updateRental);
+routes.delete('/:id', auth, removeRental);
 
 export default routes;
