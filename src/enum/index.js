@@ -1,5 +1,7 @@
 export default {
   account: {
-    role: ['CUSTOMER', 'EMPLOYEE', 'MANAGER'],
+    role: {
+      ENUM: ['NONE', 'MALE', 'FEMALE'],
+    },
   },
 };
