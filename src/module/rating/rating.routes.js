@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import validate from 'express-validation';
+import Validations from './rating.validations';
 import {
-  getRating,
+  getRatingList,
   getRatingById,
   createRating,
   updateRating,
@@ -9,10 +11,10 @@ import {
 
 const routes = new Router();
 
-routes.get('/', getRating);
+routes.get('/', getRatingList);
 routes.get('/:id', getRatingById);
-routes.post('/', createRating);
-routes.put('/:id', updateRating);
+routes.post('/', validate(Validations.createRating), createRating);
+routes.put('/:id', validate(Validations.updateRating), updateRating);
 routes.delete('/:id', removeRating);
 
 export default routes;

@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import Rating from './rating.model';
 
-export const getRating = async (req, res) => {
+export const getRatingList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   try {

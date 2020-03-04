@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import Hub from './hub.model';
 
-export const getHub = async (req, res) => {
+export const getHubList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   try {

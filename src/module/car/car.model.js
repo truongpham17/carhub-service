@@ -1,25 +1,44 @@
 import mongoose, { Schema } from 'mongoose';
 
 const CarSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+  car: {
+    type: Schema.Types.ObjectId,
+    ref: 'Car',
   },
-  VIN: {
-    type: String,
-    required: true,
+
+  customer: {
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
   },
-  type: {
-    type: String,
-    required: true,
+
+  hub: {
+    type: Schema.Types.ObjectId,
+    ref: 'Hub',
   },
-  fuelType: {
-    type: String,
-    required: true,
+
+  currentHub: {
+    type: Schema.Types.ObjectId,
+    ref: 'Hub',
   },
-  numberOfSeat: {
+  odometer: {
     type: Number,
     required: true,
+  },
+  images: {
+    type: String,
+    required: false,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  feature: {
+    type: String,
+    required: false,
   },
   isActive: {
     type: Boolean,

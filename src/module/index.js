@@ -3,6 +3,7 @@ import bookRoutes from './test/book.routes';
 import carRoutes from './car/car.routes';
 import carmappingRoutes from './carmapping/carmapping.routes';
 import hubRoutes from './hub/hub.routes';
+import ratingRoutes from './rating/rating.routes';
 
 export default app => {
   app.use('/user', userRoutes);
@@ -10,4 +11,5 @@ export default app => {
   app.use('/car', carRoutes);
   app.use('/carmapping', carmappingRoutes);
   app.use('/hub', hubRoutes);
+  app.use('/rating', ratingRoutes);
 };

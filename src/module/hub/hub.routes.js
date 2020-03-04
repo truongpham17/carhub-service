@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import validate from 'express-validation';
+import hubValidations from './hub.validations';
 
 import {
-  getHub,
+  getHubList,
   createHub,
   updateHub,
   removeHub,
@@ -10,9 +12,9 @@ import {
 
 const routes = new Router();
 
-routes.get('/', getHub);
-routes.post('/', createHub);
-routes.put('/:id', updateHub);
+routes.get('/', getHubList);
+routes.post('/', validate(hubValidations.createHub), createHub);
+routes.put('/:id', validate(hubValidations.updateHub), updateHub);
 routes.delete('/:id', removeHub);
 routes.get('/:id', getHubById);
 
