@@ -9,11 +9,7 @@
     "build": "babel ./src -d build"
   },
   "engines": {
-<<<<<<< HEAD
-    "node": "12.16.1"
-=======
     "node": "12.x"
->>>>>>> origin/trivu
   },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",

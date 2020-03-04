@@ -16,7 +16,7 @@ export default {
   updatePayment: {
     body: {
       type: Joi.string(),
-      amount: Joi.number().min(),
+      amount: Joi.number().min(0),
       note: Joi.string(),
     },
     options: {
