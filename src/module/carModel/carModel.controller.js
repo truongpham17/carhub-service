@@ -32,7 +32,7 @@ export const createCarModel = async (req, res) => {
       .status(httpStatus.OK)
       .json({ msg: 'Created successfully!', carModel });
   } catch (error) {
-    return res.status(httpStatus.BAD_REQUEST).json(error.messages);
+    return res.status(httpStatus.BAD_REQUEST).json(error);
   }
 };
 

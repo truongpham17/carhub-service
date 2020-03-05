@@ -31,12 +31,16 @@ export const getAccountList = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
-  const account = await Account.findOne({ username, password });
-  if (!account) {
-    throw new Error('Wrong username or password');
+  try {
+    const { username, password } = req.body;
+    const account = await Account.findOne({ username, password });
+    if (!account) {
+      throw new Error('Wrong username or password');
+    }
+    return res.status(HTTPStatus.OK).json(account.toAuthJSON());
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
-  return res.status(HTTPStatus.OK).json(account.toAuthJSON());
 };
 
 export const getAccount = async (req, res) => {

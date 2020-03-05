@@ -2,6 +2,7 @@ import { Router } from 'express';
 import validate from 'express-validation';
 import hubValidations from './hub.validations';
 
+import { auth } from '../../service/passport';
 import {
   getHubList,
   createHub,
@@ -12,10 +13,10 @@ import {
 
 const routes = new Router();
 
-routes.get('/', getHubList);
-routes.post('/', validate(hubValidations.createHub), createHub);
-routes.put('/:id', validate(hubValidations.updateHub), updateHub);
-routes.delete('/:id', removeHub);
-routes.get('/:id', getHubById);
+routes.get('/', auth, getHubList);
+routes.post('/', auth, validate(hubValidations.createHub), createHub);
+routes.put('/:id', auth, validate(hubValidations.updateHub), updateHub);
+routes.delete('/:id', auth, removeHub);
+routes.get('/:id', auth, getHubById);
 
 export default routes;
