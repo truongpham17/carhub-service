@@ -44,6 +44,10 @@ const CarSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  VIN: {
+    type: String,
+    required: true,
+  },
 });
 
 export default mongoose.model('Car', CarSchema);
