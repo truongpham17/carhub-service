@@ -14,9 +14,9 @@ export default {
   },
   updateHub: {
     body: {
-      name: Joi.string().required(),
-      address: Joi.string().required(),
-      geoLocation: Joi.string().required(),
+      name: Joi.string(),
+      address: Joi.string(),
+      geoLocation: Joi.string(),
       description: Joi.string(),
     },
     options: {

@@ -3,10 +3,10 @@ import Joi from 'joi';
 export default {
   createRating: {
     body: {
-      user: Joi.string().required(),
+      customer: Joi.string().required(),
       content: Joi.string(),
       ratingValue: Joi.number(),
-      carMapping: Joi.string().required(),
+      car: Joi.string().required(),
     },
     options: {
       allowUnknownBody: false,
@@ -14,10 +14,10 @@ export default {
   },
   updateRating: {
     body: {
-      user: Joi.string().required(),
+      customer: Joi.string(),
       content: Joi.string(),
       ratingValue: Joi.number(),
-      carMapping: Joi.string().required(),
+      car: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

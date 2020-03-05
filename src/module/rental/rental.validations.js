@@ -3,8 +3,8 @@ import Joi from 'joi';
 export default {
   addRental: {
     body: {
-      carMapping: Joi.string().required(),
-      user: Joi.string().required(),
+      car: Joi.string().required(),
+      customer: Joi.string().required(),
       type: Joi.string().required(),
       leaser: Joi.string().required(),
       startDate: Joi.date().required(),
@@ -22,8 +22,8 @@ export default {
   },
   updateRental: {
     body: {
-      carMapping: Joi.string().required(),
-      user: Joi.string().required(),
+      car: Joi.string().required(),
+      customer: Joi.string().required(),
       type: Joi.string().required(),
       leaser: Joi.string().required(),
       startDate: Joi.date().required(),
