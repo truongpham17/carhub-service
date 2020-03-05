@@ -9,8 +9,20 @@ import testRoutes from './test/test.routes';
 import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
+import cardRoutes from './card/card.routes';
+import licenseRoutes from './license/license.routes';
+import leaseRoutes from './lease/lease.routes';
 
 export default app => {
+  app.use('/book', bookRoutes);
+  app.use('/account', accountRoutes);
+  app.use('/customer', customerRoutes);
+  app.use('/employee', employeeRoutes);
+  app.use('/manager', managerRoutes);
+  app.use('/user', userRoutes);
+  app.use('/card', cardRoutes);
+  app.use('/license', licenseRoutes);
+  app.use('/lease', leaseRoutes);
   app.use('/test', testRoutes);
   app.use('/user', userRoutes);
   app.use('/extra', extraRoutes);
