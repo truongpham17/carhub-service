@@ -6,6 +6,7 @@ import {
   updateCar,
   removeCar,
   getCarById,
+  checkCarByVin,
 } from './car.controller';
 import carValidations from './car.validations';
 
@@ -16,5 +17,6 @@ routes.get('/:id', getCarById);
 routes.post('/', validate(carValidations.createCar), createCar);
 routes.put('/:id', validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', removeCar);
+routes.get('/checkVin/:vin', checkCarByVin);
 
 export default routes;

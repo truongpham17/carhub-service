@@ -98,3 +98,13 @@ export const removeCar = async (req, res) => {
     res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };
+
+export const checkCarByVin = async (req, res) => {
+  try {
+    const { vin } = req.params;
+    const car = await Car.find({ VIN: vin });
+    return res.status(HTTPStatus.OK).json({ car });
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.messages);
+  }
+};
