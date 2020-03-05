@@ -25,6 +25,16 @@ export const getCarModelById = async (req, res) => {
   }
 };
 
+export const getCarModelByVin = async (req, res) => {
+  try {
+    const { vin } = req.params;
+    const carModel = await CarModel.find({ VIN: vin });
+    return res.status(httpStatus.OK).json({ carModel });
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};
+
 export const createCarModel = async (req, res) => {
   try {
     const carModel = await CarModel.create(req.body);
