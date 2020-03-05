@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
 const RatingSchema = new Schema({
-  user: {
+  customer: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Customer',
   },
   content: {
     type: String,
@@ -13,9 +13,9 @@ const RatingSchema = new Schema({
     type: Number,
     required: true,
   },
-  carMapping: {
+  car: {
     type: Schema.Types.ObjectId,
-    ref: 'CarMapping',
+    ref: 'Car',
   },
   isActive: {
     type: Boolean,

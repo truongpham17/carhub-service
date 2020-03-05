@@ -1,9 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 
 const CarSchema = new Schema({
-  car: {
+  carModel: {
     type: Schema.Types.ObjectId,
-    ref: 'Car',
+    ref: 'CarModel',
   },
 
   customer: {

@@ -5,10 +5,6 @@ const CarModelSchema = new Schema({
     type: String,
     required: true,
   },
-  VIN: {
-    type: String,
-    required: true,
-  },
   type: {
     type: String,
     required: true,
