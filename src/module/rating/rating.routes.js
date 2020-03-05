@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import validate from 'express-validation';
 import Validations from './rating.validations';
+
+import { auth } from '../../service/passport';
 import {
   getRatingList,
   getRatingById,
@@ -11,10 +13,10 @@ import {
 
 const routes = new Router();
 
-routes.get('/', getRatingList);
-routes.get('/:id', getRatingById);
-routes.post('/', validate(Validations.createRating), createRating);
-routes.put('/:id', validate(Validations.updateRating), updateRating);
-routes.delete('/:id', removeRating);
+routes.get('/', auth, getRatingList);
+routes.get('/:id', auth, getRatingById);
+routes.post('/', auth, validate(Validations.createRating), createRating);
+routes.put('/:id', auth, validate(Validations.updateRating), updateRating);
+routes.delete('/:id', auth, removeRating);
 
 export default routes;
