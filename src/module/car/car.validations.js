@@ -8,13 +8,12 @@ export default {
       hub: Joi.string().required(),
       currentHub: Joi.string().required(),
       odometer: Joi.number(),
-      images: Joi.string(),
       description: Joi.string(),
       price: Joi.number().min(0),
       feature: Joi.string(),
     },
     options: {
-      allowUnknownBody: false,
+      allowUnknownBody: true,
     },
   },
   updateCar: {

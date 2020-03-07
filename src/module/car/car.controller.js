@@ -69,9 +69,7 @@ export const getCarByHub = async (req, res) => {
 export const createCar = async (req, res) => {
   try {
     const car = await Car.create(req.body);
-    return res
-      .status(HTTPStatus.OK)
-      .json({ msg: 'Created successfully!', car });
+    return res.status(HTTPStatus.CREATED).json(car);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
