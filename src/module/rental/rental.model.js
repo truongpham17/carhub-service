@@ -1,14 +1,14 @@
 import mongoose, { Schema } from 'mongoose';
 
 const RentalSchema = new Schema({
-  carMapping: {
+  car: {
     type: Schema.Types.ObjectId,
     ref: 'Car',
     default: null,
   },
-  user: {
+  customer: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Customer',
     default: null,
   },
   type: {
@@ -17,7 +17,7 @@ const RentalSchema = new Schema({
   },
   leaser: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Customer',
     default: null,
   },
   startDate: {

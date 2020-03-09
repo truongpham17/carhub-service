@@ -7,7 +7,8 @@ export const getCarList = async (req, res) => {
   try {
     const cars = await Car.find()
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate('carModel hub currentHub');
     const total = await Car.count();
     return res.status(HTTPStatus.OK).json({ cars, total });
   } catch (error) {

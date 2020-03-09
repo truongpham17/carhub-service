@@ -4,7 +4,6 @@ export default {
   createCarModel: {
     body: {
       name: Joi.string().required(),
-      VIN: Joi.string().required(),
       type: Joi.string().required(),
       fuelType: Joi.string().required(),
       numberOfSeat: Joi.number().required(),
@@ -15,11 +14,10 @@ export default {
   },
   updateCarModel: {
     body: {
-      name: Joi.string().required(),
-      VIN: Joi.string().required(),
-      type: Joi.string().required(),
-      fuelType: Joi.string().required(),
-      numberOfSeat: Joi.number().required(),
+      name: Joi.string(),
+      type: Joi.string(),
+      fuelType: Joi.string(),
+      numberOfSeat: Joi.number(),
     },
     options: {
       allowUnknownBody: false,
