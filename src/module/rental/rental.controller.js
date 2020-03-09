@@ -1,15 +1,32 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
+import Customer from '../customer/customer.model';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   try {
-    const rentals = await Rental.find()
-      .skip(skip)
-      .limit(limit)
-      .populate('car customer leaser pickupHub pickoffHub payment');
-    const total = await Rental.countDocuments();
+    let rentals;
+    let total;
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        // eslint-disable-next-line no-case-declarations
+        const customer = await Customer.findOne({ account: req.user._id });
+        // console.log(req.user._id);
+        // console.log(cus);
+        rentals = await Rental.find({ customer: customer._id })
+          .skip(skip)
+          .limit(limit)
+          .populate('car customer leaser pickupHub pickoffHub payment');
+        total = await Rental.countDocuments({ customer: customer._id });
+        break;
+      default:
+        rentals = await Rental.find()
+          .skip(skip)
+          .limit(limit)
+          .populate('car customer leaser pickupHub pickoffHub payment');
+        total = await Rental.countDocuments();
+    }
     return res.status(HTTPStatus.OK).json({ rentals, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
@@ -19,19 +36,10 @@ export const getRental = async (req, res) => {
 export const getRentalById = async (req, res) => {
   try {
     const { id } = req.params;
-    let rentals;
-    switch (req.user.role) {
-      case 'CUSTOMER':
-        rentals = await Rental.find({ customer: id }).populate(
-          'car customer leaser pickupHub pickoffHub payment'
-        );
-        break;
-      default:
-        rentals = await Rental.findById(id).populate(
-          'car customer leaser pickupHub pickoffHub payment'
-        );
-    }
-    return res.status(HTTPStatus.OK).json(rentals);
+    const rental = await Rental.findById(id).populate(
+      'car customer leaser pickupHub pickoffHub payment'
+    );
+    return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }

@@ -1,17 +1,32 @@
 import HTTPStatus from 'http-status';
 import Lease from './lease.model';
 import constants from '../../config/constants';
+import customerModel from '../customer/customer.model';
 
 export const getLeaseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   try {
-    const list = await Lease.find()
-      .skip(skip)
-      .limit(limit)
-      .populate('customer car hub');
-    const total = await Lease.count();
-    return res.status(HTTPStatus.OK).json({ list, total });
+    let leases;
+    let total;
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        // eslint-disable-next-line no-case-declarations
+        const customer = await customerModel.findOne({ account: req.user._id });
+        leases = await Lease.find({ customer: customer._id })
+          .skip(skip)
+          .limit(limit)
+          .populate('customer car hub');
+        total = await Lease.count({ customer: customer._id });
+        break;
+      default:
+        leases = await Lease.find()
+          .skip(skip)
+          .limit(limit)
+          .populate('customer car hub');
+        total = await Lease.count();
+    }
+    return res.status(HTTPStatus.OK).json({ leases, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
