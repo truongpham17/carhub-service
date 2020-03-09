@@ -25,4 +25,11 @@ routes.put(
 routes.delete('/:id', auth, removeCarModel);
 routes.get('/:id', auth, getCarModelById);
 routes.get('/getCarByVin/:vin', getCarModelByVin);
+routes.get('/', getCarModelList);
+routes.post('/', validate(carValidations.createCarModel), createCarModel);
+routes.put('/:id', validate(carValidations.updateCarModel), updateCarModel);
+routes.delete('/:id', removeCarModel);
+routes.get('/:id', getCarModelById);
+routes.get('/getCarByVin/:vin', getCarModelByVin);
+
 export default routes;
