@@ -17,7 +17,7 @@ export default {
   login: {
     body: {
       password: Joi.string()
-        .min(6)
+        .min(5)
         .max(120)
         .required(),
       username: Joi.string()
