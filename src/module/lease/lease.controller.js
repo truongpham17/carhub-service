@@ -8,7 +8,8 @@ export const getLeaseList = async (req, res) => {
   try {
     const list = await Lease.find()
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .populate('customer car hub');
     const total = await Lease.count();
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (error) {
@@ -19,7 +20,7 @@ export const getLeaseList = async (req, res) => {
 export const getLease = async (req, res) => {
   try {
     const { id } = req.params;
-    const lease = await Lease.findById(id);
+    const lease = await Lease.findById(id).populate('customer car hub');
     if (!lease) {
       throw new Error('Lease Not found');
     }

@@ -22,7 +22,9 @@ export const getCarById = async (req, res) => {
     let cars;
     switch (req.user.role) {
       case 'CUSTOMER':
-        cars = await Car.find({ customer: id });
+        cars = await Car.find({ customer: id }).populate(
+          'carModel hub currentHub'
+        );
         break;
       // case 'MANAGER':
       //   cars = await

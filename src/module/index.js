@@ -6,13 +6,14 @@ import ratingRoutes from './rating/rating.routes';
 import accountRoutes from './account/account.routes';
 import customerRoutes from './customer/customer.routes';
 import employeeRoutes from './employee/employee.routes';
-
+import licenseRoutes from './license/license.routes';
 import managerRoutes from './manager/manager.routes';
 import userRoutes from './user/user.routes';
 import testRoutes from './test/test.routes';
 import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
+import leaseRoutes from './lease/lease.routes';
 
 export default app => {
   app.use('/test', testRoutes);
@@ -29,4 +30,6 @@ export default app => {
   app.use('/customer', customerRoutes);
   app.use('/employee', employeeRoutes);
   app.use('/manager', managerRoutes);
+  app.use('/lease', leaseRoutes);
+  app.use('/license', licenseRoutes);
 };

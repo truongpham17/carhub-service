@@ -3,12 +3,12 @@ import Joi from 'joi';
 export default {
   createCar: {
     body: {
-      car: Joi.string().required(),
+      carModel: Joi.string().required(),
       customer: Joi.string().required(),
       hub: Joi.string().required(),
       currentHub: Joi.string().required(),
       odometer: Joi.number(),
-      images: Joi.string(),
+      images: Joi.array(),
       description: Joi.string(),
       price: Joi.number().min(0),
       feature: Joi.string(),
@@ -25,7 +25,7 @@ export default {
       hub: Joi.string(),
       currentHub: Joi.string(),
       odometer: Joi.number(),
-      images: Joi.string(),
+      images: Joi.array(),
       description: Joi.string(),
       price: Joi.number().min(0),
       feature: Joi.string(),

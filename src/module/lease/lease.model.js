@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import enums from '../../enum';
 
 const LeaseSchema = new Schema({
   customer: {
@@ -28,7 +29,8 @@ const LeaseSchema = new Schema({
     type: Number,
   },
   status: {
-    type: String,
+    type: enums.lease.status,
+    required: true,
   },
 });
 
