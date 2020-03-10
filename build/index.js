@@ -1,46 +1,26 @@
-'use strict';
+"use strict";
 
-var _express = require('express');
+var _express = _interopRequireDefault(require("express"));
 
-var _express2 = _interopRequireDefault(_express);
+var _constants = _interopRequireDefault(require("./config/constants"));
 
-var _constants = require('./config/constants');
+var _middlewares = _interopRequireDefault(require("./config/middlewares"));
 
-var _constants2 = _interopRequireDefault(_constants);
+require("./config/database");
 
-var _middlewares = require('./config/middlewares');
-
-var _middlewares2 = _interopRequireDefault(_middlewares);
-
-require('./config/database');
-
-var _module = require('./module');
-
-var _module2 = _interopRequireDefault(_module);
+var _module = _interopRequireDefault(require("./module"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const app = (0, _express2.default)();
-
-(0, _middlewares2.default)(app);
-
-(0, _module2.default)(app);
-
-app.listen(_constants2.default.PORT, () => {
+const app = (0, _express.default)();
+(0, _middlewares.default)(app);
+(0, _module.default)(app);
+app.listen(_constants.default.PORT, () => {
+  console.log('CAR HUB SERVICE STARTS');
   console.log(`
-
-      ███████╗██╗   ██╗██╗     ███████╗    ██████╗  ██████╗ ███████╗
-      ██╔════╝██║   ██║██║     ██╔════╝    ██╔══██╗██╔═══██╗██╔════╝
-      ███████╗██║   ██║██║     █████╗      ██████╔╝██║   ██║███████╗
-      ╚════██║██║   ██║██║     ██╔══╝      ██╔═══╝ ██║   ██║╚════██║
-      ███████║╚██████╔╝███████╗███████╗    ██║     ╚██████╔╝███████║
-      ╚══════╝ ╚═════╝ ╚══════╝╚══════╝    ╚═╝      ╚═════╝ ╚══════╝
-    `);
-  console.log(`
-      PORT:       ${_constants2.default.PORT}
+      PORT:       ${_constants.default.PORT}
       ENV:        ${process.env.NODE_ENV}`);
 });
-
 process.on('SIGINT', () => {
   console.log('Bye bye!');
   process.exit();

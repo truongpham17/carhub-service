@@ -11,7 +11,7 @@ var _mongoose = _interopRequireWildcard(require("mongoose"));
 
 var _bcryptNodejs = require("bcrypt-nodejs");
 
-var _constants = _interopRequireDefault(require("../../config/constants"));
+var _enum = _interopRequireDefault(require("../../enum"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -19,35 +19,33 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const UserSchema = new _mongoose.Schema({
+const AccountSchema = new _mongoose.Schema({
   username: {
     type: String,
-    unique: true,
-    required: true,
-    minlength: [5, 'Username must equal or longer than 5'],
-    maxlength: [20, 'Username must equal or shorter than 20']
+    require: true
   },
   password: {
     type: String,
-    minlength: [6, 'Password must equal or longer than 6']
+    require: true
   },
-  fullname: String,
-  role: Number,
-  active: {
+  role: {
+    type: _enum.default.account.role,
+    require: true
+  },
+  isActive: {
     type: Boolean,
+    require: true,
     default: true
   }
-}, {
-  timestamps: true
 });
-UserSchema.pre('save', function (next) {
+AccountSchema.pre('save', function (next) {
   if (this.isModified('password')) {
     this.password = this.hashPassword(this.password);
   }
 
   return next();
 });
-UserSchema.methods = {
+AccountSchema.methods = {
   hashPassword(password) {
     return (0, _bcryptNodejs.hashSync)(password);
   },
@@ -56,37 +54,34 @@ UserSchema.methods = {
     return (0, _bcryptNodejs.compareSync)(password, this.password);
   },
 
-  generateJWT(lifespan) {
-    const today = new Date();
-    const expirationDate = new Date(today);
-    expirationDate.setDate(today.getDate() + lifespan);
+  generateJWT() {
     return _jsonwebtoken.default.sign({
-      _id: this._id,
-      exp: parseInt(expirationDate.getTime() / 1000, 10)
-    }, _constants.default.JWT_SECRET);
+      _id: this._id
+    }, process.env.JWT_SECRET, {
+      expiresIn: '5 days'
+    });
   },
 
   toJSON() {
     return {
       _id: this._id,
       username: this.username,
-      fullname: this.fullname,
       role: this.role,
-      active: this.active
+      isActive: this.isActive
     };
   },
 
   toAuthJSON() {
     return { ...this.toJSON(),
-      token: this.generateJWT(_constants.default.AUTH_TOKEN_LIFESPAN)
+      token: this.generateJWT()
     };
   }
 
 };
-UserSchema.index({
+AccountSchema.index({
   username: 'text'
 });
 
-var _default = _mongoose.default.model('User', UserSchema);
+var _default = _mongoose.default.model('Account', AccountSchema);
 
 exports.default = _default;
