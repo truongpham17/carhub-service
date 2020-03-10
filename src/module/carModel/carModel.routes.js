@@ -15,7 +15,8 @@ import carValidations from './carModel.validations';
 const routes = new Router();
 
 routes.get('/', auth, getCarModelList);
-routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
+// routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
+routes.post('/', auth, createCarModel);
 routes.put(
   '/:id',
   auth,

@@ -15,7 +15,8 @@ const routes = new Router();
 
 routes.get('/', auth, getCarList);
 routes.get('/:id', auth, getCarById);
-routes.post('/', auth, validate(carValidations.createCar), createCar);
+// routes.post('/', auth, validate(carValidations.createCar), createCar);
+routes.post('/', auth, createCar);
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', auth, removeCar);
 routes.get('/checkVin/:vin', checkCarByVin);

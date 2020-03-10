@@ -39,7 +39,7 @@ export const createCarModel = async (req, res) => {
   try {
     const carModel = await CarModel.create(req.body);
     return res
-      .status(httpStatus.OK)
+      .status(httpStatus.CREATED)
       .json({ msg: 'Created successfully!', carModel });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error);
