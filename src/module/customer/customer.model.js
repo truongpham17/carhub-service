@@ -23,6 +23,10 @@ const CustomerSchema = new Schema({
   phone: {
     type: String,
   },
+  license: {
+    type: Schema.Types.ObjectId,
+    ref: 'License',
+  },
 });
 
 export default mongoose.model('Customer', CustomerSchema);
