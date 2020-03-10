@@ -13,6 +13,7 @@ import testRoutes from './test/test.routes';
 import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
+import licenseRoutes from './license/license.routes';
 
 export default app => {
   app.use('/test', testRoutes);
@@ -29,4 +30,5 @@ export default app => {
   app.use('/customer', customerRoutes);
   app.use('/employee', employeeRoutes);
   app.use('/manager', managerRoutes);
+  app.use('/license', licenseRoutes);
 };
