@@ -34,7 +34,7 @@ const CarSchema = new Schema({
   },
   price: {
     type: Number,
-    required: true,
+    required: false,
   },
   feature: {
     type: String,
