@@ -1,6 +1,5 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
-import Customer from '../customer/customer.model';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -10,22 +9,22 @@ export const getRental = async (req, res) => {
     let total;
     switch (req.user.role) {
       case 'CUSTOMER':
-        // eslint-disable-next-line no-case-declarations
-        const customer = await Customer.findOne({ account: req.user._id });
-        // console.log(req.user._id);
-        // console.log(cus);
-        rentals = await Rental.find({ customer: customer._id })
+        rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
           .populate('car customer leaser pickupHub pickoffHub payment');
-        total = await Rental.countDocuments({ customer: customer._id });
+        total = await Rental.countDocuments({ customer: req.customer._id });
         break;
-      default:
+      case 'EMPLOYEE':
+      case 'MANAGER':
         rentals = await Rental.find()
           .skip(skip)
           .limit(limit)
           .populate('car customer leaser pickupHub pickoffHub payment');
         total = await Rental.countDocuments();
+        break;
+      default:
+        throw new Error('Role is not existed!');
     }
     return res.status(HTTPStatus.OK).json({ rentals, total });
   } catch (error) {
@@ -60,7 +59,7 @@ export const updateRental = async (req, res) => {
     const rental = await Rental.findByIdAndUpdate({ _id: id }, req.body);
     return res.status(HTTPStatus.OK).json({ msg: 'Updated!', rental });
   } catch (error) {
-    res.status(HTTPStatus.BAD_REQUEST).json(error);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };
 
@@ -73,6 +72,6 @@ export const removeRental = async (req, res) => {
     );
     return res.status(HTTPStatus.OK).json({ msg: 'Deleted!!', rental });
   } catch (err) {
-    res.status(HTTPStatus.BAD_REQUEST).json(err);
+    return res.status(HTTPStatus.BAD_REQUEST).json(err);
   }
 };

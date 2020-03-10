@@ -1,7 +1,7 @@
 export default {
   account: {
     role: {
-      ENUM: ['NONE', 'MALE', 'FEMALE'],
+      ENUM: ['CUSTOMER', 'EMPLOYEE', 'MANAGER'],
     },
   },
   rental: {
@@ -11,7 +11,7 @@ export default {
   },
   lease: {
     status: {
-      ENUM: ['Pending', 'Available', 'Hiring', 'WAIT_TO_RETURN', 'PAST'],
+      ENUM: ['PENDING', 'AVAILABLE', 'HIRING', 'WAIT_TO_RETURN', 'PAST'],
     },
   },
 };

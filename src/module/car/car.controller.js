@@ -5,11 +5,27 @@ export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
   try {
-    const cars = await Car.find()
-      .skip(skip)
-      .limit(limit)
-      .populate('carModel hub currentHub');
-    const total = await Car.count();
+    let cars;
+    let total;
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        cars = await Car.find({ customer: req.customer._id })
+          .skip(skip)
+          .limit(limit)
+          .populate('carModel hub currentHub');
+        total = await Car.count({ customer: req.customer._id });
+        break;
+      case 'EMPLOYEE':
+      case 'MANAGER':
+        cars = await Car.find()
+          .skip(skip)
+          .limit(limit)
+          .populate('carModel hub currentHub');
+        total = await Car.count();
+        break;
+      default:
+        throw new Error('Role is not existed!');
+    }
     return res.status(HTTPStatus.OK).json({ cars, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
@@ -19,25 +35,19 @@ export const getCarList = async (req, res) => {
 export const getCarById = async (req, res) => {
   try {
     const { id } = req.params;
-    let cars;
-    switch (req.user.role) {
-      case 'CUSTOMER':
-        cars = await Car.find({ customer: id }).populate(
-          'carModel hub currentHub'
-        );
-        break;
-      // case 'MANAGER':
-      //   cars = await
-      default:
-        cars = await Car.findById({ _id: id });
+    const car = await Car.findById({ _id: id }).populate(
+      'carModel hub currentHub'
+    );
+    if (!car) {
+      throw new Error('Car not found!');
     }
-    return res.status(HTTPStatus.OK).json({ cars });
+    return res.status(HTTPStatus.OK).json({ car });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
 
-export const getCarByCustomer = async (req, res) => {
+export const getCarsByCustomer = async (req, res) => {
   try {
     const { customerId } = req.params;
     const car = await Car.findOne({
@@ -45,7 +55,7 @@ export const getCarByCustomer = async (req, res) => {
       isActive: true,
     });
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error('Car is not found!');
     }
     return res.status(HTTPStatus.OK).json({ car });
   } catch (error) {
@@ -53,17 +63,15 @@ export const getCarByCustomer = async (req, res) => {
   }
 };
 
-export const getCarByHub = async (req, res) => {
+export const getCarsByHub = async (req, res) => {
   try {
     const { hubId } = req.params;
-    const car = await Car.findOne({
-      customer: hubId,
-      isActive: true,
-    });
-    if (!car) {
-      throw new Error('Car not found');
+    const cars = await Car.find({ hub: hubId });
+    if (!cars) {
+      throw new Error('Car is not found');
     }
-    return res.status(HTTPStatus.OK).json({ car });
+    const total = await Car.count({ hub: hubId });
+    return res.status(HTTPStatus.OK).json({ cars, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
@@ -73,7 +81,7 @@ export const createCar = async (req, res) => {
   try {
     const car = await Car.create(req.body);
     return res
-      .status(HTTPStatus.OK)
+      .status(HTTPStatus.CREATED)
       .json({ msg: 'Created successfully!', car });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);

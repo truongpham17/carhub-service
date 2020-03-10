@@ -1,7 +1,5 @@
 import HTTPStatus from 'http-status';
 import Lease from './lease.model';
-import constants from '../../config/constants';
-import customerModel from '../customer/customer.model';
 
 export const getLeaseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -11,20 +9,22 @@ export const getLeaseList = async (req, res) => {
     let total;
     switch (req.user.role) {
       case 'CUSTOMER':
-        // eslint-disable-next-line no-case-declarations
-        const customer = await customerModel.findOne({ account: req.user._id });
-        leases = await Lease.find({ customer: customer._id })
+        leases = await Lease.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
           .populate('customer car hub');
-        total = await Lease.count({ customer: customer._id });
+        total = await Lease.count({ customer: req.customer._id });
         break;
-      default:
+      case 'EMPLOYEE':
+      case 'MANAGER':
         leases = await Lease.find()
           .skip(skip)
           .limit(limit)
           .populate('customer car hub');
         total = await Lease.count();
+        break;
+      default:
+        throw new Error('Role is not existed!');
     }
     return res.status(HTTPStatus.OK).json({ leases, total });
   } catch (error) {
@@ -39,7 +39,6 @@ export const getLease = async (req, res) => {
     if (!lease) {
       throw new Error('Lease Not found');
     }
-
     return res.status(HTTPStatus.OK).json(lease.toJSON());
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
