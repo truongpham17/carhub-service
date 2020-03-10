@@ -1,6 +1,5 @@
 import HTTPStatus from 'http-status';
 import Card from './card.model';
-import constants from '../../config/constants';
 
 export const getCardList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;

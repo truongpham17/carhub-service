@@ -6,12 +6,10 @@ export const getCustomerList = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
-
     if (req.user.role !== 'MANAGER' && req.user.role !== 'EMPLOYEE') {
       console.log(req.user.role);
       throw new Error('Access denied');
     }
-
     const list = await Customer.find()
       .skip(skip)
       .limit(limit);
@@ -25,16 +23,25 @@ export const getCustomerList = async (req, res) => {
 export const getCustomer = async (req, res) => {
   try {
     const { id } = req.params;
-
     const customer = await Customer.findById(id);
-
     if (!customer) {
       throw new Error('Customer not found');
     }
-
     authAdminOrUser(req, customer.account);
-
     return res.status(HTTPStatus.OK).json(customer.toJSON());
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
+export const getCustomerByAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const customer = await Customer.find({ account: id });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    return res.status(HTTPStatus.OK).json({ customer });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }

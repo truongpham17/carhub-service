@@ -1,5 +1,8 @@
 import HTTPStatus from 'http-status';
 import Account from './account.model';
+import Customer from '../customer/customer.model';
+import Employee from '../employee/employee.model';
+import Manager from '../manager/manager.model';
 
 export const getAccountList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -38,8 +41,36 @@ export const login = async (req, res) => {
     if (!account || !account.validatePassword(password)) {
       throw new Error('Wrong username or password');
     }
+    let accountDetail = null;
+    switch (account.role) {
+      case 'CUSTOMER': {
+        console.log(account._id);
+        accountDetail = await Customer.findOne({
+          account: account._id,
+        });
+        break;
+      }
+      case 'EMPLOYEE': {
+        accountDetail = await Employee.findOne({ account: account._id });
+        break;
+      }
+      case 'MANAGER': {
+        accountDetail = await Manager.findOne({ account: account._id });
+        break;
+      }
+      default: {
+      }
+    }
 
-    return res.status(HTTPStatus.OK).json(account.toAuthJSON());
+    if (!accountDetail) {
+      throw new Error('Account not found!');
+    }
+
+    console.log(accountDetail);
+
+    return res
+      .status(HTTPStatus.OK)
+      .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
