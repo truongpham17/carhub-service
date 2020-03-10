@@ -12,7 +12,8 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
-          .populate('car customer leaser pickupHub pickoffHub payment');
+          .populate('car customer leaser pickupHub pickoffHub payment')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
@@ -20,7 +21,8 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find()
           .skip(skip)
           .limit(limit)
-          .populate('car customer leaser pickupHub pickoffHub payment');
+          .populate('car customer leaser pickupHub pickoffHub payment')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
         break;
       default:
@@ -35,9 +37,9 @@ export const getRental = async (req, res) => {
 export const getRentalById = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findById(id).populate(
-      'car customer leaser pickupHub pickoffHub payment'
-    );
+    const rental = await Rental.findById(id)
+      .populate('car customer leaser pickupHub pickoffHub payment')
+      .populate({ path: 'car', populate: { path: 'carModel' } });
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
