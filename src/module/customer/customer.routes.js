@@ -5,6 +5,7 @@ import {
   getCustomer,
   createCustomer,
   updateCustomer,
+  getCustomerByAccount,
 } from './customer.controllers';
 import Validations from './customer.validations';
 import { auth } from '../../service/passport';
@@ -20,5 +21,6 @@ routes.patch(
   validate(Validations.updateCustomer),
   updateCustomer
 );
+routes.get('/account/:id', getCustomerByAccount);
 
 export default routes;
