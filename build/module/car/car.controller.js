@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.checkCarByVin = exports.removeCar = exports.updateCar = exports.createCar = exports.getCarByHub = exports.getCarByCustomer = exports.getCarById = exports.getCarList = void 0;
+exports.checkCarByVin = exports.removeCar = exports.updateCar = exports.createCar = exports.getCarsByHub = exports.getCarsByCustomer = exports.getCarById = exports.getCarList = void 0;
 
 var _httpStatus = _interopRequireDefault(require("http-status"));
 
@@ -16,8 +16,29 @@ const getCarList = async (req, res) => {
   const skip = parseInt(req.query.skip, 10) || 0;
 
   try {
-    const cars = await _car.default.find().skip(skip).limit(limit).populate('carModel hub currentHub');
-    const total = await _car.default.count();
+    let cars;
+    let total;
+
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        cars = await _car.default.find({
+          customer: req.customer._id
+        }).skip(skip).limit(limit).populate('carModel hub currentHub');
+        total = await _car.default.count({
+          customer: req.customer._id
+        });
+        break;
+
+      case 'EMPLOYEE':
+      case 'MANAGER':
+        cars = await _car.default.find().skip(skip).limit(limit).populate('carModel hub currentHub');
+        total = await _car.default.count();
+        break;
+
+      default:
+        throw new Error('Role is not existed!');
+    }
+
     return res.status(_httpStatus.default.OK).json({
       cars,
       total
@@ -34,25 +55,16 @@ const getCarById = async (req, res) => {
     const {
       id
     } = req.params;
-    let cars;
+    const car = await _car.default.findById({
+      _id: id
+    }).populate('carModel hub currentHub');
 
-    switch (req.user.role) {
-      case 'CUSTOMER':
-        cars = await _car.default.find({
-          customer: id
-        });
-        break;
-      // case 'MANAGER':
-      //   cars = await
-
-      default:
-        cars = await _car.default.findById({
-          _id: id
-        });
+    if (!car) {
+      throw new Error('Car not found!');
     }
 
     return res.status(_httpStatus.default.OK).json({
-      cars
+      car
     });
   } catch (error) {
     return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
@@ -61,7 +73,7 @@ const getCarById = async (req, res) => {
 
 exports.getCarById = getCarById;
 
-const getCarByCustomer = async (req, res) => {
+const getCarsByCustomer = async (req, res) => {
   try {
     const {
       customerId
@@ -72,7 +84,7 @@ const getCarByCustomer = async (req, res) => {
     });
 
     if (!car) {
-      throw new Error('Car not found');
+      throw new Error('Car is not found!');
     }
 
     return res.status(_httpStatus.default.OK).json({
@@ -83,36 +95,39 @@ const getCarByCustomer = async (req, res) => {
   }
 };
 
-exports.getCarByCustomer = getCarByCustomer;
+exports.getCarsByCustomer = getCarsByCustomer;
 
-const getCarByHub = async (req, res) => {
+const getCarsByHub = async (req, res) => {
   try {
     const {
       hubId
     } = req.params;
-    const car = await _car.default.findOne({
-      customer: hubId,
-      isActive: true
+    const cars = await _car.default.find({
+      hub: hubId
     });
 
-    if (!car) {
-      throw new Error('Car not found');
+    if (!cars) {
+      throw new Error('Car is not found');
     }
 
+    const total = await _car.default.count({
+      hub: hubId
+    });
     return res.status(_httpStatus.default.OK).json({
-      car
+      cars,
+      total
     });
   } catch (error) {
     return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
   }
 };
 
-exports.getCarByHub = getCarByHub;
+exports.getCarsByHub = getCarsByHub;
 
 const createCar = async (req, res) => {
   try {
     const car = await _car.default.create(req.body);
-    return res.status(_httpStatus.default.OK).json({
+    return res.status(_httpStatus.default.CREATED).json({
       msg: 'Created successfully!',
       car
     });

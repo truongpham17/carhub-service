@@ -12,12 +12,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _default = {
   createCar: {
     body: {
-      car: _joi.default.string().required(),
+      carModel: _joi.default.string().required(),
       customer: _joi.default.string().required(),
       hub: _joi.default.string().required(),
       currentHub: _joi.default.string().required(),
       odometer: _joi.default.number(),
-      images: _joi.default.string(),
+      images: _joi.default.array(),
       description: _joi.default.string(),
       price: _joi.default.number().min(0),
       feature: _joi.default.string(),
@@ -34,7 +34,7 @@ var _default = {
       hub: _joi.default.string(),
       currentHub: _joi.default.string(),
       odometer: _joi.default.number(),
-      images: _joi.default.string(),
+      images: _joi.default.array(),
       description: _joi.default.string(),
       price: _joi.default.number().min(0),
       feature: _joi.default.string(),

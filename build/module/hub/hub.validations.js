@@ -14,7 +14,6 @@ var _default = {
     body: {
       name: _joi.default.string().required(),
       address: _joi.default.string().required(),
-      geoLocation: _joi.default.string().required(),
       description: _joi.default.string()
     },
     options: {
@@ -25,7 +24,6 @@ var _default = {
     body: {
       name: _joi.default.string(),
       address: _joi.default.string(),
-      geoLocation: _joi.default.string(),
       description: _joi.default.string()
     },
     options: {

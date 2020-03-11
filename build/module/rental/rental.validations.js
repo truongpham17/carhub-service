@@ -12,10 +12,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _default = {
   addRental: {
     body: {
-      car: _joi.default.string().required(),
+      carModel: _joi.default.string().required(),
       customer: _joi.default.string().required(),
       type: _joi.default.string().required(),
-      leaser: _joi.default.string().required(),
+      leaser: _joi.default.string(),
       startDate: _joi.default.date().required(),
       endDate: _joi.default.date().required(),
       pickupHub: _joi.default.string().required(),
@@ -34,7 +34,7 @@ var _default = {
       car: _joi.default.string().required(),
       customer: _joi.default.string().required(),
       type: _joi.default.string().required(),
-      leaser: _joi.default.string().required(),
+      leaser: _joi.default.string(),
       startDate: _joi.default.date().required(),
       endDate: _joi.default.date().required(),
       pickupHub: _joi.default.string().required(),

@@ -9,8 +9,6 @@ var _httpStatus = _interopRequireDefault(require("http-status"));
 
 var _card = _interopRequireDefault(require("./card.model"));
 
-var _constants = _interopRequireDefault(require("../../config/constants"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const getCardList = async (req, res) => {

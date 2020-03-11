@@ -21,6 +21,8 @@ var _customer = _interopRequireDefault(require("./customer/customer.routes"));
 
 var _employee = _interopRequireDefault(require("./employee/employee.routes"));
 
+var _license = _interopRequireDefault(require("./license/license.routes"));
+
 var _manager = _interopRequireDefault(require("./manager/manager.routes"));
 
 var _user = _interopRequireDefault(require("./user/user.routes"));
@@ -33,7 +35,7 @@ var _payment = _interopRequireDefault(require("./payment/payment.routes"));
 
 var _rental = _interopRequireDefault(require("./rental/rental.routes"));
 
-var _license = _interopRequireDefault(require("./license/license.routes"));
+var _lease = _interopRequireDefault(require("./lease/lease.routes"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -52,6 +54,7 @@ var _default = app => {
   app.use('/customer', _customer.default);
   app.use('/employee', _employee.default);
   app.use('/manager', _manager.default);
+  app.use('/lease', _lease.default);
   app.use('/license', _license.default);
 };
 

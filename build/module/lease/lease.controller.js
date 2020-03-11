@@ -9,8 +9,6 @@ var _httpStatus = _interopRequireDefault(require("http-status"));
 
 var _lease = _interopRequireDefault(require("./lease.model"));
 
-var _constants = _interopRequireDefault(require("../../config/constants"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const getLeaseList = async (req, res) => {
@@ -18,10 +16,41 @@ const getLeaseList = async (req, res) => {
   const skip = parseInt(req.query.skip, 10) || 0;
 
   try {
-    const list = await _lease.default.find().skip(skip).limit(limit);
-    const total = await _lease.default.count();
+    let leases;
+    let total;
+
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        leases = await _lease.default.find({
+          customer: req.customer._id
+        }).skip(skip).limit(limit).populate('customer car hub').populate({
+          path: 'car',
+          populate: {
+            path: 'carModel'
+          }
+        });
+        total = await _lease.default.count({
+          customer: req.customer._id
+        });
+        break;
+
+      case 'EMPLOYEE':
+      case 'MANAGER':
+        leases = await _lease.default.find().skip(skip).limit(limit).populate('customer car hub').populate({
+          path: 'car',
+          populate: {
+            path: 'carModel'
+          }
+        });
+        total = await _lease.default.count();
+        break;
+
+      default:
+        throw new Error('Role is not existed!');
+    }
+
     return res.status(_httpStatus.default.OK).json({
-      list,
+      leases,
       total
     });
   } catch (error) {
@@ -36,7 +65,12 @@ const getLease = async (req, res) => {
     const {
       id
     } = req.params;
-    const lease = await _lease.default.findById(id);
+    const lease = await _lease.default.findById(id).populate('customer car hub').populate({
+      path: 'car',
+      populate: {
+        path: 'carModel'
+      }
+    });
 
     if (!lease) {
       throw new Error('Lease Not found');

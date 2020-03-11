@@ -55,7 +55,7 @@ exports.getHubById = getHubById;
 const createHub = async (req, res) => {
   try {
     const hub = await _hub.default.create(req.body);
-    return res.status(_httpStatus.default.OK).json({
+    return res.status(_httpStatus.default.CREATED).json({
       msg: 'Created successfully!',
       hub
     });
