@@ -46,6 +46,9 @@ export const getCarModelById = async (req, res) => {
     const { id } = req.params;
     console.log(id);
     const carModel = await CarModel.findById({ _id: id });
+    if (!carModel) {
+      throw new Error('CarModel is not found!');
+    }
     return res.status(httpStatus.OK).json({ carModel });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.messages);
@@ -66,7 +69,7 @@ export const createCarModel = async (req, res) => {
   try {
     const carModel = await CarModel.create(req.body);
     return res
-      .status(httpStatus.OK)
+      .status(httpStatus.CREATED)
       .json({ msg: 'Created successfully!', carModel });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error);

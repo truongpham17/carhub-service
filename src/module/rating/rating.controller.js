@@ -32,7 +32,7 @@ export const createRating = async (req, res) => {
   try {
     const rating = await Rating.create(req.body);
     return res
-      .status(httpStatus.OK)
+      .status(httpStatus.CREATED)
       .json({ msg: 'Created successfully!', rating });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);

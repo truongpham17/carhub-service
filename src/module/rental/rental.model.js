@@ -1,4 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
+import { string } from 'joi';
+import enums from '../../enum';
 
 const RentalSchema = new Schema({
   carModel: {
@@ -29,12 +31,10 @@ const RentalSchema = new Schema({
   pickupHub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
-    default: null,
   },
   pickoffHub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
-    default: null,
   },
   price: {
     type: Number,
@@ -79,9 +79,9 @@ const RentalSchema = new Schema({
       },
     ],
   },
-  isActive: {
-    type: Boolean,
-    default: true,
+  status: {
+    type: enums.rental.status,
+    required: true,
   },
 });
 

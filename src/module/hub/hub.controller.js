@@ -32,7 +32,7 @@ export const createHub = async (req, res) => {
   try {
     const hub = await Hub.create(req.body);
     return res
-      .status(httpStatus.OK)
+      .status(httpStatus.CREATED)
       .json({ msg: 'Created successfully!', hub });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);

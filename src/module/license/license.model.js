@@ -23,7 +23,7 @@ const LicenseSchema = new Schema({
     type: Date,
   },
   image: {
-    type: String,
+    type: [String],
   },
   isActive: {
     type: Boolean,
