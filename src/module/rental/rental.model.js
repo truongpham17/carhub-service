@@ -3,16 +3,16 @@ import { string } from 'joi';
 import enums from '../../enum';
 
 const RentalSchema = new Schema({
-  car: {
+  carModel: {
     type: Schema.Types.ObjectId,
-    ref: 'Car',
+    ref: 'CarModel',
   },
   customer: {
     type: Schema.Types.ObjectId,
     ref: 'Customer',
   },
   type: {
-    type: String,
+    type: String, // 'hub' or 'share'
     required: true,
   },
   leaser: {
@@ -82,6 +82,7 @@ const RentalSchema = new Schema({
   status: {
     type: enums.rental.status,
     required: true,
+    default: 'UPCOMING',
   },
 });
 

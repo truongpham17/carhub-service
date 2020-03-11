@@ -3,7 +3,7 @@ import Joi from 'joi';
 export default {
   addRental: {
     body: {
-      car: Joi.string().required(),
+      carModel: Joi.string().required(),
       customer: Joi.string().required(),
       type: Joi.string().required(),
       leaser: Joi.string(),

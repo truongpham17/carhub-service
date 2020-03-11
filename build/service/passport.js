@@ -1,105 +1,160 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.authJwt = exports.authLocal = undefined;
+exports.authJwt = exports.auth = exports.authLocal = void 0;
 
-var _passport = require('passport');
+var _passport = _interopRequireDefault(require("passport"));
 
-var _passport2 = _interopRequireDefault(_passport);
+var _httpStatus = _interopRequireDefault(require("http-status"));
 
-var _httpStatus = require('http-status');
+var _passportLocal = _interopRequireDefault(require("passport-local"));
 
-var _httpStatus2 = _interopRequireDefault(_httpStatus);
+var _passportJwt = require("passport-jwt");
 
-var _passportLocal = require('passport-local');
+var _jsonwebtoken = _interopRequireDefault(require("jsonwebtoken"));
 
-var _passportLocal2 = _interopRequireDefault(_passportLocal);
+var _account = _interopRequireDefault(require("../module/account/account.model"));
 
-var _passportJwt = require('passport-jwt');
+var _manager = _interopRequireDefault(require("../module/manager/manager.model"));
 
-var _constants = require('../config/constants');
+var _customer = _interopRequireDefault(require("../module/customer/customer.model"));
 
-var _constants2 = _interopRequireDefault(_constants);
+var _employee = _interopRequireDefault(require("../module/employee/employee.model"));
 
-var _user = require('../module/user/user.model');
+var _constants = _interopRequireDefault(require("../config/constants"));
 
-var _user2 = _interopRequireDefault(_user);
+var _enum = _interopRequireDefault(require("../enum"));
+
+var _user = _interopRequireDefault(require("../module/user/user.model"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 const localOpts = {
   usernameField: 'username'
 };
-const localStrategy = new _passportLocal2.default(localOpts, (() => {
-  var _ref = _asyncToGenerator(function* (username, password, done) {
-    try {
-      const user = yield _user2.default.findOne({ username });
+const localStrategy = new _passportLocal.default(localOpts, async (username, password, done) => {
+  try {
+    const user = await _user.default.findOne({
+      username
+    });
 
-      if (!user) {
-        return done(null, false);
-      } else if (!user.validatePassword(password)) {
-        return done(null, false);
-      }
-
-      return done(null, user);
-    } catch (error) {
-      return done(error, false);
+    if (!user) {
+      return done(null, false);
     }
-  });
 
-  return function (_x, _x2, _x3) {
-    return _ref.apply(this, arguments);
-  };
-})());
+    if (!user.validatePassword(password)) {
+      return done(null, false);
+    }
 
-_passport2.default.use(localStrategy);
+    return done(null, user);
+  } catch (error) {
+    return done(error, false);
+  }
+});
 
-const authLocal = exports.authLocal = (() => {
-  var _ref2 = _asyncToGenerator(function* (req, res, next) {
-    return _passport2.default.authenticate('local', { session: false }, function (err, user) {
-      if (err) {
-        return res.status(_httpStatus2.default.UNAUTHORIZED).json('Invalid username or password');
-      }
-      if (!user) {
-        return res.status(_httpStatus2.default.UNAUTHORIZED).json('Invalid username or password');
-      }
+_passport.default.use(localStrategy);
 
-      return res.status(_httpStatus2.default.OK).json(user.toAuthJSON());
-    })(req, res, next);
-  });
+const authLocal = async (req, res, next) => _passport.default.authenticate('local', {
+  session: false
+}, (err, user) => {
+  if (err) {
+    return res.status(_httpStatus.default.UNAUTHORIZED).json('Invalid username or password');
+  }
 
-  return function authLocal(_x4, _x5, _x6) {
-    return _ref2.apply(this, arguments);
-  };
-})();
+  if (!user) {
+    return res.status(_httpStatus.default.UNAUTHORIZED).json('Invalid username or password');
+  }
 
+  return res.status(_httpStatus.default.OK).json(user.toAuthJSON());
+})(req, res, next);
+
+exports.authLocal = authLocal;
 const jwtOpts = {
   jwtFromRequest: _passportJwt.ExtractJwt.fromExtractors([_passportJwt.ExtractJwt.fromHeader('token'), req => req.params.token]),
-  secretOrKey: _constants2.default.JWT_SECRET
+  secretOrKey: _constants.default.JWT_SECRET
+};
+const jwtStrategy = new _passportJwt.Strategy(jwtOpts, async (payload, done) => {
+  try {
+    const user = await _user.default.findOne({
+      _id: payload._id
+    });
+
+    if (!user) {
+      return done(null, false);
+    }
+
+    return done(null, user);
+  } catch (e) {
+    return done(e, false);
+  }
+});
+
+_passport.default.use(jwtStrategy);
+
+const auth = async (req, res, next) => {
+  try {
+    const authHeader = req.header('Authorization');
+
+    if (!authHeader) {
+      return res.status(_httpStatus.default.UNAUTHORIZED).json('Unnauthorized');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    let decodedToken;
+
+    try {
+      decodedToken = _jsonwebtoken.default.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+      return res.status(_httpStatus.default.UNAUTHORIZED).json('Unauthorized');
+    }
+
+    const {
+      _id
+    } = decodedToken;
+
+    if (!decodedToken || !_id) {
+      return res.status(_httpStatus.default.UNAUTHORIZED);
+    }
+
+    const user = await _account.default.findOne({
+      _id,
+      isActive: true
+    });
+    req.user = user;
+
+    if (user.role === 'MANAGER') {
+      const manager = await _manager.default.findOne({
+        account: user._id
+      });
+      req.manager = manager;
+    }
+
+    if (user.role === 'EMPLOYEE') {
+      const employee = await _employee.default.findOne({
+        account: user._id
+      });
+      req.employee = employee;
+    }
+
+    if (user.role === 'CUSTOMER') {
+      const customer = await _customer.default.findOne({
+        account: user._id
+      });
+      req.customer = customer;
+    }
+
+    return next();
+  } catch (error) {
+    next(error);
+  }
 };
 
-const jwtStrategy = new _passportJwt.Strategy(jwtOpts, (() => {
-  var _ref3 = _asyncToGenerator(function* (payload, done) {
-    try {
-      const user = yield _user2.default.findOne({ _id: payload._id });
-      if (!user) {
-        return done(null, false);
-      }
-      return done(null, user);
-    } catch (e) {
-      return done(e, false);
-    }
-  });
+exports.auth = auth;
 
-  return function (_x7, _x8) {
-    return _ref3.apply(this, arguments);
-  };
-})());
+const authJwt = _passport.default.authenticate('jwt', {
+  session: false
+});
 
-_passport2.default.use(jwtStrategy);
-
-const authJwt = exports.authJwt = _passport2.default.authenticate('jwt', { session: false });
+exports.authJwt = authJwt;

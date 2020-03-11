@@ -9,13 +9,19 @@ import {
   removeCarModel,
   getCarModelById,
   getCarModelByVin,
+  searchNearByCarModel,
 } from './carModel.controller';
 import carValidations from './carModel.validations';
 
 const routes = new Router();
 
 routes.get('/', auth, getCarModelList);
+routes.get('/:id', auth, getCarModelById);
+routes.get('/getCarByVin/:vin', getCarModelByVin);
+
 routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
+routes.post('/search', searchNearByCarModel);
+
 routes.put(
   '/:id',
   auth,
@@ -23,6 +29,4 @@ routes.put(
   updateCarModel
 );
 routes.delete('/:id', auth, removeCarModel);
-routes.get('/:id', auth, getCarModelById);
-routes.get('/getCarByVin/:vin', getCarModelByVin);
 export default routes;

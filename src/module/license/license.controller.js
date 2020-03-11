@@ -1,6 +1,7 @@
 import HTTPStatus from 'http-status';
 import License from './license.model';
 import constants from '../../config/constants';
+import Customer from '../customer/customer.model';
 
 export const getLicenseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -32,7 +33,11 @@ export const getLicense = async (req, res) => {
 
 export const addLicense = async (req, res) => {
   try {
+    console.log(req.body);
     const license = await License.create(req.body);
+    req.customer.license = license._id;
+    await req.customer.save();
+
     return res.status(HTTPStatus.CREATED).json(license);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
