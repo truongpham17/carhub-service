@@ -3,6 +3,7 @@ import Account from './account.model';
 import Customer from '../customer/customer.model';
 import Employee from '../employee/employee.model';
 import Manager from '../manager/manager.model';
+import License from '../license/license.model';
 
 export const getAccountList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -44,10 +45,9 @@ export const login = async (req, res) => {
     let accountDetail = null;
     switch (account.role) {
       case 'CUSTOMER': {
-        console.log(account._id);
         accountDetail = await Customer.findOne({
           account: account._id,
-        });
+        }).populate({ path: 'license', model: License });
         break;
       }
       case 'EMPLOYEE': {
@@ -65,8 +65,6 @@ export const login = async (req, res) => {
     if (!accountDetail) {
       throw new Error('Account not found!');
     }
-
-    console.log(accountDetail);
 
     return res
       .status(HTTPStatus.OK)
