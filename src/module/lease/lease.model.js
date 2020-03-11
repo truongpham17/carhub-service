@@ -28,7 +28,7 @@ const LeaseSchema = new Schema({
   },
   status: {
     type: enums.lease.status,
-    required: true,
+    // required: true,
   },
 });
 
