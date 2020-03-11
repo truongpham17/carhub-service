@@ -12,7 +12,8 @@ export const getLeaseList = async (req, res) => {
         leases = await Lease.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
-          .populate('customer car hub');
+          .populate('customer car hub')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Lease.count({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
@@ -20,7 +21,8 @@ export const getLeaseList = async (req, res) => {
         leases = await Lease.find()
           .skip(skip)
           .limit(limit)
-          .populate('customer car hub');
+          .populate('customer car hub')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Lease.count();
         break;
       default:
@@ -35,7 +37,9 @@ export const getLeaseList = async (req, res) => {
 export const getLease = async (req, res) => {
   try {
     const { id } = req.params;
-    const lease = await Lease.findById(id).populate('customer car hub');
+    const lease = await Lease.findById(id)
+      .populate('customer car hub')
+      .populate({ path: 'car', populate: { path: 'carModel' } });
     if (!lease) {
       throw new Error('Lease Not found');
     }
