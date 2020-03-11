@@ -1,7 +1,10 @@
 import httpStatus from 'http-status';
 import CarModel from './carModel.model';
+import Hub from '../hub/hub.model';
+import Car from '../car/car.model';
 
 export const getCarModelList = async (req, res) => {
+  console.log('serach list');
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
@@ -15,9 +18,33 @@ export const getCarModelList = async (req, res) => {
   }
 };
 
+export const searchNearByCarModel = async (req, res) => {
+  try {
+    const hubs = await Hub.find({});
+    const data = [];
+    await Promise.all(
+      hubs.map(async hub => {
+        const modelIds = await Car.find({ currentHub: hub._id }).distinct(
+          'carModel'
+        );
+        const carModels = await CarModel.find({ _id: modelIds });
+        if (carModels.length > 0) {
+          carModels.forEach(item => {
+            data.push({ hub, carModel: item });
+          });
+        }
+      })
+    );
+    return res.status(httpStatus.OK).json(data);
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};
+
 export const getCarModelById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id);
     const carModel = await CarModel.findById({ _id: id });
     return res.status(httpStatus.OK).json({ carModel });
   } catch (error) {

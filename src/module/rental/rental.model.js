@@ -1,18 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
 
 const RentalSchema = new Schema({
-  car: {
+  carModel: {
     type: Schema.Types.ObjectId,
-    ref: 'Car',
-    default: null,
+    ref: 'CarModel',
   },
   customer: {
     type: Schema.Types.ObjectId,
     ref: 'Customer',
-    default: null,
   },
   type: {
-    type: String,
+    type: String, // 'hub' or 'share'
     required: true,
   },
   leaser: {
