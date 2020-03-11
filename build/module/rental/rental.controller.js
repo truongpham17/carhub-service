@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeRental = exports.updateRental = exports.addRental = exports.getRentalById = exports.getRental = void 0;
 
+var _httpStatus = _interopRequireDefault(require("http-status"));
+
 var _rental = _interopRequireDefault(require("./rental.model"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -12,33 +14,78 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
   const skip = parseInt(req.query.skip, 10) || 0;
-  const rentals = await _rental.default.find({
-    isActive: true
-  }).skip(skip).limit(limit);
-  const total = await _rental.default.countDocuments({
-    isActive: true
-  });
-  return res.json({
-    rentals,
-    total
-  });
+
+  try {
+    let rentals;
+    let total;
+
+    switch (req.user.role) {
+      case 'CUSTOMER':
+        rentals = await _rental.default.find({
+          customer: req.customer._id
+        }).skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment').populate({
+          path: 'car',
+          populate: {
+            path: 'carModel'
+          }
+        });
+        total = await _rental.default.countDocuments({
+          customer: req.customer._id
+        });
+        break;
+
+      case 'EMPLOYEE':
+      case 'MANAGER':
+        rentals = await _rental.default.find().skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment').populate({
+          path: 'car',
+          populate: {
+            path: 'carModel'
+          }
+        });
+        total = await _rental.default.countDocuments();
+        break;
+
+      default:
+        throw new Error('Role is not existed!');
+    }
+
+    return res.status(_httpStatus.default.OK).json({
+      rentals,
+      total
+    });
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
+  }
 };
 
 exports.getRental = getRental;
 
 const getRentalById = async (req, res) => {
-  const {
-    id
-  } = req.params;
-  const rental = await _rental.default.findById(id);
-  return res.json(rental);
+  try {
+    const {
+      id
+    } = req.params;
+    const rental = await _rental.default.findById(id).populate('car customer leaser pickupHub pickoffHub payment').populate({
+      path: 'car',
+      populate: {
+        path: 'carModel'
+      }
+    });
+    return res.status(_httpStatus.default.OK).json(rental);
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
+  }
 };
 
 exports.getRentalById = getRentalById;
 
 const addRental = async (req, res) => {
-  const rental = await _rental.default.create(req.body);
-  res.json(rental);
+  try {
+    const rental = await _rental.default.create(req.body);
+    return res.status(_httpStatus.default.CREATED).json(rental.toJSON());
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
+  }
 };
 
 exports.addRental = addRental;
@@ -51,12 +98,12 @@ const updateRental = async (req, res) => {
     const rental = await _rental.default.findByIdAndUpdate({
       _id: id
     }, req.body);
-    return res.json({
+    return res.status(_httpStatus.default.OK).json({
       msg: 'Updated!',
       rental
     });
   } catch (error) {
-    res.status(404).json(error);
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error);
   }
 };
 
@@ -72,12 +119,12 @@ const removeRental = async (req, res) => {
     }, {
       isActive: false
     });
-    return res.json({
+    return res.status(_httpStatus.default.OK).json({
       msg: 'Deleted!!',
       rental
     });
   } catch (err) {
-    res.status(404).json(err);
+    return res.status(_httpStatus.default.BAD_REQUEST).json(err);
   }
 };
 

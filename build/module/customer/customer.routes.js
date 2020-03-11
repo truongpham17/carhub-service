@@ -22,5 +22,6 @@ routes.get('/', _passport.auth, _customer.getCustomerList);
 routes.get('/:id', _passport.auth, _customer.getCustomer);
 routes.post('/', _passport.auth, (0, _expressValidation.default)(_customer2.default.createCustomer), _customer.createCustomer);
 routes.patch('/:id', _passport.auth, (0, _expressValidation.default)(_customer2.default.updateCustomer), _customer.updateCustomer);
+routes.get('/account/:id', _customer.getCustomerByAccount);
 var _default = routes;
 exports.default = _default;

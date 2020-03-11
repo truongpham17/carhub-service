@@ -18,8 +18,7 @@ var _default = {
       startDate: _joi.default.date(),
       endDate: _joi.default.date(),
       price: _joi.default.number(),
-      totalEarn: _joi.default.number(),
-      status: _joi.default.string()
+      totalEarn: _joi.default.number()
     },
     options: {
       allowUnknownBody: false
@@ -33,8 +32,7 @@ var _default = {
       startDate: _joi.default.date(),
       endDate: _joi.default.date(),
       price: _joi.default.number(),
-      totalEarn: _joi.default.number(),
-      status: _joi.default.string()
+      totalEarn: _joi.default.number()
     },
     options: {
       allowUnknownBody: false

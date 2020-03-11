@@ -54,7 +54,6 @@ exports.getLicense = getLicense;
 
 const addLicense = async (req, res) => {
   try {
-    console.log(req.body);
     const license = await _license.default.create(req.body);
     req.customer.license = license._id;
     await req.customer.save();

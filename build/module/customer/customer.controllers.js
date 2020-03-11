@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateCustomer = exports.createCustomer = exports.getCustomer = exports.getCustomerList = void 0;
+exports.updateCustomer = exports.createCustomer = exports.getCustomerByAccount = exports.getCustomer = exports.getCustomerList = void 0;
 
 var _httpStatus = _interopRequireDefault(require("http-status"));
 
@@ -55,6 +55,29 @@ const getCustomer = async (req, res) => {
 };
 
 exports.getCustomer = getCustomer;
+
+const getCustomerByAccount = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    const customer = await _customer.default.find({
+      account: id
+    });
+
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    return res.status(_httpStatus.default.OK).json({
+      customer
+    });
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
+  }
+};
+
+exports.getCustomerByAccount = getCustomerByAccount;
 
 const createCustomer = async (req, res) => {
   try {

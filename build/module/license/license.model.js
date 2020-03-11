@@ -34,7 +34,7 @@ const LicenseSchema = new _mongoose.Schema({
     type: Date
   },
   image: {
-    type: String
+    type: [String]
   },
   isActive: {
     type: Boolean,

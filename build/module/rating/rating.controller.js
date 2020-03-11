@@ -55,7 +55,7 @@ exports.getRatingById = getRatingById;
 const createRating = async (req, res) => {
   try {
     const rating = await _rating.default.create(req.body);
-    return res.status(_httpStatus.default.OK).json({
+    return res.status(_httpStatus.default.CREATED).json({
       msg: 'Created successfully!',
       rating
     });

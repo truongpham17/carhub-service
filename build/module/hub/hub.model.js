@@ -20,9 +20,15 @@ const HubSchema = new _mongoose.Schema({
     type: String,
     required: true
   },
-  geoLocation: {
-    type: String,
-    required: true
+  geometry: {
+    lat: {
+      type: Number,
+      required: true
+    },
+    lng: {
+      type: Number,
+      required: true
+    }
   },
   description: {
     type: String,

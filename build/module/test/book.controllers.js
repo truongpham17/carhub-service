@@ -28,7 +28,6 @@ const addBook = async (req, res) => {
       title,
       description
     });
-    console.log(book);
     return res.json(book.toJSON());
   } catch (error) {
     return res.status(_httpStatus.default.BAD_REQUEST);
