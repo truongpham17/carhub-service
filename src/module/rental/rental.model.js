@@ -82,6 +82,7 @@ const RentalSchema = new Schema({
   status: {
     type: enums.rental.status,
     required: true,
+    default: 'UPCOMING',
   },
 });
 
