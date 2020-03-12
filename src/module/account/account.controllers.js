@@ -77,7 +77,6 @@ export const login = async (req, res) => {
 export const getAccount = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('user id is: ', id);
     // only admin can get all account
     // one account can get their info only
     if (req.user.role !== 'MANAGER' && req.user._id.toString() !== id) {

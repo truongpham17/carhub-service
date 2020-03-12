@@ -23,11 +23,9 @@ const CarModelSchema = new Schema({
   },
   images: {
     type: [String],
-    required: false,
   },
   description: {
     type: String,
-    required: false,
   },
   price: {
     type: Number,
