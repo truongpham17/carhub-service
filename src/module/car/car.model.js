@@ -22,23 +22,27 @@ const CarSchema = new Schema({
   },
   odometer: {
     type: Number,
-    required: true,
+    // required: true,
+  },
+  usingYears: {
+    type: Number,
+    // required: true,
   },
   images: {
     type: [String],
-    required: false,
+    // required: false,
   },
   description: {
     type: String,
-    required: false,
+    // required: false,
   },
   price: {
     type: Number,
-    required: true,
+    // required: false,
   },
   feature: {
     type: String,
-    required: false,
+    // required: false,
   },
   isActive: {
     type: Boolean,
@@ -46,7 +50,7 @@ const CarSchema = new Schema({
   },
   VIN: {
     type: String,
-    required: true,
+    // required: true,
   },
 });
 

@@ -12,11 +12,9 @@ const HubSchema = new Schema({
   geometry: {
     lat: {
       type: Number,
-      required: true,
     },
     lng: {
       type: Number,
-      required: true,
     },
   },
   description: {
