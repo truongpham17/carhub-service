@@ -67,10 +67,11 @@ export const addLease = async (req, res) => {
 
 export const updateLease = async (req, res) => {
   try {
-    const lease = await Lease.findByIdAndUpdate(
-      { _id: req.params.id },
-      req.body
-    );
+    const lease = await Lease.findById(req.params.id);
+    Object.keys(req.body).forEach(key => {
+      lease[key] = req.body[key];
+    });
+    await lease.save();
     return res.status(HTTPStatus.OK).json(lease);
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
