@@ -15,8 +15,9 @@ var _default = {
       carModel: _joi.default.string().required(),
       customer: _joi.default.string().required(),
       hub: _joi.default.string().required(),
-      currentHub: _joi.default.string().required(),
+      currentHub: _joi.default.string(),
       odometer: _joi.default.number(),
+      usingYear: _joi.default.number(),
       images: _joi.default.array(),
       description: _joi.default.string(),
       price: _joi.default.number().min(0),
@@ -24,7 +25,7 @@ var _default = {
       VIN: _joi.default.string()
     },
     options: {
-      allowUnknownBody: false
+      allowUnknownBody: true
     }
   },
   updateCar: {

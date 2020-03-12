@@ -49,7 +49,7 @@ const searchNearByCarModel = async (req, res) => {
     const hubs = await _hub.default.find({});
     const hubsPlusDistance = hubs.map(hub => ({ ...hub.toJSON(),
       distance: (0, _distance.distanceInKmBetweenEarthCoordinates)(hub.geometry.lat, hub.geometry.lng, lat, lng)
-    })).sort((a, b) => b.distance - a.distance);
+    })).sort((a, b) => a.distance - b.distance);
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
     console.log(hubFilter);
     const data = [];
@@ -72,6 +72,7 @@ const searchNearByCarModel = async (req, res) => {
     }));
     return res.status(_httpStatus.default.OK).json(data);
   } catch (error) {
+    console.log('error!!!!');
     return res.status(_httpStatus.default.BAD_REQUEST).json(error.messages);
   }
 };

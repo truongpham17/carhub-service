@@ -19,10 +19,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const routes = new _express.Router();
 routes.get('/', _passport.auth, _car.getCarList);
+routes.get('/list', _passport.auth, _car.getCustomerCarList);
 routes.get('/:id', _passport.auth, _car.getCarById);
 routes.get('/hub/:id', _passport.auth, _car.getCarsByHub);
-routes.get('/customer/:id', _passport.auth, _car.getCarsByCustomer);
-routes.post('/', _passport.auth, (0, _expressValidation.default)(_car2.default.createCar), _car.createCar);
+routes.get('/customer/:id', _passport.auth, _car.getCarsByCustomer); // routes.post('/', auth, validate(carValidations.createCar), createCar);
+
+routes.post('/', _passport.auth, _car.createCar);
 routes.put('/:id', _passport.auth, (0, _expressValidation.default)(_car2.default.updateCar), _car.updateCar);
 routes.delete('/:id', _passport.auth, _car.removeCar);
 routes.get('/checkVin/:vin', _car.checkCarByVin);

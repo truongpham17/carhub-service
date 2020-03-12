@@ -22,6 +22,7 @@ routes.get('/', _passport.auth, _rental.getRental);
 routes.get('/:id', _passport.auth, _rental.getRentalById);
 routes.post('/', _passport.auth, (0, _expressValidation.default)(_rental2.default.addRental), _rental.addRental);
 routes.put('/:id', _passport.auth, (0, _expressValidation.default)(_rental2.default.updateRental), _rental.updateRental);
+routes.post('/transaction/:id', _passport.auth, _rental.submitTransaction);
 routes.delete('/:id', _passport.auth, _rental.removeRental);
 var _default = routes;
 exports.default = _default;

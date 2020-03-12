@@ -3,11 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.checkCarByVin = exports.removeCar = exports.updateCar = exports.createCar = exports.getCarsByHub = exports.getCarsByCustomer = exports.getCarById = exports.getCarList = void 0;
+exports.checkCarByVin = exports.removeCar = exports.updateCar = exports.createCar = exports.getCarsByHub = exports.getCustomerCarList = exports.getCarsByCustomer = exports.getCarById = exports.getCarList = void 0;
 
 var _httpStatus = _interopRequireDefault(require("http-status"));
 
 var _car = _interopRequireDefault(require("./car.model"));
+
+var _carModel = _interopRequireDefault(require("../carModel/carModel.model"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -97,6 +99,25 @@ const getCarsByCustomer = async (req, res) => {
 
 exports.getCarsByCustomer = getCarsByCustomer;
 
+const getCustomerCarList = async (req, res) => {
+  try {
+    const cars = await _car.default.find({
+      customer: req.customer._id,
+      isActive: true
+    }).populate('carModel');
+
+    if (!cars) {
+      throw new Error('Car is not found!');
+    }
+
+    return res.status(_httpStatus.default.OK).json(cars);
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
+  }
+};
+
+exports.getCustomerCarList = getCustomerCarList;
+
 const getCarsByHub = async (req, res) => {
   try {
     const {
@@ -161,7 +182,7 @@ const removeCar = async (req, res) => {
   try {
     const {
       id
-    } = req.params;
+    } = req.params.id;
     await _car.default.findByIdAndUpdate({
       _id: id
     }, {

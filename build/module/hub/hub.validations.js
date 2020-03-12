@@ -17,7 +17,7 @@ var _default = {
       description: _joi.default.string()
     },
     options: {
-      allowUnknownBody: false
+      allowUnknownBody: true
     }
   },
   updateHub: {

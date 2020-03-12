@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.removeRental = exports.updateRental = exports.addRental = exports.getRentalById = exports.getRental = void 0;
+exports.submitTransaction = exports.removeRental = exports.updateRental = exports.addRental = exports.getRentalById = exports.getRental = void 0;
 
 var _httpStatus = _interopRequireDefault(require("http-status"));
 
@@ -23,7 +23,7 @@ const getRental = async (req, res) => {
       case 'CUSTOMER':
         rentals = await _rental.default.find({
           customer: req.customer._id
-        }).skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment').populate({
+        }).skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment carModel').populate({
           path: 'car',
           populate: {
             path: 'carModel'
@@ -36,7 +36,7 @@ const getRental = async (req, res) => {
 
       case 'EMPLOYEE':
       case 'MANAGER':
-        rentals = await _rental.default.find().skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment').populate({
+        rentals = await _rental.default.find().skip(skip).limit(limit).populate('car customer leaser pickupHub pickoffHub payment carModel').populate({
           path: 'car',
           populate: {
             path: 'carModel'
@@ -65,12 +65,7 @@ const getRentalById = async (req, res) => {
     const {
       id
     } = req.params;
-    const rental = await _rental.default.findById(id).populate('car customer leaser pickupHub pickoffHub payment').populate({
-      path: 'car',
-      populate: {
-        path: 'carModel'
-      }
-    });
+    const rental = await _rental.default.findById(id).populate('car customer leaser pickupHub pickoffHub payment carModel');
     return res.status(_httpStatus.default.OK).json(rental);
   } catch (error) {
     return res.status(_httpStatus.default.BAD_REQUEST).json(error.message);
@@ -131,3 +126,46 @@ const removeRental = async (req, res) => {
 };
 
 exports.removeRental = removeRental;
+
+const submitTransaction = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    const rental = await _rental.default.findById(id);
+
+    if (!rental) {
+      throw new Error('Rental not found');
+    } // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
+
+
+    const {
+      status
+    } = rental;
+
+    switch (status) {
+      case 'UPCOMING':
+        rental.status = 'CURRENT';
+        break;
+
+      case 'CURRENT':
+      case 'OVERDUE':
+        rental.status = 'PAST';
+        break;
+
+      case 'SHARING':
+        rental.status = 'SHARED';
+        break;
+
+      default:
+        break;
+    }
+
+    await rental.save();
+    return res.status(_httpStatus.default.OK).json(rental);
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json();
+  }
+};
+
+exports.submitTransaction = submitTransaction;

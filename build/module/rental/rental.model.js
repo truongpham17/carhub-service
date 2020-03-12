@@ -7,8 +7,6 @@ exports.default = void 0;
 
 var _mongoose = _interopRequireWildcard(require("mongoose"));
 
-var _joi = require("joi");
-
 var _enum = _interopRequireDefault(require("../../enum"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -21,6 +19,10 @@ const RentalSchema = new _mongoose.Schema({
   carModel: {
     type: _mongoose.Schema.Types.ObjectId,
     ref: 'CarModel'
+  },
+  car: {
+    type: _mongoose.Schema.Types.ObjectId,
+    ref: 'Car'
   },
   customer: {
     type: _mongoose.Schema.Types.ObjectId,

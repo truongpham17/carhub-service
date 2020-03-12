@@ -22,12 +22,10 @@ const HubSchema = new _mongoose.Schema({
   },
   geometry: {
     lat: {
-      type: Number,
-      required: true
+      type: Number
     },
     lng: {
-      type: Number,
-      required: true
+      type: Number
     }
   },
   description: {

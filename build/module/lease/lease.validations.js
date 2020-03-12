@@ -18,10 +18,10 @@ var _default = {
       startDate: _joi.default.date(),
       endDate: _joi.default.date(),
       price: _joi.default.number(),
-      totalEarn: _joi.default.number()
+      totalEarn: _joi.default.number(),
+      cardNumber: _joi.default.string()
     },
-    options: {
-      allowUnknownBody: false
+    options: {// allowUnknownBody: false,
     }
   },
   updateLease: {

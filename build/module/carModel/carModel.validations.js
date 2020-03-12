@@ -15,7 +15,10 @@ var _default = {
       name: _joi.default.string().required(),
       type: _joi.default.string().required(),
       fuelType: _joi.default.string().required(),
-      numberOfSeat: _joi.default.number().required()
+      numberOfSeat: _joi.default.number().required(),
+      price: _joi.default.number(),
+      description: _joi.default.string(),
+      images: _joi.default.array()
     },
     options: {
       allowUnknownBody: false
@@ -26,7 +29,10 @@ var _default = {
       name: _joi.default.string(),
       type: _joi.default.string(),
       fuelType: _joi.default.string(),
-      numberOfSeat: _joi.default.number()
+      numberOfSeat: _joi.default.number(),
+      price: _joi.default.number(),
+      description: _joi.default.string(),
+      images: _joi.default.array()
     },
     options: {
       allowUnknownBody: false

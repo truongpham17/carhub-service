@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateLease = exports.addLease = exports.getLease = exports.getLeaseList = void 0;
+exports.submitTransaction = exports.updateLease = exports.addLease = exports.getLease = exports.getLeaseList = void 0;
 
 var _httpStatus = _interopRequireDefault(require("http-status"));
 
@@ -105,5 +105,58 @@ const updateLease = async (req, res) => {
     return res.status(_httpStatus.default.BAD_REQUEST).json(e.message || e);
   }
 };
+/*
+
+    'PENDING',
+        'UPCOMING',
+        'DECLINE',
+        'AVAILABLE',
+        'HIRING',
+        'WAIT_TO_RETURN',
+        'PAST', */
+
 
 exports.updateLease = updateLease;
+
+const submitTransaction = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    const lease = await _lease.default.findOne({
+      _id: id
+    }, {
+      isActive: true
+    });
+
+    if (!lease) {
+      throw new Error('lease not found');
+    } // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
+
+
+    const {
+      status
+    } = lease;
+
+    switch (status) {
+      case 'UPCOMING':
+        lease.status = 'CURRENT';
+        break;
+
+      case 'AVAILABLE':
+      case 'WAIT_TO_RETURN':
+        lease.status = 'PAST';
+        break;
+
+      default:
+        break;
+    }
+
+    await lease.save();
+    return res.status(_httpStatus.default.OK).json(lease);
+  } catch (error) {
+    return res.status(_httpStatus.default.BAD_REQUEST).json();
+  }
+};
+
+exports.submitTransaction = submitTransaction;

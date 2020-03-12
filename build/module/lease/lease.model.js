@@ -38,11 +38,17 @@ const LeaseSchema = new _mongoose.Schema({
     type: Number
   },
   totalEarn: {
-    type: Number
+    type: Number,
+    default: 0
   },
   status: {
     type: _enum.default.lease.status,
-    required: true
+    required: true,
+    default: 'PENDING' // required: true,
+
+  },
+  cardNumber: {
+    type: String
   }
 });
 

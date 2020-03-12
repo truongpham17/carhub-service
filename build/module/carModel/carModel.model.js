@@ -13,36 +13,34 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 const CarModelSchema = new _mongoose.Schema({
   name: {
-    type: String,
-    required: true
+    type: String // required: true,
+
   },
   type: {
-    type: String,
-    required: true
+    type: String // required: true,
+
   },
   fuelType: {
-    type: String,
-    required: true
+    type: String // required: true,
+
   },
   numberOfSeat: {
-    type: Number,
-    required: true
+    type: Number // required: true,
+
   },
   isActive: {
     type: Boolean,
     default: true
   },
   images: {
-    type: [String],
-    required: false
+    type: [String]
   },
   description: {
-    type: String,
-    required: false
+    type: String
   },
   price: {
-    type: Number,
-    required: true
+    type: Number // required: true,
+
   }
 });
 

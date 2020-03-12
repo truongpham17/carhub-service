@@ -17,7 +17,7 @@ var _default = {
   },
   lease: {
     status: {
-      ENUM: ['PENDING', 'AVAILABLE', 'HIRING', 'WAIT_TO_RETURN', 'PAST']
+      ENUM: ['PENDING', 'UPCOMING', 'DECLINE', 'AVAILABLE', 'HIRING', 'WAIT_TO_RETURN', 'PAST']
     }
   }
 };
