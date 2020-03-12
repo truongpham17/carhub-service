@@ -22,6 +22,7 @@ const LeaseSchema = new Schema({
   },
   price: {
     type: Number,
+    default: 0,
   },
   totalEarn: {
     type: Number,
@@ -29,7 +30,7 @@ const LeaseSchema = new Schema({
   },
   status: {
     type: enums.lease.status,
-    required: true,
+    default: 'PENDING',
   },
 });
 

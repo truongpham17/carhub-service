@@ -50,11 +50,11 @@ export const getRentalById = async (req, res) => {
 
 export const addRental = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const rental = await Rental.create(req.body);
     return res.status(HTTPStatus.CREATED).json(rental.toJSON());
   } catch (error) {
-    console.log(error, 'error herer!!');
+    // console.log(error, 'error herer!!');
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };

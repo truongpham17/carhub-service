@@ -5,7 +5,7 @@ import Car from '../car/car.model';
 import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
 
 export const getCarModelList = async (req, res) => {
-  console.log('serach list');
+  // console.log('serach list');
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
@@ -21,7 +21,7 @@ export const getCarModelList = async (req, res) => {
 
 export const searchNearByCarModel = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { startLocation } = req.body;
     const { lat, lng } = startLocation.geometry;
 
@@ -40,7 +40,7 @@ export const searchNearByCarModel = async (req, res) => {
       .sort((a, b) => b.distance - a.distance);
 
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
-    console.log(hubFilter);
+    // console.log(hubFilter);
     const data = [];
     await Promise.all(
       hubFilter.map(async hub => {

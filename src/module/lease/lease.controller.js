@@ -17,6 +17,13 @@ export const getLeaseList = async (req, res) => {
         total = await Lease.count({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
+        leases = await Lease.find({ hub: req.employee.hub })
+          .skip(skip)
+          .limit(limit)
+          .populate('customer car hub')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
+        total = await Lease.count({ hub: req.employee.hub });
+        break;
       case 'MANAGER':
         leases = await Lease.find()
           .skip(skip)
