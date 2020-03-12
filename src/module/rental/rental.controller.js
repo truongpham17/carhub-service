@@ -37,9 +37,9 @@ export const getRental = async (req, res) => {
 export const getRentalById = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findById(id)
-      .populate('car customer leaser pickupHub pickoffHub payment')
-      .populate({ path: 'car', populate: { path: 'carModel' } });
+    const rental = await Rental.findById(id).populate(
+      'car customer leaser pickupHub pickoffHub payment carModel'
+    );
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);

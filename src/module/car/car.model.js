@@ -11,6 +11,9 @@ const CarSchema = new Schema({
     ref: 'Customer',
   },
 
+  usingYear: {
+    type: Number,
+  },
   hub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
@@ -35,6 +38,7 @@ const CarSchema = new Schema({
   price: {
     type: Number,
     required: true,
+    default: 0,
   },
   feature: {
     type: String,

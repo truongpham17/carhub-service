@@ -19,7 +19,7 @@ routes.get('/', auth, getCarList);
 routes.get('/:id', auth, getCarById);
 routes.get('/hub/:id', auth, getCarsByHub);
 routes.get('/customer/:id', auth, getCarsByCustomer);
-routes.post('/', auth, validate(carValidations.createCar), createCar);
+routes.post('/', auth, createCar);
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', auth, removeCar);
 routes.get('/checkVin/:vin', checkCarByVin);

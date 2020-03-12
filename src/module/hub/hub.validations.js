@@ -8,7 +8,7 @@ export default {
       description: Joi.string(),
     },
     options: {
-      allowUnknownBody: false,
+      allowUnknownBody: true,
     },
   },
   updateHub: {
