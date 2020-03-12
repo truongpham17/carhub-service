@@ -25,6 +25,7 @@ const LeaseSchema = new Schema({
   },
   totalEarn: {
     type: Number,
+    default: 0,
   },
   status: {
     type: enums.lease.status,
