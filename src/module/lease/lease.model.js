@@ -28,7 +28,11 @@ const LeaseSchema = new Schema({
   },
   status: {
     type: enums.lease.status,
+    default: 'PENDING',
     // required: true,
+  },
+  cardNumber: {
+    type: String,
   },
 });
 

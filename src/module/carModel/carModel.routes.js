@@ -19,7 +19,8 @@ routes.get('/', auth, getCarModelList);
 routes.get('/:id', auth, getCarModelById);
 routes.get('/getCarByVin/:vin', getCarModelByVin);
 
-routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
+// routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
+routes.post('/', auth, createCarModel);
 routes.post('/search', searchNearByCarModel);
 
 routes.put(
