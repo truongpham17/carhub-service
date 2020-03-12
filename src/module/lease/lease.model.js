@@ -22,13 +22,15 @@ const LeaseSchema = new Schema({
   },
   price: {
     type: Number,
+    default: 0,
   },
   totalEarn: {
     type: Number,
+    default: 0,
   },
   status: {
     type: enums.lease.status,
-    required: true,
+    default: 'PENDING',
   },
 });
 

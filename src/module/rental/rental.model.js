@@ -1,11 +1,14 @@
 import mongoose, { Schema } from 'mongoose';
-import { string } from 'joi';
 import enums from '../../enum';
 
 const RentalSchema = new Schema({
   carModel: {
     type: Schema.Types.ObjectId,
     ref: 'CarModel',
+  },
+  car: {
+    type: Schema.Types.ObjectId,
+    ref: 'Car',
   },
   customer: {
     type: Schema.Types.ObjectId,
@@ -82,6 +85,7 @@ const RentalSchema = new Schema({
   status: {
     type: enums.rental.status,
     required: true,
+    default: 'UPCOMING',
   },
 });
 

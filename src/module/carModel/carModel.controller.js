@@ -2,9 +2,10 @@ import httpStatus from 'http-status';
 import CarModel from './carModel.model';
 import Hub from '../hub/hub.model';
 import Car from '../car/car.model';
+import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
 
 export const getCarModelList = async (req, res) => {
-  console.log('serach list');
+  // console.log('serach list');
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
@@ -20,10 +21,29 @@ export const getCarModelList = async (req, res) => {
 
 export const searchNearByCarModel = async (req, res) => {
   try {
+    // console.log(req.body);
+    const { startLocation } = req.body;
+    const { lat, lng } = startLocation.geometry;
+
     const hubs = await Hub.find({});
+
+    const hubsPlusDistance = hubs
+      .map(hub => ({
+        ...hub.toJSON(),
+        distance: distanceInKmBetweenEarthCoordinates(
+          hub.geometry.lat,
+          hub.geometry.lng,
+          lat,
+          lng
+        ),
+      }))
+      .sort((a, b) => b.distance - a.distance);
+
+    const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
+    // console.log(hubFilter);
     const data = [];
     await Promise.all(
-      hubs.map(async hub => {
+      hubFilter.map(async hub => {
         const modelIds = await Car.find({ currentHub: hub._id }).distinct(
           'carModel'
         );
@@ -35,6 +55,7 @@ export const searchNearByCarModel = async (req, res) => {
         }
       })
     );
+
     return res.status(httpStatus.OK).json(data);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.messages);
