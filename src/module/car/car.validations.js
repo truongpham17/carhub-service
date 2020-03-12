@@ -15,7 +15,7 @@ export default {
       VIN: Joi.string(),
     },
     options: {
-      allowUnknownBody: false,
+      allowUnknownBody: true,
     },
   },
   updateCar: {

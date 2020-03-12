@@ -3,19 +3,19 @@ import mongoose, { Schema } from 'mongoose';
 const CarModelSchema = new Schema({
   name: {
     type: String,
-    required: true,
+    // required: true,
   },
   type: {
     type: String,
-    required: true,
+    // required: true,
   },
   fuelType: {
     type: String,
-    required: true,
+    // required: true,
   },
   numberOfSeat: {
     type: Number,
-    required: true,
+    // required: true,
   },
   isActive: {
     type: Boolean,
@@ -29,6 +29,7 @@ const CarModelSchema = new Schema({
   },
   price: {
     type: Number,
+    // required: true,
   },
 });
 
