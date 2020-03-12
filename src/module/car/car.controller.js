@@ -64,7 +64,7 @@ export const getCarsByCustomer = async (req, res) => {
   }
 };
 
-export const getCustomerCarList = async (req, res) => {
+export const getCustomerPreviousCarList = async (req, res) => {
   try {
     const cars = await Car.find({
       customer: req.customer._id,
