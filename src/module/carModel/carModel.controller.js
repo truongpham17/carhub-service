@@ -35,7 +35,7 @@ export const searchNearByCarModel = async (req, res) => {
           lng
         ),
       }))
-      .sort((a, b) => b.distance - a.distance);
+      .sort((a, b) => a.distance - b.distance);
 
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
     const data = [];
@@ -55,6 +55,7 @@ export const searchNearByCarModel = async (req, res) => {
 
     return res.status(httpStatus.OK).json(data);
   } catch (error) {
+    console.log('error!!!!');
     return res.status(httpStatus.BAD_REQUEST).json(error.messages);
   }
 };

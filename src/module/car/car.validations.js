@@ -6,8 +6,9 @@ export default {
       carModel: Joi.string().required(),
       customer: Joi.string().required(),
       hub: Joi.string().required(),
-      currentHub: Joi.string().required(),
+      currentHub: Joi.string(),
       odometer: Joi.number(),
+      usingYear: Joi.number(),
       images: Joi.array(),
       description: Joi.string(),
       price: Joi.number().min(0),
@@ -15,7 +16,7 @@ export default {
       VIN: Joi.string(),
     },
     options: {
-      allowUnknownBody: false,
+      allowUnknownBody: true,
     },
   },
   updateCar: {

@@ -1,5 +1,6 @@
 import HTTPStatus from 'http-status';
 import Car from './car.model';
+import CarModel from '../carModel/carModel.model';
 
 export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -63,6 +64,22 @@ export const getCarsByCustomer = async (req, res) => {
   }
 };
 
+export const getCustomerCarList = async (req, res) => {
+  try {
+    const cars = await Car.find({
+      customer: req.customer._id,
+      isActive: true,
+    }).populate('carModel');
+
+    if (!cars) {
+      throw new Error('Car is not found!');
+    }
+    return res.status(HTTPStatus.OK).json(cars);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
 export const getCarsByHub = async (req, res) => {
   try {
     const { hubId } = req.params;
@@ -102,7 +119,7 @@ export const updateCar = async (req, res) => {
 
 export const removeCar = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params.id;
     await Car.findByIdAndUpdate({ _id: id }, { isActive: false });
     return res.status(HTTPStatus.OK).json({ msg: 'Deleted successfully!s' });
   } catch (error) {
