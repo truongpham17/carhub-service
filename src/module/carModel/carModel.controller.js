@@ -37,7 +37,7 @@ export const searchNearByCarModel = async (req, res) => {
           lng
         ),
       }))
-      .sort((a, b) => b.distance - a.distance);
+      .sort((a, b) => a.distance - b.distance);
 
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
     console.log(hubFilter);
