@@ -115,3 +115,29 @@ export const removeCarModel = async (req, res) => {
     res.status(httpStatus.BAD_REQUEST).json(error.messages);
   }
 };
+
+export const createCarModelBySendingLease = async (req, res) => {
+  try {
+    const carModelExisted = await CarModel.findOne({
+      name: new RegExp(`${req.body.name}`, 'i'),
+    });
+    if (!carModelExisted) {
+      const carModel = await CarModel.create(req.body);
+      return res.status(httpStatus.CREATED).json(carModel);
+    }
+    return res.status(httpStatus.CREATED).json(carModelExisted);
+  } catch (error) {
+    res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};
+
+export const findCarModelByName = async (req, res) => {
+  try {
+    const carModel = await CarModel.findOne({
+      name: new RegExp(`${req.body.data.name}`, 'i'),
+    });
+    return res.status(httpStatus.OK).json(carModel);
+  } catch (error) {
+    res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};

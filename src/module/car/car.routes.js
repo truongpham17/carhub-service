@@ -11,6 +11,7 @@ import {
   getCarsByHub,
   getCarsByCustomer,
   getCustomerPreviousCarList,
+  createCarAfterCheckingVin,
 } from './car.controller';
 import carValidations from './car.validations';
 
@@ -21,7 +22,7 @@ routes.get('/list', auth, getCustomerPreviousCarList);
 routes.get('/:id', auth, getCarById);
 routes.get('/hub/:id', auth, getCarsByHub);
 routes.get('/customer/:id', auth, getCarsByCustomer);
-
+routes.post('/createCarAfterChecking', auth, createCarAfterCheckingVin);
 // routes.post('/', auth, validate(carValidations.createCar), createCar);
 routes.post('/', auth, createCar);
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);

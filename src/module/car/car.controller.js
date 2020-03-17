@@ -136,3 +136,20 @@ export const checkCarByVin = async (req, res) => {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.messages);
   }
 };
+
+export const createCarAfterCheckingVin = async (req, res) => {
+  try {
+    const checkCar = await Car.findOne({ VIN: req.body.VIN });
+    if (checkCar) {
+      const newCar = await Car.findByIdAndUpdate(
+        { _id: checkCar._id },
+        req.body
+      );
+      return res.status(HTTPStatus.CREATED).json(newCar);
+    }
+    const car = await Car.create(req.body);
+    return res.status(HTTPStatus.CREATED).json(car);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+  }
+};
