@@ -14,7 +14,7 @@ export const getLeaseList = async (req, res) => {
           .limit(limit)
           .populate('customer car hub')
           .populate({ path: 'car', populate: { path: 'carModel' } });
-        total = await Lease.count({ customer: req.customer._id });
+        total = await Lease.countDocuments({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
       case 'MANAGER':
