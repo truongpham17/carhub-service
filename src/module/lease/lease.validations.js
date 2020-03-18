@@ -10,9 +10,10 @@ export default {
       endDate: Joi.date(),
       price: Joi.number(),
       totalEarn: Joi.number(),
+      cardNumber: Joi.string(),
     },
     options: {
-      allowUnknownBody: false,
+      // allowUnknownBody: false,
     },
   },
   updateLease: {

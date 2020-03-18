@@ -11,6 +11,9 @@ const CarSchema = new Schema({
     ref: 'Customer',
   },
 
+  usingYear: {
+    type: Number,
+  },
   hub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
@@ -22,23 +25,28 @@ const CarSchema = new Schema({
   },
   odometer: {
     type: Number,
-    required: true,
+    // required: true,
+  },
+  usingYears: {
+    type: Number,
+    // required: true,
   },
   images: {
     type: [String],
-    required: false,
+    // required: false,
   },
   description: {
     type: String,
-    required: false,
+    // required: false,
   },
   price: {
     type: Number,
     required: true,
+    default: 0,
   },
   feature: {
     type: String,
-    required: false,
+    // required: false,
   },
   isActive: {
     type: Boolean,
@@ -46,7 +54,7 @@ const CarSchema = new Schema({
   },
   VIN: {
     type: String,
-    required: true,
+    // required: true,
   },
 });
 
