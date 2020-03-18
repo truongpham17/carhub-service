@@ -68,8 +68,12 @@ export const addRental = async (req, res) => {
 export const updateRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findByIdAndUpdate({ _id: id }, req.body);
-    return res.status(HTTPStatus.OK).json({ msg: 'Updated!', rental });
+    const rental = await Rental.findById(id);
+    Object.keys(req.body).forEach(key => {
+      rental[key] = req.body[key];
+    });
+    await rental.save();
+    return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
@@ -78,10 +82,7 @@ export const updateRental = async (req, res) => {
 export const removeRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findByIdAndUpdate(
-      { _id: id },
-      { isActive: false }
-    );
+    const rental = await Rental.findByIdAndDelete({ _id: id });
     return res.status(HTTPStatus.OK).json({ msg: 'Deleted!!', rental });
   } catch (err) {
     return res.status(HTTPStatus.BAD_REQUEST).json(err);

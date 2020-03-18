@@ -14,6 +14,7 @@ import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
 import leaseRoutes from './lease/lease.routes';
+import sharingRoutes from './sharing/sharing.routes';
 
 export default app => {
   app.use('/test', testRoutes);
@@ -32,4 +33,5 @@ export default app => {
   app.use('/manager', managerRoutes);
   app.use('/lease', leaseRoutes);
   app.use('/license', licenseRoutes);
+  app.use('/sharing', sharingRoutes);
 };

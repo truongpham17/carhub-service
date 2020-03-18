@@ -6,15 +6,23 @@ export default {
   },
   rental: {
     status: {
-      ENUM: ['UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'],
+      ENUM: [
+        'UPCOMING',
+        'DECLINED',
+        'CURRENT',
+        'OVERDUE',
+        'SHARING',
+        'SHARED',
+        'PAST',
+      ],
     },
   },
   lease: {
     status: {
       ENUM: [
         'PENDING',
-        'UPCOMING',
-        'DECLINE',
+        'ACCEPTED',
+        'DECLINED',
         'AVAILABLE',
         'HIRING',
         'WAIT_TO_RETURN',
