@@ -17,6 +17,16 @@ export const getRental = async (req, res) => {
         total = await Rental.countDocuments({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
+        rentals = await Rental.find({
+          pickupHub: req.employee.hub,
+          status: 'UPCOMING',
+        })
+          .skip(skip)
+          .limit(limit)
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
+        total = await Rental.countDocuments();
+        break;
       case 'MANAGER':
         rentals = await Rental.find()
           .skip(skip)

@@ -22,6 +22,7 @@ const LeaseSchema = new Schema({
   },
   price: {
     type: Number,
+    default: 0,
   },
   totalEarn: {
     type: Number,
