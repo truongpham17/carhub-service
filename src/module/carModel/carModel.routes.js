@@ -10,6 +10,7 @@ import {
   getCarModelById,
   getCarModelByVin,
   searchNearByCarModel,
+  transferCarModel,
 } from './carModel.controller';
 import carValidations from './carModel.validations';
 
@@ -22,6 +23,8 @@ routes.get('/getCarByVin/:vin', getCarModelByVin);
 // routes.post('/', auth, validate(carValidations.createCarModel), createCarModel);
 routes.post('/', auth, createCarModel);
 routes.post('/search', searchNearByCarModel);
+
+routes.put('/transfer', auth, transferCarModel);
 
 routes.put(
   '/:id',

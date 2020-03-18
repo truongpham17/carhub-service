@@ -48,27 +48,26 @@ export const login = async (req, res) => {
         accountDetail = await Customer.findOne({
           account: account._id,
         }).populate({ path: 'license', model: License });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
       }
       case 'EMPLOYEE': {
         accountDetail = await Employee.findOne({ account: account._id });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
       }
       case 'MANAGER': {
         accountDetail = await Manager.findOne({ account: account._id });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...accountDetail.toJSON(), ...account.toAuthJSON() });
       }
       default: {
+        throw new Error('Account not found!');
       }
     }
-
-    if (!accountDetail) {
-      throw new Error('Account not found!');
-    }
-
-    return res
-      .status(HTTPStatus.OK)
-      .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }

@@ -1,4 +1,4 @@
-import HTTPStatus from 'http-status';
+import httpStatus from 'http-status';
 import Car from './car.model';
 import CarModel from '../carModel/carModel.model';
 
@@ -27,9 +27,9 @@ export const getCarList = async (req, res) => {
       default:
         throw new Error('Role is not existed!');
     }
-    return res.status(HTTPStatus.OK).json({ cars, total });
+    return res.status(httpStatus.OK).json({ cars, total });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -42,9 +42,9 @@ export const getCarById = async (req, res) => {
     if (!car) {
       throw new Error('Car not found!');
     }
-    return res.status(HTTPStatus.OK).json({ car });
+    return res.status(httpStatus.OK).json({ car });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -58,9 +58,9 @@ export const getCarsByCustomer = async (req, res) => {
     if (!car) {
       throw new Error('Car is not found!');
     }
-    return res.status(HTTPStatus.OK).json({ car });
+    return res.status(httpStatus.OK).json({ car });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -74,9 +74,9 @@ export const getCustomerCarList = async (req, res) => {
     if (!cars) {
       throw new Error('Car is not found!');
     }
-    return res.status(HTTPStatus.OK).json(cars);
+    return res.status(httpStatus.OK).json(cars);
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -88,9 +88,9 @@ export const getCarsByHub = async (req, res) => {
       throw new Error('Car is not found');
     }
     const total = await Car.count({ hub: hubId });
-    return res.status(HTTPStatus.OK).json({ cars, total });
+    return res.status(httpStatus.OK).json({ cars, total });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -98,10 +98,10 @@ export const createCar = async (req, res) => {
   try {
     const car = await Car.create(req.body);
     return res
-      .status(HTTPStatus.CREATED)
+      .status(httpStatus.CREATED)
       .json({ msg: 'Created successfully!', car });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -110,10 +110,10 @@ export const updateCar = async (req, res) => {
     const { id } = req.params;
     const car = await Car.findByIdAndUpdate({ _id: id }, req.body);
     return res
-      .status(HTTPStatus.OK)
+      .status(httpStatus.OK)
       .json({ msg: 'Updated successfully!', car });
   } catch (error) {
-    res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
 
@@ -121,9 +121,9 @@ export const removeCar = async (req, res) => {
   try {
     const { id } = req.params.id;
     await Car.findByIdAndUpdate({ _id: id }, { isActive: false });
-    return res.status(HTTPStatus.OK).json({ msg: 'Deleted successfully!s' });
+    return res.status(httpStatus.OK).json({ msg: 'Deleted successfully!s' });
   } catch (error) {
-    res.status(HTTPStatus.BAD_REQUEST).json(error);
+    res.status(httpStatus.BAD_REQUEST).json(error);
   }
 };
 
@@ -131,8 +131,45 @@ export const checkCarByVin = async (req, res) => {
   try {
     const { vin } = req.params;
     const car = await Car.find({ VIN: vin });
-    return res.status(HTTPStatus.OK).json({ car });
+    return res.status(httpStatus.OK).json({ car });
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.messages);
+    return res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};
+
+/*
+  body: {
+    fromHub
+    toHub
+    list [{
+      _id
+    }]
+  }
+ */
+export const transferLeasingCar = async (req, res) => {
+  try {
+    const { fromHub, toHub, list } = req.body;
+    const carList = await Promise.all(
+      list.map(async item => {
+        const car = await Car.findOne({
+          _id: item._id,
+          customer: { $ne: null },
+          currentHub: fromHub,
+        });
+        if (car) {
+          car.currentHub = toHub;
+          await car.save();
+          return car;
+        }
+        console.log(item._id);
+        console.log('car is null');
+        throw new Error('Car not found');
+      })
+    );
+
+    return res.status(httpStatus.OK).json(carList);
+  } catch (error) {
+    console.log(error);
+    return res.status(httpStatus.BAD_REQUEST).json(error);
   }
 };
