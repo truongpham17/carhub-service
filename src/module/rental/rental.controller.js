@@ -12,9 +12,8 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
-          .populate(
-            'car customer leaser pickupHub pickoffHub payment carModel'
-          );
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
@@ -22,9 +21,8 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find()
           .skip(skip)
           .limit(limit)
-          .populate(
-            'car customer leaser pickupHub pickoffHub payment carModel'
-          );
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
         break;
       default:
@@ -50,11 +48,9 @@ export const getRentalById = async (req, res) => {
 
 export const addRental = async (req, res) => {
   try {
-    console.log(req.body);
     const rental = await Rental.create(req.body);
     return res.status(HTTPStatus.CREATED).json(rental.toJSON());
   } catch (error) {
-    console.log(error, 'error herer!!');
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
@@ -79,5 +75,38 @@ export const removeRental = async (req, res) => {
     return res.status(HTTPStatus.OK).json({ msg: 'Deleted!!', rental });
   } catch (err) {
     return res.status(HTTPStatus.BAD_REQUEST).json(err);
+  }
+};
+
+export const submitTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rental = await Rental.findById(id);
+
+    if (!rental) {
+      throw new Error('Rental not found');
+    }
+
+    // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
+    const { status } = rental;
+    switch (status) {
+      case 'UPCOMING':
+        rental.status = 'CURRENT';
+        break;
+      case 'CURRENT':
+      case 'OVERDUE':
+        rental.status = 'PAST';
+        break;
+      case 'SHARING':
+        rental.status = 'SHARED';
+        break;
+      default:
+        break;
+    }
+    await rental.save();
+
+    return res.status(HTTPStatus.OK).json(rental);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json();
   }
 };
