@@ -64,7 +64,7 @@ export const getCarsByCustomer = async (req, res) => {
   }
 };
 
-export const getCustomerCarList = async (req, res) => {
+export const getCustomerPreviousCarList = async (req, res) => {
   try {
     const cars = await Car.find({
       customer: req.customer._id,
@@ -171,5 +171,22 @@ export const transferLeasingCar = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(httpStatus.BAD_REQUEST).json(error);
+  }
+};
+
+export const createCarAfterCheckingVin = async (req, res) => {
+  try {
+    const checkCar = await Car.findOne({ VIN: req.body.VIN });
+    if (checkCar) {
+      const newCar = await Car.findByIdAndUpdate(
+        { _id: checkCar._id },
+        req.body
+      );
+      return res.status(HTTPStatus.CREATED).json(newCar);
+    }
+    const car = await Car.create(req.body);
+    return res.status(HTTPStatus.CREATED).json(car);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
