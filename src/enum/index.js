@@ -30,4 +30,9 @@ export default {
       ],
     },
   },
+  transaction: {
+    type: {
+      ENUM: ['LEASE', 'RENTAL'],
+    },
+  },
 };

@@ -25,6 +25,7 @@ export default {
       endDate: Joi.date(),
       price: Joi.number(),
       totalEarn: Joi.number(),
+      status: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

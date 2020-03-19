@@ -37,8 +37,9 @@ export const getAccountList = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(username, password);
     const account = await Account.findOne({ username });
-
+    console.log(account);
     if (!account || !account.validatePassword(password)) {
       throw new Error('Wrong username or password');
     }

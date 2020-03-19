@@ -182,11 +182,11 @@ export const createCarAfterCheckingVin = async (req, res) => {
         { _id: checkCar._id },
         req.body
       );
-      return res.status(HTTPStatus.CREATED).json(newCar);
+      return res.status(httpStatus.CREATED).json(newCar);
     }
     const car = await Car.create(req.body);
-    return res.status(HTTPStatus.CREATED).json(car);
+    return res.status(httpStatus.CREATED).json(car);
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };

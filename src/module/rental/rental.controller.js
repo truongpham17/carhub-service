@@ -1,5 +1,6 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
+import Transaction from '../transaction/transaction.model';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -82,6 +83,9 @@ export const removeRental = async (req, res) => {
 export const submitTransaction = async (req, res) => {
   try {
     const { id } = req.params;
+    const { employeeID } = req.body;
+    // if (!req.employee) throw new Error('Permission denied!');
+
     const rental = await Rental.findById(id);
 
     if (!rental) {
@@ -90,24 +94,38 @@ export const submitTransaction = async (req, res) => {
 
     // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
     const { status } = rental;
+    let transactionValue = '';
     switch (status) {
       case 'UPCOMING':
         rental.status = 'CURRENT';
+        transactionValue = 'GET_CAR';
         break;
       case 'CURRENT':
       case 'OVERDUE':
         rental.status = 'PAST';
+        transactionValue = 'RETURN_CAR';
         break;
       case 'SHARING':
         rental.status = 'SHARED';
+        transactionValue = 'SHARED';
         break;
       default:
         break;
     }
     await rental.save();
 
+    if (transactionValue) {
+      await Transaction.create({
+        // employee: req.employee._id,
+        transactionType: 'RENTAL',
+        value: transactionValue,
+        rental: id,
+        employee: employeeID,
+      });
+    }
+
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json();
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };
