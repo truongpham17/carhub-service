@@ -48,9 +48,12 @@ export const createHub = async (req, res) => {
 export const updateHub = async (req, res) => {
   try {
     const { id } = req.params;
-    await Hub.findByIdAndUpdate({ _id: id }, req.body);
     const hub = await Hub.findById(id);
-    return res.status(httpStatus.OK).json(hub.toJSON());
+    Object.keys(req.body).forEach(key => {
+      hub[key] = req.body[key];
+    });
+    await hub.save();
+    return res.status(httpStatus.OK).json(hub);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }

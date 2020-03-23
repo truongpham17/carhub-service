@@ -1,6 +1,5 @@
 import httpStatus from 'http-status';
 import Car from './car.model';
-import CarModel from '../carModel/carModel.model';
 
 export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -108,10 +107,12 @@ export const createCar = async (req, res) => {
 export const updateCar = async (req, res) => {
   try {
     const { id } = req.params;
-    const car = await Car.findByIdAndUpdate({ _id: id }, req.body);
-    return res
-      .status(httpStatus.OK)
-      .json({ msg: 'Updated successfully!', car });
+    const car = await Car.findById(id);
+    Object.keys(req.body).forEach(key => {
+      car[key] = req.body[key];
+    });
+    await car.save();
+    return res.status(httpStatus.OK).json(car);
   } catch (error) {
     res.status(httpStatus.BAD_REQUEST).json(error.message);
   }

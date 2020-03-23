@@ -14,6 +14,7 @@ export default {
       price: Joi.number().min(0),
       feature: Joi.string(),
       VIN: Joi.string(),
+      licensePlates: Joi.string(),
     },
     options: {
       allowUnknownBody: true,
@@ -31,6 +32,7 @@ export default {
       price: Joi.number().min(0),
       feature: Joi.string(),
       VIN: Joi.string(),
+      licensePlates: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

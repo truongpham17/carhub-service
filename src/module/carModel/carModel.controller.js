@@ -97,10 +97,12 @@ export const createCarModel = async (req, res) => {
 export const updateCarModel = async (req, res) => {
   try {
     const { id } = req.params;
-    const carModel = await CarModel.findByIdAndUpdate({ _id: id }, req.body);
-    return res
-      .status(httpStatus.OK)
-      .json({ msg: 'Updated successfully!', carModel });
+    const carModel = await CarModel.findById(id);
+    Object.keys(req.body).forEach(key => {
+      carModel[key] = req.body[key];
+    });
+    await carModel.save();
+    return res.status(httpStatus.OK).json(carModel);
   } catch (error) {
     res.status(httpStatus.BAD_REQUEST).json(error.messages);
   }

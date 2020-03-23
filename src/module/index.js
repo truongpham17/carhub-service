@@ -16,6 +16,7 @@ import rentalRoutes from './rental/rental.routes';
 import leaseRoutes from './lease/lease.routes';
 import sharingRoutes from './sharing/sharing.routes';
 import transactionRoutes from './transaction/transaction.routes';
+import logRoutes from './log/log.routes';
 
 export default app => {
   app.use('/test', testRoutes);
@@ -36,4 +37,5 @@ export default app => {
   app.use('/license', licenseRoutes);
   app.use('/sharing', sharingRoutes);
   app.use('/transaction', transactionRoutes);
+  app.use('/log', logRoutes);
 };

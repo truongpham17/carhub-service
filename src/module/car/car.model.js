@@ -24,7 +24,12 @@ const CarSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Hub',
   },
-
+  licensePlates: {
+    type: String,
+  },
+  vehicleRegistration: {
+    type: [String],
+  },
   odometer: {
     type: Number,
     // required: true,
