@@ -5,8 +5,8 @@ export default {
     body: {
       rental: Joi.string().required(),
       geometry: {
-        lat: Joi.number().min(0),
-        lng: Joi.number().min(0),
+        lat: Joi.number(),
+        lng: Joi.number(),
       },
       location: Joi.string(),
       totalCost: Joi.number()

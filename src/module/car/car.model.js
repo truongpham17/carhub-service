@@ -14,6 +14,7 @@ const CarSchema = new Schema({
   usingYear: {
     type: Number,
   },
+
   hub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
@@ -22,6 +23,12 @@ const CarSchema = new Schema({
   currentHub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
+  },
+  licensePlates: {
+    type: String,
+  },
+  vehicleRegistration: {
+    type: [String],
   },
   odometer: {
     type: Number,

@@ -15,6 +15,7 @@ const routes = new Router();
 
 routes.get('/', auth, getHubList);
 routes.post('/', auth, validate(hubValidations.createHub), createHub);
+
 routes.put('/:id', auth, validate(hubValidations.updateHub), updateHub);
 routes.delete('/:id', auth, removeHub);
 routes.get('/:id', auth, getHubById);

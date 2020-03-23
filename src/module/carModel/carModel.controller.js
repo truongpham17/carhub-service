@@ -97,12 +97,54 @@ export const createCarModel = async (req, res) => {
 export const updateCarModel = async (req, res) => {
   try {
     const { id } = req.params;
-    const carModel = await CarModel.findByIdAndUpdate({ _id: id }, req.body);
-    return res
-      .status(httpStatus.OK)
-      .json({ msg: 'Updated successfully!', carModel });
+    const carModel = await CarModel.findById(id);
+    Object.keys(req.body).forEach(key => {
+      carModel[key] = req.body[key];
+    });
+    await carModel.save();
+    return res.status(httpStatus.OK).json(carModel);
   } catch (error) {
     res.status(httpStatus.BAD_REQUEST).json(error.messages);
+  }
+};
+
+/*
+  body: {
+    fromHub
+    toHub
+    list {
+      _id
+      quantity
+    }
+  }
+ */
+export const transferCarModel = async (req, res) => {
+  try {
+    const { fromHub, toHub, list } = req.body;
+    const carList = await Promise.all(
+      list.map(async carModel => {
+        const cars = await Car.find({
+          customer: null,
+          currentHub: fromHub,
+          carModel: carModel._id,
+        }).limit(carModel.quantity);
+
+        console.log(cars);
+        if (!cars) {
+          throw new Error('Car not found!');
+        }
+        for (let i = 0; i < cars.length; i++) {
+          const car = cars[i];
+          car.currentHub = toHub;
+          await car.save();
+        }
+        return cars;
+      })
+    );
+
+    return res.status(httpStatus.OK).json(carList);
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.messages);
   }
 };
 

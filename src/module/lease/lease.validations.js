@@ -3,7 +3,6 @@ import Joi from 'joi';
 export default {
   addLease: {
     body: {
-      customer: Joi.string(),
       car: Joi.string(),
       hub: Joi.string(),
       startDate: Joi.date(),
@@ -18,7 +17,6 @@ export default {
   },
   updateLease: {
     body: {
-      customer: Joi.string(),
       car: Joi.string(),
       hub: Joi.string(),
       startDate: Joi.date(),

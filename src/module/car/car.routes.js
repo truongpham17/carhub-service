@@ -10,6 +10,8 @@ import {
   checkCarByVin,
   getCarsByHub,
   getCarsByCustomer,
+  // getCustomerCarList,
+  transferLeasingCar,
   getCustomerPreviousCarList,
   createCarAfterCheckingVin,
 } from './car.controller';
@@ -25,6 +27,8 @@ routes.get('/customer/:id', auth, getCarsByCustomer);
 routes.post('/createCarAfterChecking', auth, createCarAfterCheckingVin);
 // routes.post('/', auth, validate(carValidations.createCar), createCar);
 routes.post('/', auth, createCar);
+routes.put('/transfer', auth, transferLeasingCar);
+
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', auth, removeCar);
 routes.get('/checkVin/:vin', checkCarByVin);

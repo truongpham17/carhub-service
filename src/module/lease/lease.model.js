@@ -2,10 +2,6 @@ import mongoose, { Schema } from 'mongoose';
 import enums from '../../enum';
 
 const LeaseSchema = new Schema({
-  customer: {
-    type: Schema.Types.ObjectId,
-    ref: 'Customer',
-  },
   car: {
     type: Schema.Types.ObjectId,
     ref: 'Car',
@@ -36,6 +32,10 @@ const LeaseSchema = new Schema({
   },
   cardNumber: {
     type: String,
+  },
+  isActive: {
+    type: Boolean,
+    default: 'true',
   },
 });
 
