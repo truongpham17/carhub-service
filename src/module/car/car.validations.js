@@ -14,6 +14,9 @@ export default {
       price: Joi.number().min(0),
       feature: Joi.string(),
       VIN: Joi.string(),
+      registrationCertificate: Joi.string(),
+      inspectionCertificate: Joi.string(),
+      carInsurance: Joi.string(),
       licensePlates: Joi.string(),
     },
     options: {
@@ -33,6 +36,9 @@ export default {
       feature: Joi.string(),
       VIN: Joi.string(),
       licensePlates: Joi.string(),
+      registrationCertificate: Joi.string(),
+      inspectionCertificate: Joi.string(),
+      carInsurance: Joi.string(),
     },
     options: {
       allowUnknownBody: false,
