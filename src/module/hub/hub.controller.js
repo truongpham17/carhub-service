@@ -1,5 +1,6 @@
 import httpStatus from 'http-status';
 import Hub from './hub.model';
+import Car from '../car/car.model';
 
 export const getHubList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -22,7 +23,11 @@ export const getHubById = async (req, res) => {
     if (!hub) {
       throw new Error('Hub not found!');
     }
-    return res.status(httpStatus.OK).json({ hub });
+    const cars = await Car.find({ currentHub: hub._id.toString() }).populate(
+      'carModel customer'
+    );
+
+    return res.status(httpStatus.OK).json({ ...hub.toJSON(), cars });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
@@ -30,6 +35,7 @@ export const getHubById = async (req, res) => {
 
 export const createHub = async (req, res) => {
   try {
+    console.log(req.body);
     const hub = await Hub.create(req.body);
     return res
       .status(httpStatus.CREATED)
@@ -42,8 +48,9 @@ export const createHub = async (req, res) => {
 export const updateHub = async (req, res) => {
   try {
     const { id } = req.params;
-    const hub = await Hub.findByIdAndUpdate({ _id: id }, req.body);
-    return res.status(httpStatus.OK).json({ msg: 'Update successfully!', hub });
+    await Hub.findByIdAndUpdate({ _id: id }, req.body);
+    const hub = await Hub.findById(id);
+    return res.status(httpStatus.OK).json(hub.toJSON());
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }

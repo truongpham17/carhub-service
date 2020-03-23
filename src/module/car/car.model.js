@@ -14,6 +14,7 @@ const CarSchema = new Schema({
   usingYear: {
     type: Number,
   },
+
   hub: {
     type: Schema.Types.ObjectId,
     ref: 'Hub',
@@ -23,6 +24,7 @@ const CarSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Hub',
   },
+
   odometer: {
     type: Number,
     // required: true,

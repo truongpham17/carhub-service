@@ -101,6 +101,8 @@ export const auth = async (req, res, next) => {
 
     const user = await Account.findOne({ _id, isActive: true });
     req.user = user;
+
+    console.log(user);
     if (user.role === 'MANAGER') {
       const manager = await Manager.findOne({ account: user._id });
       req.manager = manager;

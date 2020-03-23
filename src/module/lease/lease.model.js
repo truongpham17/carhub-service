@@ -37,6 +37,10 @@ const LeaseSchema = new Schema({
   cardNumber: {
     type: String,
   },
+  isActive: {
+    type: Boolean,
+    default: 'true',
+  },
 });
 
 export default mongoose.model('Lease', LeaseSchema);

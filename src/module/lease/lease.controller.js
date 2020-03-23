@@ -1,5 +1,6 @@
 import HTTPStatus from 'http-status';
 import Lease from './lease.model';
+import Transaction from '../transaction/transaction.model';
 
 export const getLeaseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -91,29 +92,43 @@ export const updateLease = async (req, res) => {
 export const submitTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const lease = await Lease.findOne({ _id: id }, { isActive: true });
+    const { employeeID } = req.body;
+    console.log(id);
+    const lease = await Lease.findById(id);
 
-    if (!lease) {
+    if (!lease || !lease.isActive) {
       throw new Error('lease not found');
     }
 
-    // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
+    // 'PENDING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
     const { status } = lease;
+    let transactionValue = '';
     switch (status) {
-      case 'UPCOMING':
-        lease.status = 'CURRENT';
-        break;
       case 'AVAILABLE':
       case 'WAIT_TO_RETURN':
         lease.status = 'PAST';
+        transactionValue = 'GET_CAR';
+        break;
+      case 'ACCEPTED':
+        lease.status = 'CURRENT';
+        transactionValue = 'RETURN_CAR';
         break;
       default:
         break;
     }
     await lease.save();
+    if (transactionValue) {
+      await Transaction.create({
+        // employee: req.employee._id,
+        transactionType: 'LEASE',
+        value: transactionValue,
+        lease: id,
+        employee: employeeID,
+      });
+    }
 
     return res.status(HTTPStatus.OK).json(lease);
   } catch (error) {
-    return res.status(HTTPStatus.BAD_REQUEST).json();
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
