@@ -14,18 +14,41 @@ const sharingSchema = new Schema({
       type: Number,
     },
   },
-  location: {
+  address: {
     type: String,
     default: '',
   },
-  totalCost: {
+  price: {
     type: Number,
     default: 0,
   },
-  requestUser: {
+  customer: {
     type: Schema.Types.ObjectId,
     ref: 'Customer',
     default: null,
+  },
+  listRentalRequest: {
+    type: [
+      {
+        customer: {
+          type: Schema.Types.ObjectId,
+          ref: 'Customer',
+          default: null,
+        },
+        message: {
+          type: String,
+          default: '',
+        },
+        isAccepted: {
+          type: Boolean,
+          default: false,
+        },
+        isActive: {
+          type: Boolean,
+          default: true,
+        },
+      },
+    ],
   },
   isActive: {
     type: Boolean,

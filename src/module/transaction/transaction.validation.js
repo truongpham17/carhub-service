@@ -1,23 +1,25 @@
 import Joi from 'joi';
 
 export default {
-  createLog: {
+  addTransaction: {
     body: {
+      sender: Joi.string(),
+      receiver: Joi.string(),
       type: Joi.string(),
-      detail: Joi.string(),
+      amount: Joi.number(),
       note: Joi.string(),
-      isActive: Joi.boolean(),
     },
     options: {
       allowUnknownBody: true,
     },
   },
-  updateLog: {
+  updateTransaction: {
     body: {
+      sender: Joi.string(),
+      receiver: Joi.string(),
       type: Joi.string(),
-      detail: Joi.string(),
+      amount: Joi.number(),
       note: Joi.string(),
-      isActive: Joi.boolean(),
     },
     options: {
       allowUnknownBody: true,
