@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import validate from 'express-validation';
 import {
   getTransactionList,
   getTransaction,

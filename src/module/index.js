@@ -9,7 +9,6 @@ import employeeRoutes from './employee/employee.routes';
 import licenseRoutes from './license/license.routes';
 import managerRoutes from './manager/manager.routes';
 import userRoutes from './user/user.routes';
-import testRoutes from './test/test.routes';
 import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
@@ -19,9 +18,7 @@ import transactionRoutes from './transaction/transaction.routes';
 import logRoutes from './log/log.routes';
 
 export default app => {
-  app.use('/test', testRoutes);
   app.use('/user', userRoutes);
-  app.use('/book', bookRoutes);
   app.use('/carModel', carModelRoutes);
   app.use('/car', carRoutes);
   app.use('/hub', hubRoutes);

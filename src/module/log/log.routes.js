@@ -17,3 +17,5 @@ routes.get('/:id', auth, getLog);
 routes.post('/', auth, createLog);
 routes.put('/:id', auth, validate(logValidation.updateLog), updateLog);
 routes.delete('/:id', auth, removeLog);
+
+export default routes;

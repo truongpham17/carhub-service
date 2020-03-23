@@ -1,5 +1,7 @@
 import httpStatus from 'http-status';
 import Car from './car.model';
+import Hub from '../hub/hub.model';
+import Rental from '../rental/rental.model';
 
 export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -187,6 +189,29 @@ export const createCarAfterCheckingVin = async (req, res) => {
     }
     const car = await Car.create(req.body);
     return res.status(httpStatus.CREATED).json(car);
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
+export const getHubCarList = async (req, res) => {
+  try {
+    if (!req.employee) {
+      throw new Error('Accept denined!');
+    }
+    const hub = await Hub.findById(req.employee.hub, '_id');
+    if (!hub) {
+      throw new Error('Cannot find hub!');
+    }
+
+    const cars = await Car.find({ currentHub: hub._id });
+    const carIds = cars.map(item => item._id.toString());
+    const rentals = await Rental.find({ car: { $in: carIds } }, 'car');
+    const rentalIds = rentals.map(item => item.car.toString());
+    const availableCars = cars.filter(car =>
+      rentalIds.includes(car._id.toString())
+    );
+    return res.status(httpStatus.OK).json(availableCars);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }

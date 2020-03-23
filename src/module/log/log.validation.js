@@ -12,7 +12,7 @@ export default {
       allowUnknownBody: true,
     },
   },
-  updateLod: {
+  updateLog: {
     body: {
       type: Joi.string(),
       detail: Joi.string(),
