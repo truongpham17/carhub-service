@@ -110,7 +110,7 @@ export const submitTransaction = async (req, res) => {
         transactionValue = 'GET_CAR';
         break;
       case 'ACCEPTED':
-        lease.status = 'CURRENT';
+        lease.status = 'AVAILABLE';
         transactionValue = 'RETURN_CAR';
         break;
       default:
