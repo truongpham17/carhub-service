@@ -1,8 +1,5 @@
 import { Router } from 'express';
-<<<<<<< HEAD
-=======
 // import validate from 'express-validation';
->>>>>>> f505ef6338543e2c9f18a3f5991f90e36be8f410
 import {
   getTransactionList,
   getTransaction,
