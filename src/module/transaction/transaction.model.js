@@ -3,28 +3,20 @@ import enums from '../../enum';
 
 const TransactionSchema = new Schema(
   {
-    employee: {
-      type: Schema.Types.ObjectId,
-      ref: 'Employee',
+    sender: {
+      type: String,
     },
-    customer: {
-      type: Schema.Types.ObjectId,
-      ref: 'Customer',
+    receiver: {
+      type: String,
     },
-    transactionType: {
+    type: {
       type: enums.transaction.type,
     },
-    value: {
+    amount: {
+      type: Number,
+    },
+    note: {
       type: String,
-      required: true,
-    },
-    rental: {
-      type: Schema.Types.ObjectId,
-      ref: 'Rental',
-    },
-    lease: {
-      type: Schema.Types.ObjectId,
-      ref: 'Lease',
     },
     isActive: {
       type: Boolean,

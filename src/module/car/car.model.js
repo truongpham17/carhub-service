@@ -26,9 +26,19 @@ const CarSchema = new Schema({
   },
   licensePlates: {
     type: String,
+    // bien so xe
   },
-  vehicleRegistration: {
-    type: [String],
+  registrationCertificate: {
+    type: String,
+    // giay dang ky oto
+  },
+  inspectionCertificate: {
+    type: String,
+    // giay chung nhan kiem dinh
+  },
+  carInsurance: {
+    type: String,
+    // bao hiem xe hoi
   },
   odometer: {
     type: Number,

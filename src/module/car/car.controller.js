@@ -200,18 +200,34 @@ export const getHubCarList = async (req, res) => {
       throw new Error('Accept denined!');
     }
     const hub = await Hub.findById(req.employee.hub, '_id');
+
     if (!hub) {
       throw new Error('Cannot find hub!');
     }
 
-    const cars = await Car.find({ currentHub: hub._id });
+    const cars = await Car.find({
+      $or: [{ currentHub: hub._id }, { hub: hub._id }],
+    });
     const carIds = cars.map(item => item._id.toString());
-    const rentals = await Rental.find({ car: { $in: carIds } }, 'car');
-    const rentalIds = rentals.map(item => item.car.toString());
-    const availableCars = cars.filter(car =>
-      rentalIds.includes(car._id.toString())
+    const rentals = await Rental.find(
+      { car: { $in: carIds }, fromDate: { $gte: new Date() } },
+      'car'
     );
-    return res.status(httpStatus.OK).json(availableCars);
+    const rentalIds = rentals.map(item => item.car.toString());
+
+    const allCarFromHub = cars.map(car => {
+      if (rentalIds.includes(car._id.toString())) {
+        return {
+          ...car.toJSON(),
+          rental: rentals.find(
+            rental => rental.car.toString() === car._id.toString()
+          ),
+        };
+      }
+      return car.toJSON();
+    });
+
+    return res.status(httpStatus.OK).json(allCarFromHub);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
