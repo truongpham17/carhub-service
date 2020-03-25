@@ -3,7 +3,11 @@ import RentalSharingRequest from './rentalSharingRequest.model';
 
 export const getRentalSharingRequest = async (req, res) => {
   try {
-    const requestList = await RentalSharingRequest.find({ isActive: true });
+    const requestList = await RentalSharingRequest.find({
+      isActive: true,
+    })
+      .populate('customer sharing')
+      .populate({ path: 'sharing', populate: { path: 'rental' } });
     return res.status(HTTPStatus.OK).json(requestList);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);

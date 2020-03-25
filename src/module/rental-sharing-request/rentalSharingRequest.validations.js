@@ -5,7 +5,7 @@ export default {
     body: {
       customer: Joi.string(),
       sharing: Joi.string(),
-      message: Joi.string().default(''),
+      message: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

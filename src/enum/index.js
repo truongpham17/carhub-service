@@ -48,11 +48,11 @@ export default {
   listSharingRequest: {
     status: {
       ENUM: [
-        'PENDING', // Customer request lease their car
-        'ACCEPTED', // Employee accepted customer's request
-        'DECLINED', // Employee decline customer's request]
-        'CURRENT',
-        'PAST',
+        'PENDING', // Customer request rent this sharing car
+        'ACCEPTED', // Rent request is accepted
+        'DECLINED', // Rent request is declined
+        'CURRENT', // Customer get the requested car
+        'PAST', // rent duration is over
       ],
     },
   },
