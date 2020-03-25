@@ -1,4 +1,5 @@
 import httpStatus from 'http-status';
+import moment from 'moment';
 import Car from './car.model';
 import Hub from '../hub/hub.model';
 import Rental from '../rental/rental.model';
@@ -159,11 +160,13 @@ export const transferLeasingCar = async (req, res) => {
       list.map(async item => {
         const car = await Car.findOne({
           _id: item._id,
-          customer: { $ne: null },
-          currentHub: fromHub,
+          currentHub: fromHub._id,
         });
         if (car) {
-          car.currentHub = toHub;
+          car.currentHub = toHub._id;
+          car.note = `Được chuyển từ Hub "${fromHub.name}" đến Hub "${
+            toHub.name
+          }" vào lúc ${moment().format('h:mm:ss A DD-MM-YYYY')}`;
           await car.save();
           return car;
         }
