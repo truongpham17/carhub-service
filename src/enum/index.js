@@ -37,7 +37,41 @@ export default {
   },
   log: {
     type: {
-      ENUM: [''],
+      ENUM: [
+        'CREATE',
+        'DECLINE',
+        'ACCEPTED',
+        // for rental
+        'RECEIVE',
+        'RETURN',
+        'CREATE_SHARING',
+        'CANCEL_SHARING',
+        'CONFIRM_SHARING',
+        // for lease
+        'PLACING',
+        'TAKE_BACK',
+        'SOME_ONE_RENT_YOUR_CAR', // :))
+      ],
+    },
+  },
+  logTitle: {
+    type: {
+      ENUM: [
+        // lease
+        'Create lease request',
+        'Request decline by hub',
+        'Request accepted by hub',
+        'Placing car at hub',
+        'Renting',
+        // rental
+        'Create rental request',
+        'Take car at hub',
+        'Request sharing car',
+        'Cancel sharing car',
+        'Confirm sharing car',
+        'Return car',
+        'Pay extra overdue value',
+      ],
     },
   },
 };
