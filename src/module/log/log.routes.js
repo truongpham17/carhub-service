@@ -9,11 +9,15 @@ import {
   createLog,
   removeLog,
   updateLog,
+  getGroupingLog,
 } from './log.controller';
 
 const routes = new Router();
 routes.get('/', auth, getLogList);
+
 routes.get('/:id', auth, getLog);
+
+routes.get('/group/:id', auth, getGroupingLog);
 routes.post('/', auth, createLog);
 routes.put('/:id', auth, validate(logValidation.updateLog), updateLog);
 routes.delete('/:id', auth, removeLog);

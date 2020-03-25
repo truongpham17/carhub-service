@@ -77,12 +77,12 @@ export const updateRental = async (req, res) => {
     const { id } = req.params;
 
     const { data, log } = req.body;
+
     const rental = await Rental.findById(id);
     Object.keys(data).forEach(key => {
       rental[key] = data[key];
     });
     await rental.save();
-
     await Log.create({ detail: rental._id, ...log });
 
     return res.status(HTTPStatus.OK).json(rental);
@@ -115,34 +115,43 @@ export const submitTransaction = async (req, res) => {
 
     // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
     const { status } = rental;
-    let transactionValue = '';
+    const { toStatus, car } = req.body;
+    let log = {};
     switch (status) {
       case 'UPCOMING':
         rental.status = 'CURRENT';
-        transactionValue = 'GET_CAR';
+        log = { type: 'RECEIVE', title: 'Take car at hub' };
+        rental.car = car;
         break;
       case 'CURRENT':
+        rental.status = toStatus;
+        if (toStatus === 'SHARING') {
+          log = { type: 'CREATE_SHARING', title: 'Request sharing car' };
+        }
+        if (toStatus === 'PAST') {
+          log = { type: 'RETURN', title: 'Return car' };
+        }
+        break;
       case 'OVERDUE':
         rental.status = 'PAST';
-        transactionValue = 'RETURN_CAR';
+        log = { type: 'RETURN', title: 'Return car' };
         break;
       case 'SHARING':
         rental.status = 'SHARED';
-        transactionValue = 'SHARED';
+
+        if (toStatus === 'SHARED') {
+          log = { type: 'CONFIRM_SHARING', title: 'Confirm sharing car' };
+        }
+        if (toStatus === 'CURRENT') {
+          log = { type: 'CANCEL_SHARING', title: 'Cancel sharing car' };
+        }
         break;
       default:
         break;
     }
     await rental.save();
-
-    if (transactionValue) {
-      await Transaction.create({
-        // employee: req.employee._id,
-        transactionType: 'RENTAL',
-        value: transactionValue,
-        rental: id,
-        employee: employeeID,
-      });
+    if (log) {
+      await Log.create({ detail: rental._id, ...log });
     }
 
     return res.status(HTTPStatus.OK).json(rental);

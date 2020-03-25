@@ -8,7 +8,7 @@ const LogSchema = new Schema(
       required: true,
     },
     detail: {
-      type: String,
+      type: Schema.Types.ObjectId,
     },
     note: {
       type: String,

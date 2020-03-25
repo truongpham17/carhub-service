@@ -16,7 +16,7 @@ const routes = new Router();
 routes.get('/', auth, getRental);
 routes.get('/:id', auth, getRentalById);
 routes.post('/', auth, validate(Validations.addRental), addRental);
-routes.put('/:id', auth, validate(Validations.updateRental), updateRental);
+routes.put('/:id', auth, updateRental);
 routes.post('/transaction/:id', auth, submitTransaction);
 routes.patch('/:id', auth, validate(Validations.updateRental), updateRental);
 routes.delete('/:id', auth, removeRental);

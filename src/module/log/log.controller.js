@@ -15,6 +15,16 @@ export const getLogList = async (req, res) => {
   }
 };
 
+export const getGroupingLog = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const logs = await Log.find({ detail: id });
+    return res.status(httpStatus.OK).json(logs);
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error);
+  }
+};
+
 export const getLog = async (req, res) => {
   try {
     const { id } = req.params;

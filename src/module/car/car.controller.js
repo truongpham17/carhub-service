@@ -45,7 +45,7 @@ export const getCarById = async (req, res) => {
     if (!car) {
       throw new Error('Car not found!');
     }
-    return res.status(httpStatus.OK).json({ car });
+    return res.status(httpStatus.OK).json(car);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
