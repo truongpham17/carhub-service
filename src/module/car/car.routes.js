@@ -10,18 +10,29 @@ import {
   checkCarByVin,
   getCarsByHub,
   getCarsByCustomer,
+  // getCustomerCarList,
+  transferLeasingCar,
+  getCustomerPreviousCarList,
+  createCarAfterCheckingVin,
+  getHubCarList,
 } from './car.controller';
 import carValidations from './car.validations';
 
 const routes = new Router();
 
 routes.get('/', auth, getCarList);
+routes.get('/list', auth, getCustomerPreviousCarList);
+routes.get('/hubCarList', auth, getHubCarList);
+routes.post('/createCarAfterChecking', auth, createCarAfterCheckingVin);
 routes.get('/:id', auth, getCarById);
 routes.get('/hub/:id', auth, getCarsByHub);
 routes.get('/customer/:id', auth, getCarsByCustomer);
-routes.post('/', auth, validate(carValidations.createCar), createCar);
+routes.get('/checkVin/:vin', checkCarByVin);
+// routes.post('/', auth, validate(carValidations.createCar), createCar);
+routes.post('/', auth, createCar);
+routes.put('/transfer', auth, transferLeasingCar);
+
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', auth, removeCar);
-routes.get('/checkVin/:vin', checkCarByVin);
 
 export default routes;

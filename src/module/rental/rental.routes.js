@@ -6,6 +6,7 @@ import {
   getRentalById,
   removeRental,
   updateRental,
+  submitTransaction,
 } from './rental.controller';
 import { auth } from '../../service/passport';
 import Validations from './rental.validations';
@@ -16,6 +17,8 @@ routes.get('/', auth, getRental);
 routes.get('/:id', auth, getRentalById);
 routes.post('/', auth, validate(Validations.addRental), addRental);
 routes.put('/:id', auth, validate(Validations.updateRental), updateRental);
+routes.post('/transaction/:id', auth, submitTransaction);
+routes.patch('/:id', auth, validate(Validations.updateRental), updateRental);
 routes.delete('/:id', auth, removeRental);
 
 export default routes;

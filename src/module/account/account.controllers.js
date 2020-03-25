@@ -37,8 +37,9 @@ export const getAccountList = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log(username, password);
     const account = await Account.findOne({ username });
-
+    console.log(account);
     if (!account || !account.validatePassword(password)) {
       throw new Error('Wrong username or password');
     }
@@ -48,27 +49,26 @@ export const login = async (req, res) => {
         accountDetail = await Customer.findOne({
           account: account._id,
         }).populate({ path: 'license', model: License });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
       }
       case 'EMPLOYEE': {
         accountDetail = await Employee.findOne({ account: account._id });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
       }
       case 'MANAGER': {
         accountDetail = await Manager.findOne({ account: account._id });
-        break;
+        return res
+          .status(HTTPStatus.OK)
+          .json({ ...accountDetail.toJSON(), ...account.toAuthJSON() });
       }
       default: {
+        throw new Error('Account not found!');
       }
     }
-
-    if (!accountDetail) {
-      throw new Error('Account not found!');
-    }
-
-    return res
-      .status(HTTPStatus.OK)
-      .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
@@ -77,7 +77,6 @@ export const login = async (req, res) => {
 export const getAccount = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('user id is: ', id);
     // only admin can get all account
     // one account can get their info only
     if (req.user.role !== 'MANAGER' && req.user._id.toString() !== id) {

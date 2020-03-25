@@ -1,5 +1,7 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
+import Log from '../log/log.model';
+import Transaction from '../transaction/transaction.model';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -12,19 +14,27 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
-          .populate(
-            'car customer leaser pickupHub pickoffHub payment carModel'
-          );
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
         break;
       case 'EMPLOYEE':
+        rentals = await Rental.find({
+          pickupHub: req.employee.hub,
+          status: 'UPCOMING',
+        })
+          .skip(skip)
+          .limit(limit)
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
+        total = await Rental.countDocuments();
+        break;
       case 'MANAGER':
         rentals = await Rental.find()
           .skip(skip)
           .limit(limit)
-          .populate(
-            'car customer leaser pickupHub pickoffHub payment carModel'
-          );
+          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
         break;
       default:
@@ -50,11 +60,14 @@ export const getRentalById = async (req, res) => {
 
 export const addRental = async (req, res) => {
   try {
-    // console.log(req.body);
     const rental = await Rental.create(req.body);
+    await Log.create({
+      type: 'CREATE',
+      title: 'Create rental request',
+      detail: rental._id,
+    });
     return res.status(HTTPStatus.CREATED).json(rental.toJSON());
   } catch (error) {
-    // console.log(error, 'error herer!!');
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
@@ -62,8 +75,17 @@ export const addRental = async (req, res) => {
 export const updateRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findByIdAndUpdate({ _id: id }, req.body);
-    return res.status(HTTPStatus.OK).json({ msg: 'Updated!', rental });
+
+    const { data, log } = req.body;
+    const rental = await Rental.findById(id);
+    Object.keys(data).forEach(key => {
+      rental[key] = data[key];
+    });
+    await rental.save();
+
+    await Log.create({ detail: rental._id, ...log });
+
+    return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
@@ -72,12 +94,59 @@ export const updateRental = async (req, res) => {
 export const removeRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findByIdAndUpdate(
-      { _id: id },
-      { isActive: false }
-    );
+    const rental = await Rental.findByIdAndDelete({ _id: id });
     return res.status(HTTPStatus.OK).json({ msg: 'Deleted!!', rental });
   } catch (err) {
     return res.status(HTTPStatus.BAD_REQUEST).json(err);
+  }
+};
+
+export const submitTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { employeeID } = req.body;
+    // if (!req.employee) throw new Error('Permission denied!');
+
+    const rental = await Rental.findById(id);
+
+    if (!rental) {
+      throw new Error('Rental not found');
+    }
+
+    // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
+    const { status } = rental;
+    let transactionValue = '';
+    switch (status) {
+      case 'UPCOMING':
+        rental.status = 'CURRENT';
+        transactionValue = 'GET_CAR';
+        break;
+      case 'CURRENT':
+      case 'OVERDUE':
+        rental.status = 'PAST';
+        transactionValue = 'RETURN_CAR';
+        break;
+      case 'SHARING':
+        rental.status = 'SHARED';
+        transactionValue = 'SHARED';
+        break;
+      default:
+        break;
+    }
+    await rental.save();
+
+    if (transactionValue) {
+      await Transaction.create({
+        // employee: req.employee._id,
+        transactionType: 'RENTAL',
+        value: transactionValue,
+        rental: id,
+        employee: employeeID,
+      });
+    }
+
+    return res.status(HTTPStatus.OK).json(rental);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };

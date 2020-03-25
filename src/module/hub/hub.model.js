@@ -25,6 +25,9 @@ const HubSchema = new Schema({
     type: Boolean,
     default: 'true',
   },
+  phone: {
+    type: String,
+  },
 });
 
 export default mongoose.model('Hub', HubSchema);

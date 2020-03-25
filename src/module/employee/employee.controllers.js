@@ -12,11 +12,12 @@ export const getEmployeeList = async (req, res) => {
       throw new Error('Access denied');
     }
 
-    const list = await Employee.find()
+    const employees = await Employee.find()
+      .populate('hub account')
       .skip(skip)
       .limit(limit);
     const total = await Employee.countDocuments();
-    return res.status(HTTPStatus.OK).json({ list, total });
+    return res.status(HTTPStatus.OK).json({ employees, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
