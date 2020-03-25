@@ -44,10 +44,6 @@ const CarSchema = new Schema({
     type: Number,
     // required: true,
   },
-  usingYears: {
-    type: Number,
-    // required: true,
-  },
   images: {
     type: [String],
     // required: false,

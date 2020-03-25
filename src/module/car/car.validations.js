@@ -4,8 +4,8 @@ export default {
   createCar: {
     body: {
       carModel: Joi.string().required(),
-      customer: Joi.string().required(),
-      hub: Joi.string().required(),
+      customer: Joi.string(),
+      hub: Joi.string(),
       currentHub: Joi.string(),
       odometer: Joi.number(),
       usingYear: Joi.number(),
@@ -29,6 +29,7 @@ export default {
       customer: Joi.string(),
       hub: Joi.string(),
       currentHub: Joi.string(),
+      usingYear: Joi.number(),
       odometer: Joi.number(),
       images: Joi.array(),
       description: Joi.string(),
@@ -39,6 +40,7 @@ export default {
       registrationCertificate: Joi.string(),
       inspectionCertificate: Joi.string(),
       carInsurance: Joi.string(),
+      isActive: Joi.boolean(),
     },
     options: {
       allowUnknownBody: false,

@@ -17,6 +17,9 @@ const LogSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    title: {
+      type: String,
+    },
   },
   {
     timestamps: true,

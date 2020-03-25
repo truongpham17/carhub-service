@@ -1,6 +1,7 @@
 import HTTPStatus from 'http-status';
 import Lease from './lease.model';
 import Transaction from '../transaction/transaction.model';
+import Log from '../log/log.model';
 
 export const getLeaseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -60,6 +61,13 @@ export const getLease = async (req, res) => {
 export const addLease = async (req, res) => {
   try {
     const lease = await Lease.create(req.body);
+
+    await Log.create({
+      type: 'CREATE',
+      title: 'Create lease request',
+      detail: lease._id,
+    });
+
     return res.status(HTTPStatus.CREATED).json(lease);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
@@ -68,11 +76,15 @@ export const addLease = async (req, res) => {
 
 export const updateLease = async (req, res) => {
   try {
+    const { data, log } = req.body;
     const lease = await Lease.findById(req.params.id);
-    Object.keys(req.body).forEach(key => {
-      lease[key] = req.body[key];
+    Object.keys(data).forEach(key => {
+      lease[key] = data[key];
     });
     await lease.save();
+
+    await Log.create({ detail: lease._id, ...log });
+
     return res.status(HTTPStatus.OK).json(lease);
   } catch (e) {
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);

@@ -7,7 +7,9 @@ export default {
       detail: Joi.string(),
       note: Joi.string(),
       isActive: Joi.boolean(),
+      title: Joi.string(),
     },
+
     options: {
       allowUnknownBody: true,
     },
@@ -18,6 +20,7 @@ export default {
       detail: Joi.string(),
       note: Joi.string(),
       isActive: Joi.boolean(),
+      title: Joi.string(),
     },
     options: {
       allowUnknownBody: true,

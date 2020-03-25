@@ -1,6 +1,9 @@
 import httpStatus from 'http-status';
 import moment from 'moment';
 import Car from './car.model';
+import Hub from '../hub/hub.model';
+import Rental from '../rental/rental.model';
+import Lease from '../lease/lease.model';
 
 export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -108,6 +111,8 @@ export const createCar = async (req, res) => {
 export const updateCar = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id);
+    console.log(req.body);
     const car = await Car.findById(id);
     Object.keys(req.body).forEach(key => {
       car[key] = req.body[key];
@@ -190,6 +195,67 @@ export const createCarAfterCheckingVin = async (req, res) => {
     }
     const car = await Car.create(req.body);
     return res.status(httpStatus.CREATED).json(car);
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
+export const getHubCarList = async (req, res) => {
+  try {
+    if (!req.employee) {
+      throw new Error('Accept denined!');
+    }
+    const hub = await Hub.findById(req.employee.hub);
+
+    if (!hub) {
+      throw new Error('Cannot find hub!');
+    }
+
+    // get all cars belong to hub or current at hub
+    const cars = await Car.find({
+      $or: [{ currentHub: hub._id }, { hub: hub._id }],
+      isActive: true,
+    }).populate('carModel');
+    const carIds = cars.map(item => item._id.toString());
+
+    // get all rentals in the future
+    const rentals = await Rental.find({
+      car: { $in: carIds },
+      fromDate: { $gte: new Date() },
+    });
+    const rentalIds = rentals.map(item => item.car.toString());
+
+    // find all lease in the future
+    const upcommingLease = await Lease.find({
+      hub: hub._id,
+      startDate: { $gte: new Date() },
+    });
+
+    const leasesIds = upcommingLease.map(item => item.car.toString());
+
+    // merge car with rental
+    const allCarFromHub = cars.map(car => {
+      if (rentalIds.includes(car._id.toString())) {
+        return {
+          ...car.toJSON(),
+          rental: rentals
+            .find(rental => rental.car.toString() === car._id.toString())
+            .toJSON(),
+        };
+      }
+
+      if (leasesIds.includes(car._id.toString())) {
+        return {
+          ...car.toJSON(),
+          lease: upcommingLease.find(
+            lease => lease.car.toString() === car._id.toString()
+          ),
+        };
+      }
+      return car.toJSON();
+    });
+
+    return res.status(httpStatus.OK).json({ allCarFromHub, hub });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }

@@ -1,5 +1,6 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
+import Log from '../log/log.model';
 import Transaction from '../transaction/transaction.model';
 
 export const getRental = async (req, res) => {
@@ -60,6 +61,11 @@ export const getRentalById = async (req, res) => {
 export const addRental = async (req, res) => {
   try {
     const rental = await Rental.create(req.body);
+    await Log.create({
+      type: 'CREATE',
+      title: 'Create rental request',
+      detail: rental._id,
+    });
     return res.status(HTTPStatus.CREATED).json(rental.toJSON());
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
@@ -69,11 +75,16 @@ export const addRental = async (req, res) => {
 export const updateRental = async (req, res) => {
   try {
     const { id } = req.params;
+
+    const { data, log } = req.body;
     const rental = await Rental.findById(id);
-    Object.keys(req.body).forEach(key => {
-      rental[key] = req.body[key];
+    Object.keys(data).forEach(key => {
+      rental[key] = data[key];
     });
     await rental.save();
+
+    await Log.create({ detail: rental._id, ...log });
+
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
