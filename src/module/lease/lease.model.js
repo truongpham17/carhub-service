@@ -37,6 +37,9 @@ const LeaseSchema = new Schema({
     type: Boolean,
     default: 'true',
   },
+  message: {
+    type: String,
+  },
 });
 
 export default mongoose.model('Lease', LeaseSchema);
