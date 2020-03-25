@@ -34,7 +34,7 @@ const CarSchema = new Schema({
   },
   inspectionCertificate: {
     type: String,
-    // giay chung nhan kiem dinh
+    // giay chung nhan kiem dinhπ
   },
   carInsurance: {
     type: String,

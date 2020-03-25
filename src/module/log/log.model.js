@@ -18,7 +18,7 @@ const LogSchema = new Schema(
       default: true,
     },
     title: {
-      type: String,
+      type: enums.logTitle.type,
     },
   },
   {
