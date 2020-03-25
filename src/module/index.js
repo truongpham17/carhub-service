@@ -17,6 +17,7 @@ import sharingRoutes from './sharing/sharing.routes';
 import transactionRoutes from './transaction/transaction.routes';
 import logRoutes from './log/log.routes';
 import transferRoutes from './transfer/transfer.routes';
+import rentalSharingRequest from './rental-sharing-request/rentalSharingRequest.routes';
 
 export default app => {
   app.use('/user', userRoutes);
@@ -37,4 +38,5 @@ export default app => {
   app.use('/transaction', transactionRoutes);
   app.use('/log', logRoutes);
   app.use('/transfer', transferRoutes);
+  app.use('/rentalSharingRequest', rentalSharingRequest);
 };

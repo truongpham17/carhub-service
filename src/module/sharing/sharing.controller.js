@@ -8,10 +8,28 @@ export const getSharing = async (req, res) => {
     const sharing = await Sharing.find({ isActive: true, requestUser: null })
       .skip(skip)
       .limit(limit)
-      .populate('rental')
-      .populate({ path: 'rental', populate: { path: 'carModel' } });
+      .populate('rental customer')
+      .populate({
+        path: 'rental',
+        populate: { path: 'carModel customer pickoffHub' },
+      });
     const total = await Sharing.countDocuments({ isActive: true });
     return res.status(HTTPStatus.OK).json({ sharing, total });
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
+  }
+};
+
+export const getSharingByRentalId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sharing = await Sharing.find({ rental: id })
+      .populate('rental customer')
+      .populate({
+        path: 'rental',
+        populate: { path: 'carModel customer' },
+      });
+    return res.status(HTTPStatus.OK).json(sharing);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
