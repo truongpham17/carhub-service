@@ -14,6 +14,19 @@ export const getRentalSharingRequest = async (req, res) => {
   }
 };
 
+export const getRentalRequestBySharing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const requestList = await RentalSharingRequest.find({
+      sharing: id,
+      isActive: true,
+    }).populate('customer');
+    return res.status(HTTPStatus.OK).json(requestList);
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
+  }
+};
+
 export const addRentalSharingRequest = async (req, res) => {
   try {
     const rentalRequest = await RentalSharingRequest.create(req.body);

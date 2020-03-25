@@ -7,6 +7,7 @@ import {
   addRentalSharingRequest,
   updateRentalSharingRequest,
   deleteRentalSharingRequest,
+  getRentalRequestBySharing,
 } from './rentalSharingRequest.controller';
 
 const routes = new Router();
@@ -24,5 +25,6 @@ routes.patch(
   updateRentalSharingRequest
 );
 routes.delete('/:id', auth, deleteRentalSharingRequest);
+routes.get('/sharing/:id', auth, getRentalRequestBySharing);
 
 export default routes;
