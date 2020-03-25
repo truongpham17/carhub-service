@@ -9,9 +9,11 @@ const LogSchema = new Schema(
     },
     detail: {
       type: String,
+      default: '',
     },
     note: {
       type: String,
+      default: '',
     },
     isActive: {
       type: Boolean,

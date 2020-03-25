@@ -14,6 +14,7 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
+          .sort({ updatedAt: -1 })
           .populate('car customer leaser pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
