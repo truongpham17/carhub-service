@@ -8,8 +8,8 @@ export default {
         lat: Joi.number(),
         lng: Joi.number(),
       },
-      location: Joi.string(),
-      totalCost: Joi.number()
+      address: Joi.string(),
+      price: Joi.number()
         .min(0)
         .required(),
     },
@@ -19,12 +19,12 @@ export default {
   },
   updateSharing: {
     body: {
-      location: Joi.string(),
+      address: Joi.string(),
       geometry: {
         lat: Joi.number().min(0),
         lng: Joi.number().min(0),
       },
-      totalCost: Joi.number().min(0),
+      price: Joi.number().min(0),
       isActive: Joi.boolean(),
     },
     options: {

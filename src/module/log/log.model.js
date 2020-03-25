@@ -9,16 +9,18 @@ const LogSchema = new Schema(
     },
     detail: {
       type: String,
+      default: '',
     },
     note: {
       type: String,
+      default: '',
     },
     isActive: {
       type: Boolean,
       default: true,
     },
     title: {
-      type: String,
+      type: enums.logTitle.type,
     },
   },
   {
