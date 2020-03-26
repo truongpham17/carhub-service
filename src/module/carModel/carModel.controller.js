@@ -52,6 +52,7 @@ export const searchNearByCarModel = async (req, res) => {
         }
       })
     );
+    console.log(data);
 
     return res.status(httpStatus.OK).json(data);
   } catch (error) {

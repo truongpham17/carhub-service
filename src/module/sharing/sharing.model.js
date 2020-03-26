@@ -28,28 +28,9 @@ const sharingSchema = new Schema(
       ref: 'Customer',
       default: null,
     },
-    listRentalRequest: {
-      type: [
-        {
-          customer: {
-            type: Schema.Types.ObjectId,
-            ref: 'Customer',
-            default: null,
-          },
-          message: {
-            type: String,
-            default: '',
-          },
-          isAccepted: {
-            type: Boolean,
-            default: false,
-          },
-          isActive: {
-            type: Boolean,
-            default: true,
-          },
-        },
-      ],
+    sharingRequest: {
+      type: Schema.Types.ObjectId,
+      ref: 'RentalSharingRequest',
     },
     isActive: {
       type: Boolean,

@@ -7,10 +7,15 @@ import {
   addRentalSharingRequest,
   updateRentalSharingRequest,
   deleteRentalSharingRequest,
+  getRentalRequestBySharing,
+  getRentalSharingByCustomer,
 } from './rentalSharingRequest.controller';
 
 const routes = new Router();
 routes.get('/', auth, getRentalSharingRequest);
+routes.get('/customer', auth, getRentalSharingByCustomer);
+routes.get('/sharing/:id', auth, getRentalRequestBySharing);
+
 routes.post(
   '/',
   auth,

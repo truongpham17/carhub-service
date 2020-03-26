@@ -18,7 +18,7 @@ routes.get('/:id', auth, getRentalById);
 routes.post('/', auth, validate(Validations.addRental), addRental);
 routes.put('/:id', auth, updateRental);
 routes.post('/transaction/:id', auth, submitTransaction);
-routes.patch('/:id', auth, validate(Validations.updateRental), updateRental);
+routes.patch('/:id', auth, updateRental);
 routes.delete('/:id', auth, removeRental);
 
 export default routes;

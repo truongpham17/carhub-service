@@ -12,6 +12,7 @@ const LogSchema = new Schema(
     },
     note: {
       type: String,
+      default: '',
     },
     isActive: {
       type: Boolean,
