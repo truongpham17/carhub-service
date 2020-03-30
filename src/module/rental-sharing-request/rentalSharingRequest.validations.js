@@ -6,6 +6,9 @@ export default {
       customer: Joi.string(),
       sharing: Joi.string(),
       message: Joi.string(),
+      fromDate: Joi.date(),
+      toDate: Joi.date(),
+      totalCost: Joi.number().min(0),
     },
     options: {
       allowUnknownBody: false,
@@ -15,6 +18,9 @@ export default {
     body: {
       status: Joi.string(),
       isActive: Joi.boolean(),
+      fromDate: Joi.date(),
+      toDate: Joi.date(),
+      totalCost: Joi.number().min(0),
     },
     options: {
       allowUnknownBody: false,

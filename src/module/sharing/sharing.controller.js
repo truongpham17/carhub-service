@@ -10,10 +10,14 @@ export const getSharing = async (req, res) => {
     const sharing = await Sharing.find({ isActive: true, customer: null })
       .skip(skip)
       .limit(limit)
-      .populate('rental customer')
+      .populate('rental customer sharingRequest')
       .populate({
         path: 'rental',
         populate: { path: 'carModel customer pickoffHub' },
+      })
+      .populate({
+        path: 'sharingRequest',
+        populate: { path: 'customer' },
       });
     const total = await Sharing.countDocuments({ isActive: true });
     return res.status(HTTPStatus.OK).json({ sharing, total });
@@ -26,10 +30,14 @@ export const getSharingByRentalId = async (req, res) => {
   try {
     const { id } = req.params;
     const sharing = await Sharing.find({ rental: id, isActive: true })
-      .populate('rental customer')
+      .populate('rental customer sharingRequest')
       .populate({
         path: 'rental',
         populate: { path: 'carModel customer pickoffHub' },
+      })
+      .populate({
+        path: 'sharingRequest',
+        populate: { path: 'customer' },
       });
     return res.status(HTTPStatus.OK).json(sharing);
   } catch (error) {
