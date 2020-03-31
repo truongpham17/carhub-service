@@ -21,6 +21,7 @@ export default {
       dateOfBirth: Joi.string(),
       email: Joi.string(),
       phone: Joi.string(),
+      fcmToken: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

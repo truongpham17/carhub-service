@@ -22,6 +22,7 @@ routes.post(
   validate(Validation.addSharingRequest),
   addRentalSharingRequest
 );
+
 routes.patch(
   '/:id',
   auth,
