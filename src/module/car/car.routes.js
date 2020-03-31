@@ -15,6 +15,7 @@ import {
   getCustomerPreviousCarList,
   createCarAfterCheckingVin,
   getHubCarList,
+  checkAvailableCar,
 } from './car.controller';
 import carValidations from './car.validations';
 
@@ -31,7 +32,7 @@ routes.get('/checkVin/:vin', checkCarByVin);
 // routes.post('/', auth, validate(carValidations.createCar), createCar);
 routes.post('/', auth, createCar);
 routes.put('/transfer', auth, transferLeasingCar);
-
+routes.get('/checkAvailableCar/:id', auth, checkAvailableCar);
 routes.put('/:id', auth, validate(carValidations.updateCar), updateCar);
 routes.delete('/:id', auth, removeCar);
 
