@@ -2,6 +2,7 @@ import HTTPStatus from 'http-status';
 import Sharing from './sharing.model';
 import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
 import Rental from '../rental/rental.model';
+import { sendNotification } from '../../utils/notification';
 
 export const getSharing = async (req, res) => {
   try {
@@ -65,27 +66,30 @@ export const getLatestSharingByRental = async (req, res) => {
 
 export const confirmSharing = async (req, res) => {
   try {
+    // id of sharing or rental?
     const { id } = req.params;
-    const { requestId } = req.body;
+    const { sharingRequestId } = req.body;
 
-    const sharingRequest = await RentalSharingRequest.findById(requestId);
-    if (!sharingRequest) {
-      console.log('1');
-      throw new Error('Can not find share request!');
-    }
-
-    const rental = await Rental.findById(id);
-
-    if (!rental) {
-      console.log('3');
-      throw new Error('Cannot find rental');
-    }
-
-    const sharing = await Sharing.findOne({ rental: rental._id });
-
+    const sharing = await Sharing.findById(id);
     if (!sharing) {
-      console.log('2');
-      throw new Error('Cannot find sharing');
+      throw new Error('Can not find sharing');
+    }
+
+    const rental = await Rental.findById(sharing.rental);
+    if (!rental) {
+      throw new Error('Cannot find rental!');
+    }
+
+    const sharingRequest = await RentalSharingRequest.findOne({
+      sharing: sharing._id,
+      status: 'ACCEPTED',
+    });
+
+    if (!sharingRequest) {
+      throw new Error('Cannot find sharing request');
+    }
+    if (sharingRequest._id !== sharingRequestId) {
+      throw new Error('Sharing request id does not match!');
     }
 
     sharing.sharingRequest = sharingRequest;
@@ -95,8 +99,8 @@ export const confirmSharing = async (req, res) => {
     sharingRequest.status = 'CURRENT';
 
     await sharingRequest.save();
-    await sharing.save();
     await rental.save();
+    await sharing.save();
 
     return res.status(HTTPStatus.OK).json({});
   } catch (error) {
