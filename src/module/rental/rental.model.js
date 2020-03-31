@@ -18,11 +18,6 @@ const RentalSchema = new Schema({
     type: String, // 'hub' or 'share'
     required: true,
   },
-  leaser: {
-    type: Schema.Types.ObjectId,
-    ref: 'Customer',
-    default: null,
-  },
   startDate: {
     type: Date,
     default: new Date(),
@@ -48,6 +43,10 @@ const RentalSchema = new Schema({
     default: 0,
   },
   description: {
+    type: String,
+    default: '',
+  },
+  note: {
     type: String,
     default: '',
   },
