@@ -187,10 +187,7 @@ export const createCarAfterCheckingVin = async (req, res) => {
   try {
     const checkCar = await Car.findOne({ VIN: req.body.VIN });
     if (checkCar) {
-      const newCar = await Car.findByIdAndUpdate(
-        { _id: checkCar._id },
-        req.body
-      );
+      const newCar = await Car.findByIdAndUpdate(checkCar._id, req.body);
       return res.status(httpStatus.CREATED).json(newCar);
     }
     const car = await Car.create(req.body);

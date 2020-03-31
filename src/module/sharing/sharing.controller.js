@@ -2,12 +2,15 @@ import HTTPStatus from 'http-status';
 import Sharing from './sharing.model';
 import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
 import Rental from '../rental/rental.model';
-import { sendNotification } from '../../utils/notification';
 
 export const getSharing = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
+
+    const { startLocation, endLocation, startDate, endDate } = req.body;
+    const { lat, lng } = startLocation.geometry;
+
     const sharing = await Sharing.find({ isActive: true, customer: null })
       .skip(skip)
       .limit(limit)

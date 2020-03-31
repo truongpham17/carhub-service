@@ -39,6 +39,7 @@ export const searchNearByCarModel = async (req, res) => {
 
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
     const data = [];
+
     await Promise.all(
       hubFilter.map(async hub => {
         const modelIds = await Car.find({ currentHub: hub._id }).distinct(
@@ -52,7 +53,6 @@ export const searchNearByCarModel = async (req, res) => {
         }
       })
     );
-    console.log(data);
 
     return res.status(httpStatus.OK).json(data);
   } catch (error) {
