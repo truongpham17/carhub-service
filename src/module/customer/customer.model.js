@@ -27,6 +27,9 @@ const CustomerSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'License',
   },
+  fcmToken: {
+    type: String,
+  },
 });
 
 export default mongoose.model('Customer', CustomerSchema);

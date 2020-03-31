@@ -9,6 +9,8 @@ import {
   deleteRentalSharingRequest,
   getRentalRequestBySharing,
   getRentalSharingByCustomer,
+  acceptRentalSharingRequest,
+  declineRentalSharingRequest,
 } from './rentalSharingRequest.controller';
 
 const routes = new Router();
@@ -22,12 +24,18 @@ routes.post(
   validate(Validation.addSharingRequest),
   addRentalSharingRequest
 );
+
 routes.patch(
   '/:id',
   auth,
   validate(Validation.updateSharingRequest),
   updateRentalSharingRequest
 );
+
+routes.patch('/accept/:id', auth, acceptRentalSharingRequest);
+
+routes.patch('/decline/:id', auth, declineRentalSharingRequest);
+
 routes.delete('/:id', auth, deleteRentalSharingRequest);
 
 export default routes;

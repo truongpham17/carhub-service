@@ -27,6 +27,9 @@ const EmployeeSchema = new Schema({
   phone: {
     type: String,
   },
+  fcmToken: {
+    type: String,
+  },
 });
 
 export default mongoose.model('Employee', EmployeeSchema);
