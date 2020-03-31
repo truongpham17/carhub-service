@@ -11,7 +11,6 @@ import {
   getLatestSharingByRental,
   removeLatestSharingByRental,
   confirmSharing,
-  submitTransaction,
 } from './sharing.controller';
 import Validations from './sharing.validations';
 
@@ -24,8 +23,6 @@ routes.get('/latest/rental/:id', auth, getLatestSharingByRental);
 
 routes.post('/', auth, validate(Validations.addSharing), addSharing);
 routes.post('/confirm/:id', auth, confirmSharing);
-
-routes.patch('/transaction/:id', auth, submitTransaction);
 
 routes.patch('/:id', auth, validate(Validations.updateSharing), updateSharing);
 
