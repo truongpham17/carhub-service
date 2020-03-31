@@ -19,6 +19,14 @@ const sharingSchema = new Schema(
       type: String,
       default: '',
     },
+    fromDate: {
+      type: Date,
+      default: Date.now(),
+    },
+    toDate: {
+      type: Date,
+      default: null,
+    },
     price: {
       type: Number,
       default: 0,

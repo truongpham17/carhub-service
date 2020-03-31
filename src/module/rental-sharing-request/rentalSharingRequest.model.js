@@ -15,6 +15,18 @@ const listSharingSchema = new Schema(
       type: String,
       default: '',
     },
+    fromDate: {
+      type: Date,
+      default: Date.now(),
+    },
+    toDate: {
+      type: Date,
+      default: null,
+    },
+    totalCost: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: enums.listSharingRequest.status,
       default: 'PENDING',
@@ -29,4 +41,4 @@ const listSharingSchema = new Schema(
   }
 );
 
-export default mongoose.model('listSharingRequest', listSharingSchema);
+export default mongoose.model('RentalSharingRequest', listSharingSchema);
