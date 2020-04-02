@@ -2,13 +2,29 @@ import HTTPStatus from 'http-status';
 import Sharing from './sharing.model';
 import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
 import Rental from '../rental/rental.model';
-import { sendNotification } from '../../utils/notification';
+import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
 
 export const getSharing = async (req, res) => {
   try {
+    const { id: customerId } = req.customer;
+    if (!customerId) {
+      throw new Error('Access denied');
+    }
+
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
-    const sharing = await Sharing.find({ isActive: true, customer: null })
+
+    const { startLocation, endLocation, startDate, endDate } = req.body;
+
+    const { lat: startLat, lng: startLng } = startLocation.geometry;
+    const { lat: endLat, lng: endLng } = endLocation.geometry;
+
+    const sharings = await Sharing.find({
+      isActive: true,
+      customer: null,
+      fromDate: { $gte: startDate },
+      toDate: { $lte: endDate },
+    })
       .skip(skip)
       .limit(limit)
       .populate('rental customer sharingRequest')
@@ -20,8 +36,34 @@ export const getSharing = async (req, res) => {
         path: 'sharingRequest',
         populate: { path: 'customer' },
       });
+
+    // only show result if the endLocation near return hub, or the startLocation near the endLocation and the startLocation near the pickUpLocation
+    const sharingFilterDistance = sharings
+      .filter(
+        sharing =>
+          distanceInKmBetweenEarthCoordinates(
+            startLat,
+            startLng,
+            sharing.geometry.lat,
+            sharing.geometry.lng
+          ) < 30
+      )
+      .filter(sharing => {
+        const { geometry } = sharing.rental.pickOffHub;
+        return (
+          // distance between pick-off location and pick-off hub location
+          distanceInKmBetweenEarthCoordinates(
+            endLat,
+            endLng,
+            geometry.lat,
+            geometry.lng
+          ) < 30
+        );
+      })
+      .filter(item => item.rental.customer._id !== customerId);
+
     const total = await Sharing.countDocuments({ isActive: true });
-    return res.status(HTTPStatus.OK).json({ sharing, total });
+    return res.status(HTTPStatus.OK).json({ sharingFilterDistance, total });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
