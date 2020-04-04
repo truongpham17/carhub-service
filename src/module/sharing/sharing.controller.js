@@ -6,8 +6,22 @@ import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
 
 export const getSharing = async (req, res) => {
   try {
-    const { id: customerId } = req.customer;
-    if (!customerId) {
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const skip = parseInt(req.query.skip, 10) || 0;
+    const sharings = await Sharing.find({})
+      .skip(skip)
+      .limit(limit);
+    const total = await Sharing.countDocuments({});
+    return res.status(HTTPStatus.OK).json({ sharings, total });
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error);
+  }
+};
+
+export const suggestSharing = async (req, res) => {
+  try {
+    const { _id: customer } = req.customer;
+    if (!customer) {
       throw new Error('Access denied');
     }
 
@@ -22,8 +36,8 @@ export const getSharing = async (req, res) => {
     const sharings = await Sharing.find({
       isActive: true,
       customer: null,
-      fromDate: { $gte: startDate },
-      toDate: { $lte: endDate },
+      fromDate: { $lte: startDate },
+      toDate: { $gte: endDate },
     })
       .skip(skip)
       .limit(limit)
@@ -48,8 +62,9 @@ export const getSharing = async (req, res) => {
             sharing.geometry.lng
           ) < 30
       )
+
       .filter(sharing => {
-        const { geometry } = sharing.rental.pickOffHub;
+        const { geometry } = sharing.rental.pickoffHub;
         return (
           // distance between pick-off location and pick-off hub location
           distanceInKmBetweenEarthCoordinates(
@@ -60,11 +75,20 @@ export const getSharing = async (req, res) => {
           ) < 30
         );
       })
-      .filter(item => item.rental.customer._id !== customerId);
+      .filter(item => item.rental.customer._id !== customer)
+      .map(sharing => ({
+        ...sharing.toJSON(),
+        distance: distanceInKmBetweenEarthCoordinates(
+          startLat,
+          startLng,
+          sharing.geometry.lat,
+          sharing.geometry.lng
+        ),
+      }));
 
-    const total = await Sharing.countDocuments({ isActive: true });
-    return res.status(HTTPStatus.OK).json({ sharingFilterDistance, total });
+    return res.status(HTTPStatus.OK).json(sharingFilterDistance);
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };

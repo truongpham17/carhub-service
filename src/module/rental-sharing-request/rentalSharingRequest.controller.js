@@ -56,9 +56,36 @@ export const getRentalRequestBySharing = async (req, res) => {
 
 export const addRentalSharingRequest = async (req, res) => {
   try {
+    const { sharing } = req.body;
+    const sharingObj = await Sharing.findById(sharing)
+      .populate('rental')
+      .populate({ path: 'rental', populate: { path: 'customer' } });
+    console.log('sharing: ', sharingObj);
+    if (!sharingObj) {
+      throw new Error('Cannot find sharing');
+    }
+    if (sharingObj.customer) {
+      throw new Error('This sharing already transfer');
+    }
+
     const rentalRequest = await RentalSharingRequest.create(req.body);
+
+    sendNotification({
+      fcmToken: sharingObj.rental.customer.fcmToken,
+      title: 'Some one want to hire your car',
+      body: 'Click here to see detail request, and accept transfer your car',
+      data: {
+        action: 'NAGIGATE',
+        screenName: 'RentSharingRequestScreen',
+        // screenProps: {
+        selectedId: sharingObj.rental._id.toString(),
+        // },
+      },
+    });
+
     return res.status(HTTPStatus.OK).json(rentalRequest);
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };
