@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "car-hub-d2912",
+  "private_key_id": "0fd24d49b0d0eb4322dd963daff05119719665df",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDfKJbsEAzqAlSd\n+s82Tbr8uausx2eYswkTfnCE9xTO4JOvcBz7TgpzWMzIdaN/XpV1nvsUWnCrHXqS\nOl32vKig76njWKxY0IlRmBPL0qUP6KBPMJGS+X2soEhL9hT562P6JlN3xz2dGg6P\nD/M/UnrOX60NmGEZJmsjjeK89BpOwaagv10bNUKFeP7Yyxbv1f1DtrjSkPiBC1eY\nIGExU4MMcHE1yLA8uA5XU1aWj9kxhoi9OZv53snywhhFSfvDkPl9C1N88K1y9eIn\npLlE6U9g3IIMjsVeCNohS4azjMCLRg8PkDLtJpAo5CpzLGtazgXxmHjDL5zPFDjz\nY2TtCm3vAgMBAAECggEABqNg9e22TKG8HaTv1Ag05z6ori+SU9cDjppkw3fMHSlO\nC1p06j7UjcDW+qGRNwE7xe9wPZdBIb3zPvVQhT3wcDUg4xvoqI2vgAdbk2UVNudv\nGVvzAKG+TMvJysSrtBF9/Ft2gSoimZFEXJoXXMtZztjGv5BIVySu7DRUydUjETOg\nQk+c01XqQm3juTzqnA4UpOzR5svYX3rvVtPsP1iTGFZCnOKKy7TnCLY0tww3565F\nZJ/R7gmNOaqm8z9mtY05BJ5nwukuLE2Yh7MEyw9wzf5Y85PZ/PAu4IqzKCjGh9d5\nU3/lufYBNi0aDfC0xtdMPRxCxQMXXxgHqfN5L5/ntQKBgQD6tEkaq1CbgGB53a/w\nzvwYphfKI74IRGVa/uUnmtaLRVFZeXhkEOBCLMbrcFszX+JXgPep/4VZtlc1kMaW\n6L0UC/cHA89TIHW+bd5MjJGer1PlNjobfPhIPbdOzi5k80hdJchar5ubNRyQ+qPL\nAGG0KSZWfqQ+OJXFE/04BDxVCwKBgQDj31jkfMvSPkOi+EOuCzmHxlVaR+fcbmBp\nwMnjvNsQNtMRSDXQTtAErsB+rpX1eaMAM+Qc79i26713wvo9iCxk1rpMK0SIz2mC\nbmS6Df7OpGHQ6ewxfYFDVSgvYQLfF00NpAXLyLUFV80Vn9Qau7fhlfR7AFgbIgek\nyk4PnPVRLQKBgQC+Dny5JhSmvizlViVyZkgBG7E/QddnhwpbcI8idiSdUkB4lzio\ni46nPDDU/cl16gO6GIAotRhPyYbVidqzPt9QWj28aKv8tcftRHdZCtu+M+ZjBrgI\nbLYAdiEIMhBD4ZcDXohED4rkn9/3HLudQr3PCb8RpVI4BUetLxkxJSzjvwKBgQCq\ntBs8d3yc0EYM5NyWmhQL8XjpO+qmyAzzzBexwj19JQTy8lxV42STzXGotRLjpK6G\nLVlakBaR2YHDIM4joEpZdD51ZwhdULuimR5d/rP+i0g3n7Vv0awvC7Eh5ROomiT/\n7frlkUKCcSbSZzwWlr+Gf7Z5GmXmVZTSTzcxHQztNQKBgQCHZrW/0xA8rvpmxl6N\nPAie8p3y17i2nbXtplf5t+Bmjt7Stu3feX5oMWa9MGNI+erz51I434rGYvSLDYSB\ntKU1CrFZq1Tnt9S+8YsOXvZTLN/HG4Yazj+JNLt0DcH7zQiemxs+NjGCvu4taSF0\n6XgqaTkD4qaDz9S+v1QLD5PxkQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-l56b7@car-hub-d2912.iam.gserviceaccount.com",
+  "client_id": "104615256376984362797",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-l56b7%40car-hub-d2912.iam.gserviceaccount.com"
+}
