@@ -2,7 +2,6 @@ import HTTPStatus from 'http-status';
 import Rental from './rental.model';
 import Log from '../log/log.model';
 import Transaction from '../transaction/transaction.model';
-import { sendNotification } from '../../utils/notification';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -16,7 +15,7 @@ export const getRental = async (req, res) => {
           .skip(skip)
           .limit(limit)
           .sort({ updatedAt: -1 })
-          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate('car customer pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
         break;
@@ -27,7 +26,7 @@ export const getRental = async (req, res) => {
         })
           .skip(skip)
           .limit(limit)
-          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate('car customer pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
         break;
@@ -35,7 +34,7 @@ export const getRental = async (req, res) => {
         rentals = await Rental.find()
           .skip(skip)
           .limit(limit)
-          .populate('car customer leaser pickupHub pickoffHub payment carModel')
+          .populate('car customer pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
         break;
@@ -106,11 +105,11 @@ export const removeRental = async (req, res) => {
 export const submitTransaction = async (req, res) => {
   try {
     const { id } = req.params;
+    const { employeeID } = req.body;
     // if (!req.employee) throw new Error('Permission denied!');
 
-    const rental = await Rental.findById(id).populate('customer');
+    const rental = await Rental.findById(id);
 
-    const { fcmToken } = rental.customer;
     if (!rental) {
       throw new Error('Rental not found');
     }
@@ -139,23 +138,9 @@ export const submitTransaction = async (req, res) => {
         log = { type: 'RETURN', title: 'Return car' };
         break;
       case 'SHARING':
-        rental.status = toStatus;
+        rental.status = 'SHARED';
 
         if (toStatus === 'SHARED') {
-          sendNotification({
-            title: 'Sharing request',
-            body:
-              'Someone has requested to take your sharing car. Click to see more information',
-            fcmToken,
-            data: {
-              action: 'NAVIGATE',
-              screenName: 'LeaseHistoryItemDetailScreen',
-              screenProps: {
-                selectedId: rental._id,
-              },
-            },
-          });
-
           log = { type: 'CONFIRM_SHARING', title: 'Confirm sharing car' };
         }
         if (toStatus === 'CURRENT') {
