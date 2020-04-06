@@ -86,6 +86,9 @@ const RentalSchema = new Schema({
     required: true,
     default: 'UPCOMING',
   },
+  message: {
+    type: String,
+  },
 });
 
 export default mongoose.model('Rental', RentalSchema);

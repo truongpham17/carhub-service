@@ -8,7 +8,6 @@ export default {
       message: Joi.string(),
       fromDate: Joi.date(),
       toDate: Joi.date(),
-      totalCost: Joi.number().min(0),
     },
     options: {
       allowUnknownBody: false,

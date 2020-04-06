@@ -107,7 +107,7 @@ export const updateLease = async (req, res) => {
 export const submitTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { toStatus } = req.body;
+    const { toStatus, message } = req.body;
     let log = {};
     let notificationData = {};
     const lease = await Lease.findById(id)
@@ -144,6 +144,7 @@ export const submitTransaction = async (req, res) => {
             type: 'DECLINE',
             title: 'Request decline by hub',
           };
+          lease.message = message;
           notificationData = {
             title: 'Your lease request has been declined',
             body:
