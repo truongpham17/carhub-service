@@ -30,7 +30,6 @@ export const getTransfer = async (req, res) => {
 
 export const createTransfer = async (req, res) => {
   try {
-    console.log(req.body);
     const transfer = await Transfer.create(req.body);
     return res.status(httpStatus.CREATED).json(transfer);
   } catch (error) {

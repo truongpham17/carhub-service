@@ -45,7 +45,7 @@ AccountSchema.methods = {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: '5 days',
+        expiresIn: '50 days',
       }
     );
   },

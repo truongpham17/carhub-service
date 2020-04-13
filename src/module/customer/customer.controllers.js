@@ -7,7 +7,6 @@ export const getCustomerList = async (req, res) => {
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
     if (req.user.role !== 'MANAGER' && req.user.role !== 'EMPLOYEE') {
-      console.log(req.user.role);
       throw new Error('Access denied');
     }
     const list = await Customer.find()

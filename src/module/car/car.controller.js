@@ -39,13 +39,13 @@ export const getCarList = async (req, res) => {
 export const getCarById = async (req, res) => {
   try {
     const { id } = req.params;
-    const car = await Car.findById({ _id: id }).populate(
+    const car = await Car.findById({ _id: id, isActive: true }).populate(
       'carModel hub currentHub'
     );
     if (!car) {
       throw new Error('Car not found!');
     }
-    return res.status(httpStatus.OK).json({ car });
+    return res.status(httpStatus.OK).json(car);
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
@@ -187,10 +187,7 @@ export const createCarAfterCheckingVin = async (req, res) => {
   try {
     const checkCar = await Car.findOne({ VIN: req.body.VIN });
     if (checkCar) {
-      const newCar = await Car.findByIdAndUpdate(
-        { _id: checkCar._id },
-        req.body
-      );
+      const newCar = await Car.findByIdAndUpdate(checkCar._id, req.body);
       return res.status(httpStatus.CREATED).json(newCar);
     }
     const car = await Car.create(req.body);
@@ -258,5 +255,21 @@ export const getHubCarList = async (req, res) => {
     return res.status(httpStatus.OK).json({ allCarFromHub, hub });
   } catch (error) {
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
+export const checkAvailableCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await Rental.find({
+      car: id,
+      status: { $in: ['CURRENT', 'OVERDUE', 'SHARED', 'SHARING'] },
+    });
+    if (!data[0]) {
+      return res.status(httpStatus.OK).json('AVAILABLE');
+    }
+    return res.status(httpStatus.OK).json('UNAVAILABLE');
+  } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error);
   }
 };

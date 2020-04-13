@@ -91,6 +91,8 @@ export default {
         'Request accepted by hub',
         'Placing car at hub',
         'Renting',
+        'Take car at hub',
+        'Rented by someone',
         // rental
         'Create rental request',
         'Take car at hub',
