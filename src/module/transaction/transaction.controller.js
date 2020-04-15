@@ -1,5 +1,17 @@
 import HTTPStatus from 'http-status';
 import Transaction from './transaction.model';
+import { gateway } from '../../service/paypal';
+
+export const getPaypalAccessToken = async (req, res) => {
+  try {
+    const result = await gateway.clientToken.generate({
+      // customerId: req.customer._id,
+    });
+    return res.status(HTTPStatus.OK).json({ paymentToken: result.clientToken });
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json({});
+  }
+};
 
 export const getTransactionList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;

@@ -1,0 +1,1 @@
+export const LEASE_PRICE_PERCENTAGE = 0.6;

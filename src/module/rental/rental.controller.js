@@ -1,8 +1,21 @@
 import HTTPStatus from 'http-status';
 import Rental from './rental.model';
 import Log from '../log/log.model';
-import Transaction from '../transaction/transaction.model';
+import Car from '../car/car.model';
 import { sendNotification } from '../../utils/notification';
+import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
+import Sharing from '../sharing/sharing.model';
+import Lease from '../lease/lease.model';
+import {
+  RENTAL_NOT_FOUND_CAR,
+  RENTAL_NOT_FOUND_RENTAL,
+  RENTAL_NOT_MATCH_CAR_MODEL,
+  RENTAL_CAR_NOT_MATCH_ADDRESS,
+  RENTAL_CAR_ALREADY_IN_USE,
+  SHARING_RENTAL_NOT_FOUND,
+  SHARING_RENTAL_NOT_SHARING,
+} from '../../constant/errorCode';
+import { LEASE_PRICE_PERCENTAGE } from '../../constant/policy';
 
 export const getRental = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -51,9 +64,9 @@ export const getRental = async (req, res) => {
 export const getRentalById = async (req, res) => {
   try {
     const { id } = req.params;
-    const rental = await Rental.findById(id).populate(
-      'car customer leaser pickupHub pickoffHub payment carModel'
-    );
+    const rental = await Rental.findById(id)
+      .populate('car customer leaser pickupHub pickoffHub payment carModel')
+      .populate({ path: 'car', populate: { path: 'carModel' } });
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
@@ -85,7 +98,10 @@ export const updateRental = async (req, res) => {
       rental[key] = data[key];
     });
     await rental.save();
-    await Log.create({ detail: rental._id, ...log });
+
+    if (log) {
+      await Log.create({ detail: rental._id, ...log });
+    }
 
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
@@ -110,6 +126,10 @@ export const submitTransaction = async (req, res) => {
 
     const rental = await Rental.findById(id).populate('customer');
 
+    if (!rental) {
+      throw new Error(RENTAL_NOT_FOUND_RENTAL);
+    }
+
     const { fcmToken } = rental.customer;
     if (!rental) {
       throw new Error('Rental not found');
@@ -118,12 +138,79 @@ export const submitTransaction = async (req, res) => {
     // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
     const { status } = rental;
     const { toStatus, car } = req.body;
+
     let log = {};
+    let carObj;
+    let lease;
+    let rentalDuplicate;
     switch (status) {
       case 'UPCOMING':
+        if (toStatus !== 'CURRENT') {
+          rental.numberDeclined = rental.numberDeclined
+            ? rental.numberDeclined + 1
+            : 1;
+          await Log.create({
+            type: 'CANCEL_TAKE_CAR',
+            title: 'Not accept taking car',
+            detail: rental._id,
+          });
+          await rental.save();
+          return res.status(HTTPStatus.OK).json({});
+        }
         rental.status = 'CURRENT';
         log = { type: 'RECEIVE', title: 'Take car at hub' };
+
+        carObj = await Car.findById(car);
+        if (!carObj) {
+          throw new Error(RENTAL_NOT_FOUND_CAR);
+        }
+
+        if (carObj.carModel.toString() !== rental.carModel.toString()) {
+          throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
+        }
+
+        rentalDuplicate = await Rental.findOne({
+          car,
+          status: { $in: ['CURRENT', 'SHARING', 'SHARED'] },
+        });
+        if (rentalDuplicate) {
+          throw new Error(RENTAL_CAR_ALREADY_IN_USE);
+        }
+
         rental.car = car;
+
+        carObj = await Car.findById(car).populate('customer');
+
+        carObj.currentHub = null;
+
+        lease = await Lease.findOne({
+          car,
+          status: 'AVAILABLE',
+        }).populate('customer');
+        // neu day la leasing car -> notify user
+        if (lease) {
+          sendNotification({
+            title: 'Your car has been rent',
+            body: `Congratulation! Your car has been rent by someone, you just earned $${rental.totalCost *
+              LEASE_PRICE_PERCENTAGE}.`,
+            fcmToken: carObj.customer.fcmToken,
+            data: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id.toString(),
+              action: 'NAVIGATE',
+            },
+          });
+
+          await Log.create({
+            type: 'SOME_ONE_RENT_YOUR_CAR',
+            title: 'Rented by someone',
+            detail: lease._id,
+            note: rental.totalCost * LEASE_PRICE_PERCENTAGE,
+          });
+          lease.totalEarn += rental.totalCost * LEASE_PRICE_PERCENTAGE;
+          lease.status = 'HIRING';
+        }
+
         break;
       case 'CURRENT':
         rental.status = toStatus;
@@ -131,12 +218,27 @@ export const submitTransaction = async (req, res) => {
           log = { type: 'CREATE_SHARING', title: 'Request sharing car' };
         }
         if (toStatus === 'PAST') {
+          carObj = await Car.findById(rental.car);
+          carObj.currentHub = rental.pickoffHub;
+
           log = { type: 'RETURN', title: 'Return car' };
         }
+
+        lease = await Lease.findOne({ car: rental.car, status: 'SHARING' });
+        if (lease) {
+          lease.status = 'AVAILABEL';
+        }
+
         break;
       case 'OVERDUE':
         rental.status = 'PAST';
         log = { type: 'RETURN', title: 'Return car' };
+
+        lease = await Lease.findOne({ car: rental.car, status: 'SHARING' });
+        if (lease) {
+          lease.status = 'AVAILABEL';
+        }
+
         break;
       case 'SHARING':
         rental.status = toStatus;
@@ -151,7 +253,7 @@ export const submitTransaction = async (req, res) => {
               action: 'NAVIGATE',
               screenName: 'LeaseHistoryItemDetailScreen',
               screenProps: {
-                selectedId: rental._id,
+                selectedId: rental._id.toString(),
               },
             },
           });
@@ -165,6 +267,12 @@ export const submitTransaction = async (req, res) => {
       default:
         break;
     }
+    if (lease) {
+      await lease.save();
+    }
+    if (carObj) {
+      await carObj.save();
+    }
     await rental.save();
     if (log) {
       await Log.create({ detail: rental._id, ...log });
@@ -173,5 +281,66 @@ export const submitTransaction = async (req, res) => {
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
+  }
+};
+
+export const cancelSharing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rental = await Rental.findById(id);
+    if (!rental) {
+      throw new Error(SHARING_RENTAL_NOT_FOUND);
+    }
+
+    if (rental.status !== 'SHARING') {
+      throw new Error(SHARING_RENTAL_NOT_SHARING);
+    }
+
+    rental.status = 'CURRENT';
+
+    const sharings = await Sharing.find({
+      rental: rental._id,
+      isActive: true,
+    }).sort({ createdAt: -1 });
+
+    if (!Array.isArray(sharings) || sharings.length === 0) {
+      throw new Error(SHARING_RENTAL_NOT_SHARING);
+    }
+    const lastestSharing = sharings[0];
+
+    // remove lastest sharing
+    lastestSharing.isActive = false;
+
+    const sharingRequests = await RentalSharingRequest.find({
+      sharing: lastestSharing._id,
+      status: { $in: ['PENDING', 'ACCEPTED'] },
+      isActive: true,
+    }).populate('customer');
+
+    // notify all user
+    if (Array.isArray(sharingRequests) && sharingRequests.length > 0) {
+      sharingRequests.forEach(async request => {
+        sendNotification({
+          fcmToken: request.customer.fcmToken,
+          title: 'The sharing car is not available',
+          body:
+            "The owner's car of your request has cancelled the sharing. Please try to hire another car",
+        });
+        request.isActive = false;
+        await request.save();
+      });
+    }
+
+    await Log.create({
+      type: 'CANCEL_SHARING',
+      title: 'Cancel sharing car',
+      detail: id,
+    });
+    await rental.save();
+    await lastestSharing.save();
+    return res.status(HTTPStatus.OK).json({});
+  } catch (error) {
+    console.log(error);
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };

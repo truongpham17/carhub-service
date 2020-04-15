@@ -43,11 +43,14 @@ export const getRentalSharingByCustomer = async (req, res) => {
 
 export const getRentalRequestBySharing = async (req, res) => {
   try {
+    /**
+     * @param id: sharing id
+     */
     const { id } = req.params;
     const requestList = await RentalSharingRequest.find({
       sharing: id,
       isActive: true,
-    }).populate('customer');
+    }).populate('customer sharing');
     return res.status(HTTPStatus.OK).json(requestList);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
@@ -60,10 +63,10 @@ export const addRentalSharingRequest = async (req, res) => {
     const sharingObj = await Sharing.findById(sharing)
       .populate('rental')
       .populate({ path: 'rental', populate: { path: 'customer' } });
-    console.log('sharing: ', sharingObj);
     if (!sharingObj) {
       throw new Error('Cannot find sharing');
     }
+
     if (sharingObj.customer) {
       throw new Error('This sharing already transfer');
     }
@@ -75,11 +78,10 @@ export const addRentalSharingRequest = async (req, res) => {
       title: 'Some one want to hire your car',
       body: 'Click here to see detail request, and accept transfer your car',
       data: {
-        action: 'NAGIGATE',
-        screenName: 'RentSharingRequestScreen',
-        // screenProps: {
+        action: 'NAVIGATE',
+        screenName: 'SharingInformationScreen',
         selectedId: sharingObj.rental._id.toString(),
-        // },
+        newId: rentalRequest._id.toString(),
       },
     });
 
@@ -144,7 +146,7 @@ export const declineRentalSharingRequest = async (req, res) => {
 export const acceptRentalSharingRequest = async (req, res) => {
   try {
     const { id } = req.params;
-    // const { acceptedId } = req.body;
+
     const acceptedRentalSharing = await RentalSharingRequest.findById(
       id
     ).populate('customer sharing');
@@ -158,40 +160,46 @@ export const acceptRentalSharingRequest = async (req, res) => {
       throw new Error('Cannot find sharing!');
     }
 
-    const rentalSharingRequests =
-      (await RentalSharingRequest.find({ sharing: sharing._id }).populate(
-        'customer'
-      )) || [];
+    const rentalSharingRequests = await RentalSharingRequest.find({
+      sharing: sharing._id,
+    }).populate('customer');
 
-    for (let i = 0; i < rentalSharingRequests.length; i++) {
-      const rentalSharing = rentalSharingRequests[i];
-      if (rentalSharing._id === id) {
-        rentalSharing.status = 'ACCEPTED';
-        await rentalSharing.save();
-        sendNotification({
-          title: 'Your request has been accepted',
-          body: `Remember to come to ${
-            sharing.address
-          } to take your rental car`,
-          fcmToken: rentalSharing.customer.fcmToken,
-          data: {
-            screenName: 'HistoryStack',
-            action: 'NAVIGATE',
-          },
-        });
-      } else {
-        sendNotification({
-          title: 'Your request has been declined',
-          fcmToken: rentalSharing.customer.fcmToken,
-          data: {
-            screenName: 'HistoryStack',
-            action: 'NAVIGATE',
-          },
-        });
-        rentalSharing.status = 'DECLINED';
-        await rentalSharing.save();
-      }
+    if (
+      Array.isArray(rentalSharingRequests) &&
+      rentalSharingRequests.length > 0
+    ) {
+      rentalSharingRequests.forEach(async rentalSharing => {
+        console.log('id request', id);
+        console.log(rentalSharing._id);
+        if (rentalSharing._id.toString() === id) {
+          rentalSharing.status = 'ACCEPTED';
+          await rentalSharing.save();
+          sendNotification({
+            title: 'Your request has been accepted',
+            body: `Remember to come to ${
+              sharing.address
+            } to take your rental car`,
+            fcmToken: rentalSharing.customer.fcmToken,
+            data: {
+              screenName: 'HistoryStack',
+              action: 'NAVIGATE',
+            },
+          });
+        } else if (rentalSharing.status === 'PENDING') {
+          sendNotification({
+            title: 'Your request has been declined',
+            fcmToken: rentalSharing.customer.fcmToken,
+            data: {
+              screenName: 'HistoryStack',
+              action: 'NAVIGATE',
+            },
+          });
+          rentalSharing.status = 'DECLINED';
+          await rentalSharing.save();
+        }
+      });
     }
+    return res.status(HTTPStatus.OK).json({});
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }

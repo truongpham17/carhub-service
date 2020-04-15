@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { number } from 'joi';
 import enums from '../../enum';
 
 const RentalSchema = new Schema({
@@ -17,6 +18,10 @@ const RentalSchema = new Schema({
   type: {
     type: String, // 'hub' or 'share'
     required: true,
+  },
+  numberDeclined: {
+    type: Number,
+    default: 0,
   },
   leaser: {
     type: Schema.Types.ObjectId,

@@ -23,8 +23,8 @@ export default {
     body: {
       address: Joi.string(),
       geometry: {
-        lat: Joi.number().min(0),
-        lng: Joi.number().min(0),
+        lat: Joi.number(),
+        lng: Joi.number(),
       },
       fromDate: Joi.date(),
       toDate: Joi.date(),
@@ -34,5 +34,19 @@ export default {
     options: {
       allowUnknownBody: false,
     },
+  },
+  createFromRental: {
+    body: {
+      address: Joi.string(),
+      geometry: {
+        lat: Joi.number(),
+        lng: Joi.number(),
+      },
+      price: Joi.number(),
+      fromDate: Joi.date(),
+      toDate: Joi.date(),
+      rental: Joi.string(),
+    },
+    options: { allowUnknownBody: false },
   },
 };

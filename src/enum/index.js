@@ -41,6 +41,7 @@ export default {
         'WAIT_TO_RETURN', // Customer's car are at the hub and wait for customer get back
 
         'PAST', // Customer get their car and complete
+        'CANCEL', // customer cancel request
       ],
     },
   },
@@ -75,10 +76,13 @@ export default {
         'CREATE_SHARING',
         'CANCEL_SHARING',
         'CONFIRM_SHARING',
+        'CANCEL_TAKE_CAR',
         // for lease
         'PLACING',
         'TAKE_BACK',
         'SOME_ONE_RENT_YOUR_CAR', // :))
+        'CANCEL',
+        'REQUEST_GET_BACK',
       ],
     },
   },
@@ -93,6 +97,7 @@ export default {
         'Renting',
         'Take car at hub',
         'Rented by someone',
+        'Request take car back',
         // rental
         'Create rental request',
         'Take car at hub',
@@ -101,6 +106,8 @@ export default {
         'Confirm sharing car',
         'Return car',
         'Pay extra overdue value',
+        'User cancel request',
+        'Not accept taking car',
       ],
     },
   },

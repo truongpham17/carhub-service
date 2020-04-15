@@ -15,8 +15,7 @@ const routes = new Router();
 routes.get('/', auth, getLeaseList);
 routes.get('/:id', auth, getLease);
 routes.post('/', auth, validate(validation.addLease), addLease);
-
-routes.post('/transaction/:id', auth, submitTransaction);
 routes.patch('/:id', auth, validate(validation.updateLease), updateLease);
+routes.patch('/transaction/:id', auth, submitTransaction);
 
 export default routes;

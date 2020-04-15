@@ -3,6 +3,8 @@ import Sharing from './sharing.model';
 import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
 import Rental from '../rental/rental.model';
 import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
+import { SHARING_RENTAL_NOT_FOUND } from '../../constant/errorCode';
+import Log from '../log/log.model';
 
 export const getSharing = async (req, res) => {
   try {
@@ -51,10 +53,11 @@ export const suggestSharing = async (req, res) => {
         populate: { path: 'customer' },
       });
 
-    // only show result if the endLocation near return hub, or the startLocation near the endLocation and the startLocation near the pickUpLocation
+    // only show result if the startLocation near the pickup location, endLocation near return hub
     const sharingFilterDistance = sharings
       .filter(
         sharing =>
+          // check start location and pickup location
           distanceInKmBetweenEarthCoordinates(
             startLat,
             startLng,
@@ -115,7 +118,7 @@ export const getSharingByRentalId = async (req, res) => {
 export const getLatestSharingByRental = async (req, res) => {
   try {
     const { id } = req.params;
-    const sharing = await Sharing.find({ rental: id, isActive: true })
+    const sharings = await Sharing.find({ rental: id, isActive: true })
       .sort({
         createdAt: -1,
       })
@@ -124,7 +127,10 @@ export const getLatestSharingByRental = async (req, res) => {
         path: 'rental',
         populate: { path: 'carModel customer pickoffHub' },
       });
-    return res.status(HTTPStatus.OK).json(sharing[0]);
+    if (!Array.isArray(sharings) || sharings.length === 0) {
+      return res.status(HTTPStatus.NO_CONTENT).json({});
+    }
+    return res.status(HTTPStatus.OK).json(sharings[0]);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
@@ -132,19 +138,24 @@ export const getLatestSharingByRental = async (req, res) => {
 
 export const confirmSharing = async (req, res) => {
   try {
-    // id of sharing or rental?
+    // id of rental
     const { id } = req.params;
     const { sharingRequestId } = req.body;
 
-    const sharing = await Sharing.findById(id);
-    if (!sharing) {
-      throw new Error('Can not find sharing');
-    }
-
-    const rental = await Rental.findById(sharing.rental);
+    const rental = await Rental.findById(id);
     if (!rental) {
       throw new Error('Cannot find rental!');
     }
+
+    const sharings = await Sharing.find({ rental: id, isActive: true }).sort({
+      createdAt: -1,
+    });
+
+    if (!Array.isArray(sharings) || sharings.length === 0) {
+      throw new Error('Can not find sharing');
+    }
+
+    const sharing = sharings[0];
 
     const sharingRequest = await RentalSharingRequest.findOne({
       sharing: sharing._id,
@@ -154,14 +165,14 @@ export const confirmSharing = async (req, res) => {
     if (!sharingRequest) {
       throw new Error('Cannot find sharing request');
     }
-    if (sharingRequest._id !== sharingRequestId) {
+
+    if (sharingRequest._id.toString() !== sharingRequestId) {
       throw new Error('Sharing request id does not match!');
     }
 
     sharing.sharingRequest = sharingRequest;
-
+    sharing.customer = sharingRequest.customer;
     rental.status = 'SHARED';
-
     sharingRequest.status = 'CURRENT';
 
     await sharingRequest.save();
@@ -210,6 +221,33 @@ export const addSharing = async (req, res) => {
     return res.status(HTTPStatus.OK).json(sharing);
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
+  }
+};
+
+export const createSharingFromRental = async (req, res) => {
+  try {
+    const { rental, price, fromDate, toDate } = req.body;
+    const rentalObj = await Rental.findById(rental);
+
+    if (!rentalObj) {
+      throw new Error(SHARING_RENTAL_NOT_FOUND);
+    }
+
+    rentalObj.status = 'SHARING';
+
+    const sharing = await Sharing.create(req.body);
+
+    await Log.create({
+      type: 'CREATE_SHARING',
+      title: 'Request sharing car',
+      detail: rental,
+      note: `${price}-${fromDate}-${toDate}`,
+    });
+
+    await rentalObj.save();
+    return res.status(HTTPStatus.CREATED).json(sharing.toJSON());
+  } catch (error) {
+    return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
 

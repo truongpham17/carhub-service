@@ -161,8 +161,9 @@ export const removeCarModel = async (req, res) => {
 
 export const createCarModelBySendingLease = async (req, res) => {
   try {
+    const { name } = req.params;
     const carModelExisted = await CarModel.findOne({
-      name: new RegExp(`${req.body.name}`, 'i'),
+      name: new RegExp(`${name}`, 'i'),
     });
     if (!carModelExisted) {
       const carModel = await CarModel.create(req.body);
@@ -176,8 +177,9 @@ export const createCarModelBySendingLease = async (req, res) => {
 
 export const findCarModelByName = async (req, res) => {
   try {
+    const { name } = req.params;
     const carModel = await CarModel.findOne({
-      name: new RegExp(`${req.body.data.name}`, 'i'),
+      name: new RegExp(`${name}`, 'i'),
     });
     return res.status(httpStatus.OK).json(carModel);
   } catch (error) {

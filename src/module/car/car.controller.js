@@ -4,6 +4,14 @@ import Car from './car.model';
 import Hub from '../hub/hub.model';
 import Rental from '../rental/rental.model';
 import Lease from '../lease/lease.model';
+import {
+  CAR_CURRENTLY_LEASING,
+  RENTAL_NOT_FOUND_CAR,
+  RENTAL_CAR_ALREADY_IN_USE,
+  RENTAL_CAR_NOT_MATCH_ADDRESS,
+  RENTAL_NOT_FOUND_RENTAL,
+  RENTAL_NOT_MATCH_CAR_MODEL,
+} from '../../constant/errorCode';
 
 export const getCarList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -183,16 +191,29 @@ export const transferLeasingCar = async (req, res) => {
   }
 };
 
-export const createCarAfterCheckingVin = async (req, res) => {
+export const createLeasingCar = async (req, res) => {
   try {
     const checkCar = await Car.findOne({ VIN: req.body.VIN });
     if (checkCar) {
-      const newCar = await Car.findByIdAndUpdate(checkCar._id, req.body);
-      return res.status(httpStatus.CREATED).json(newCar);
+      const inProgressLease = await Lease.findOne({
+        car: checkCar._id,
+        status: { $ne: 'PAST' },
+      });
+
+      if (inProgressLease) {
+        throw new Error(CAR_CURRENTLY_LEASING);
+      }
+
+      Object.keys(req.body).forEach(key => {
+        checkCar[key] = req.body[key];
+      });
+      await checkCar.save();
+      return res.status(httpStatus.OK).json(checkCar);
     }
     const car = await Car.create(req.body);
     return res.status(httpStatus.CREATED).json(car);
   } catch (error) {
+    console.log(error.message);
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };
@@ -254,6 +275,55 @@ export const getHubCarList = async (req, res) => {
 
     return res.status(httpStatus.OK).json({ allCarFromHub, hub });
   } catch (error) {
+    return res.status(httpStatus.BAD_REQUEST).json(error.message);
+  }
+};
+
+export const checkAvailableCarForRental = async (req, res) => {
+  try {
+    const { employee } = req;
+    const { id, rentalId } = req.params;
+    const carObj = await Car.findById(id).populate('carModel');
+
+    // if car not found
+    if (!carObj) {
+      throw new Error(RENTAL_NOT_FOUND_CAR);
+    }
+
+    if (!carObj.currentHub) {
+      throw new Error(RENTAL_CAR_ALREADY_IN_USE);
+    }
+
+    // if car not belong to hub
+    if (carObj.currentHub.toString() !== employee.hub.toString()) {
+      throw new Error(RENTAL_CAR_NOT_MATCH_ADDRESS);
+    }
+
+    // if rental not found
+    const rental = await Rental.findById(rentalId);
+    if (!rental) {
+      throw new Error(RENTAL_NOT_FOUND_RENTAL);
+    }
+
+    // if rental and car not match model
+    if (carObj.carModel._id.toString() !== rental.carModel.toString()) {
+      throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
+    }
+
+    // if this car already in use
+    const rentalDuplicate = await Rental.findOne({
+      car: id,
+      status: { $in: ['CURRENT', 'SHARING', 'SHARED'] },
+    });
+
+    if (rentalDuplicate) {
+      throw new Error(RENTAL_CAR_ALREADY_IN_USE);
+    }
+
+    return res.status(httpStatus.OK).json(carObj);
+  } catch (error) {
+    console.log(error);
+    console.log(error.message);
     return res.status(httpStatus.BAD_REQUEST).json(error.message);
   }
 };

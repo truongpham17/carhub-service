@@ -10,6 +10,10 @@ const LeaseSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Hub',
   },
+  customer: {
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
+  },
   startDate: {
     type: Date,
   },

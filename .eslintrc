@@ -6,6 +6,7 @@
     // "no-unused-vars": "off",
     "no-use-before-define": "off",
     "import/no-cycle": "off",
-    "no-const-assign": "off"
+    "no-const-assign": "off",
+    "no-case-declarations": "off"
   }
 }

@@ -3,7 +3,7 @@ import Joi from 'joi';
 export default {
   addLease: {
     body: {
-      car: Joi.string(),
+      car: Joi.string().required(),
       hub: Joi.string(),
       startDate: Joi.date(),
       endDate: Joi.date(),

@@ -1,10 +1,12 @@
 import HTTPStatus from 'http-status';
 import moment from 'moment';
 import Lease from './lease.model';
+import CarModel from '../carModel/carModel.model';
 import Transaction from '../transaction/transaction.model';
 import Log from '../log/log.model';
 import Car from '../car/car.model';
 import { sendNotification } from '../../utils/notification';
+import { LEASE_PRICE_PERCENTAGE } from '../../constant/policy';
 
 export const getLeaseList = async (req, res) => {
   const limit = parseInt(req.query.limit, 10) || 50;
@@ -107,14 +109,14 @@ export const updateLease = async (req, res) => {
 export const submitTransaction = async (req, res) => {
   try {
     const { id } = req.params;
-    const { toStatus, message } = req.body;
+    const { toStatus, message, licensePlates } = req.body;
     let log = {};
-    let notificationData = {};
+    let notificationData = null;
     const lease = await Lease.findById(id)
       .populate({
         path: 'car hub',
       })
-      .populate({ path: 'car', populate: { path: 'customer' } });
+      .populate({ path: 'car', populate: { path: 'customer carModel' } });
 
     if (!lease || !lease.isActive) {
       throw new Error('lease not found');
@@ -127,6 +129,7 @@ export const submitTransaction = async (req, res) => {
     switch (status) {
       case 'PENDING':
         lease.status = toStatus;
+        lease.price = lease.car.carModel.price * LEASE_PRICE_PERCENTAGE;
 
         if (toStatus === 'ACCEPTED') {
           log = {
@@ -139,7 +142,7 @@ export const submitTransaction = async (req, res) => {
               lease.hub.address
             } at ${moment(lease.startDate).format('MMM DD YYYY')}.`,
           };
-        } else {
+        } else if (toStatus === 'DECLINED') {
           log = {
             type: 'DECLINE',
             title: 'Request decline by hub',
@@ -150,13 +153,46 @@ export const submitTransaction = async (req, res) => {
             body:
               'Sorry, but for some reason, your lease request has been declined. Click here to see more information',
           };
+        } else if (toStatus === 'CANCEL') {
+          log = {
+            type: 'CANCEL',
+            title: 'User cancel request',
+          };
+        }
+        if (notificationData) {
+          sendNotification({
+            ...notificationData,
+            data: {
+              action: 'NAVIGATE',
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id.toString(),
+            },
+            fcmToken,
+          });
         }
 
+        break;
+      case 'ACCEPTED':
+        lease.status = 'AVAILABLE';
+        const car = await Car.findById(lease.car);
+        if (licensePlates) {
+          car.licensePlates = licensePlates;
+        }
+        car.currentHub = lease.hub._id;
+        await car.save();
+
+        log = {
+          type: 'PLACING',
+          title: 'Placing car at hub',
+        };
         sendNotification({
-          ...notificationData,
+          title: 'Placing car successfully',
+          body:
+            'You have placed your car at the hub. Thank you for using our service',
           data: {
             action: 'NAVIGATE',
-            screenName: 'RentHistoryItemDetailScreen',
+            screenName: 'LeaseHistoryItemDetailScreen',
+            selectedId: lease._id.toString(),
           },
           fcmToken,
         });
@@ -171,6 +207,12 @@ export const submitTransaction = async (req, res) => {
             title: 'Take car at hub',
           };
         }
+        if (toStatus === 'WAIT_TO_RETURN') {
+          log = {
+            type: 'REQUEST_GET_BACK',
+            title: 'Request take car back',
+          };
+        }
         if (toStatus === 'HIRING') {
           log = {
             type: 'SOME_ONE_RENT_YOUR_CAR',
@@ -183,28 +225,14 @@ export const submitTransaction = async (req, res) => {
             fcmToken,
             data: {
               action: 'NAVIGATE',
-              screenName: 'RentHistoryItemDetailScreen',
-              screenProps: {
-                selectedId: lease._id,
-              },
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id.toString(),
             },
           });
         }
 
         break;
-      case 'ACCEPTED':
-        lease.status = 'AVAILABLE';
-        log = {
-          type: 'PLACING',
-          title: 'Placing car at hub',
-        };
-        sendNotification({
-          title: 'Placing car successfully',
-          body:
-            'You have placed your car at the hub. Thank you for using our service',
-          fcmToken,
-        });
-        break;
+
       default:
         break;
     }
@@ -216,6 +244,7 @@ export const submitTransaction = async (req, res) => {
 
     return res.status(HTTPStatus.OK).json(lease);
   } catch (error) {
+    console.log(error.message);
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };

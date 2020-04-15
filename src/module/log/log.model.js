@@ -7,6 +7,9 @@ const LogSchema = new Schema(
       type: enums.log.type,
       required: true,
     },
+    title: {
+      type: enums.logTitle.type,
+    },
     detail: {
       type: Schema.Types.ObjectId,
     },
@@ -17,9 +20,6 @@ const LogSchema = new Schema(
     isActive: {
       type: Boolean,
       default: true,
-    },
-    title: {
-      type: enums.logTitle.type,
     },
   },
   {
