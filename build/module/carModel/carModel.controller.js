@@ -80,7 +80,8 @@ const searchNearByCarModel = async (req, res) => {
             endDate: {
               $gte: startDate
             },
-            status: 'UPCOMING'
+            status: 'UPCOMING',
+            carModel: item._id
           });
           console.log(currentCarCount, goingOutCarCount);
 
