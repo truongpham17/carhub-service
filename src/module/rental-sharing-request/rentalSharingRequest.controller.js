@@ -192,6 +192,8 @@ export const acceptRentalSharingRequest = async (req, res) => {
       id
     ).populate('customer sharing');
 
+    console.log(acceptedRentalSharing);
+
     if (!acceptedRentalSharing) {
       throw new Error('Can not find rental sharing request');
     }
@@ -202,7 +204,7 @@ export const acceptRentalSharingRequest = async (req, res) => {
     }
 
     const rental = await Rental.findById(
-      acceptRentalSharingRequest.sharing.rental
+      acceptedRentalSharing.sharing.rental
     ).populate('carModel');
 
     const rentalSharingRequests = await RentalSharingRequest.find({
@@ -275,6 +277,7 @@ export const acceptRentalSharingRequest = async (req, res) => {
     }
     return res.status(HTTPStatus.OK).json({});
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };

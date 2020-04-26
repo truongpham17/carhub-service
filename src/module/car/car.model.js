@@ -65,7 +65,7 @@ const CarSchema = new Schema({
     type: Boolean,
     default: true,
   },
-  VIN: {
+  vin: {
     type: String,
     // required: true,
   },

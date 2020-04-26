@@ -29,6 +29,7 @@ export const getRental = async (req, res) => {
     console.log(req.user);
     switch (req.user.role) {
       case 'CUSTOMER':
+        console.log(req.customer._id);
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
@@ -36,6 +37,7 @@ export const getRental = async (req, res) => {
           .populate('car customer leaser pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
+        console.log(rentals);
         break;
       case 'EMPLOYEE':
         rentals = await Rental.find({

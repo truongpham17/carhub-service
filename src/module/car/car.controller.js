@@ -193,7 +193,9 @@ export const transferLeasingCar = async (req, res) => {
 
 export const createLeasingCar = async (req, res) => {
   try {
-    const checkCar = await Car.findOne({ VIN: req.body.VIN });
+    const checkCar = await Car.findOne({ VIN: req.body.vin });
+    console.log(req.body);
+    console.log(checkCar);
     if (checkCar) {
       const inProgressLease = await Lease.findOne({
         car: checkCar._id,
