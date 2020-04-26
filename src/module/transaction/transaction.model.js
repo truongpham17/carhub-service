@@ -4,10 +4,10 @@ import enums from '../../enum';
 const TransactionSchema = new Schema(
   {
     sender: {
-      type: String,
+      type: Schema.Types.ObjectId,
     },
     receiver: {
-      type: String,
+      type: Schema.Types.ObjectId,
     },
     type: {
       type: enums.transaction.type,

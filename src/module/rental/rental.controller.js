@@ -3,9 +3,12 @@ import Rental from './rental.model';
 import Log from '../log/log.model';
 import Car from '../car/car.model';
 import { sendNotification } from '../../utils/notification';
+import Notification from '../notification/notification.model';
 import RentalSharingRequest from '../rental-sharing-request/rentalSharingRequest.model';
 import Sharing from '../sharing/sharing.model';
 import Lease from '../lease/lease.model';
+import { gateway } from '../../service/paypal';
+import Transaction from '../transaction/transaction.model';
 import {
   RENTAL_NOT_FOUND_CAR,
   RENTAL_NOT_FOUND_RENTAL,
@@ -77,7 +80,27 @@ export const getRentalById = async (req, res) => {
 
 export const addRental = async (req, res) => {
   try {
-    const rental = await Rental.create(req.body);
+    const { nonce, ...rentalData } = req.body;
+    console.log(rentalData);
+    console.log(nonce);
+    const rental = await Rental.create(rentalData);
+    await Transaction.create({
+      sender: req.customer._id,
+      receiver: req.pickupHub,
+      amount: 900,
+      type: 'RENTAL',
+    });
+    // const saleRequest = {
+    //   amount: '900.00',
+    //   paymentMethodNonce: nonce,
+    //   options: {
+    //     submitForSettlement: true,
+    //   },
+    //   customerId: '"PDHMDYZCE43AU"',
+    // };
+
+    // const transaction = await gateway.transaction.sale(saleRequest);
+    // console.log(transaction);
     await Log.create({
       type: 'CREATE',
       title: 'Create rental request',
@@ -85,6 +108,7 @@ export const addRental = async (req, res) => {
     });
     return res.status(HTTPStatus.CREATED).json(rental.toJSON());
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
@@ -185,6 +209,28 @@ export const submitTransaction = async (req, res) => {
 
         carObj.currentHub = null;
 
+        // Notification.create({
+        //   customer: rental.customer._id,
+        //   navigatorData: {
+        //     screenName: 'RentHistoryItemDetailScreen',
+        //     selectedId: rental._id,
+        //   },
+        //   detail: [
+        //     {
+        //       type: 'normal',
+        //       value: 'Successfully take the ',
+        //     },
+        //     {
+        //       type: 'bold',
+        //       value: rental.car.carModel.name,
+        //     },
+        //     {
+        //       type: 'normal',
+        //       value: ` car.`,
+        //     },
+        //   ],
+        // });
+
         lease = await Lease.findOne({
           car,
           status: 'AVAILABLE',
@@ -203,28 +249,28 @@ export const submitTransaction = async (req, res) => {
             },
           });
 
-          Notification.create({
-            customer: rental.customer._id,
-            navigatorData: {
-              screenName: 'LeaseHistoryItemDetailScreen',
-              selectedId: rental._id,
-            },
-            detail: [
-              {
-                type: 'normal',
-                value: 'Your car ',
-              },
-              {
-                type: 'bold',
-                value: rental.car.carModel.name,
-              },
-              {
-                type: 'normal',
-                value: ` has been rented. Your earn ${rental.totalCost *
-                  LEASE_PRICE_PERCENTAGE}`,
-              },
-            ],
-          });
+          // Notification.create({
+          //   customer: lease.customer._id,
+          //   navigatorData: {
+          //     screenName: 'LeaseHistoryItemDetailScreen',
+          //     selectedId: lease._id,
+          //   },
+          //   detail: [
+          //     {
+          //       type: 'normal',
+          //       value: 'Your car ',
+          //     },
+          //     {
+          //       type: 'bold',
+          //       value: rental.car.carModel.name,
+          //     },
+          //     {
+          //       type: 'normal',
+          //       value: ` has been rented. Your earn ${rental.totalCost *
+          //         LEASE_PRICE_PERCENTAGE}`,
+          //     },
+          //   ],
+          // });
 
           await Log.create({
             type: 'SOME_ONE_RENT_YOUR_CAR',
@@ -318,6 +364,7 @@ export const submitTransaction = async (req, res) => {
 
     return res.status(HTTPStatus.OK).json(rental);
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error);
   }
 };
