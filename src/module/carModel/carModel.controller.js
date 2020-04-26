@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import CarModel from './carModel.model';
 import Hub from '../hub/hub.model';
 import Car from '../car/car.model';
+import Rental from '../rental/rental.model';
 import { distanceInKmBetweenEarthCoordinates } from '../../utils/distance';
 
 export const getCarModelList = async (req, res) => {
@@ -20,11 +21,12 @@ export const getCarModelList = async (req, res) => {
 
 export const searchNearByCarModel = async (req, res) => {
   try {
-    const { startLocation } = req.body;
+    const { startLocation, startDate, endDate } = req.body;
     const { lat, lng } = startLocation.geometry;
 
     const hubs = await Hub.find({});
 
+    // sort hub by distance
     const hubsPlusDistance = hubs
       .map(hub => ({
         ...hub.toJSON(),
@@ -37,22 +39,42 @@ export const searchNearByCarModel = async (req, res) => {
       }))
       .sort((a, b) => a.distance - b.distance);
 
+    // filter all hub nearby user (<30km)
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
     const data = [];
 
+    // find car model of each hub
     await Promise.all(
       hubFilter.map(async hub => {
+        // find all car model from hub (currently having car)
         const modelIds = await Car.find({ currentHub: hub._id }).distinct(
           'carModel'
         );
+
         const carModels = await CarModel.find({ _id: modelIds });
         if (carModels.length > 0) {
-          carModels.forEach(item => {
-            data.push({ hub, carModel: item });
-          });
+          // each car model at hub
+          for (let i = 0; i < carModels.length; i++) {
+            const item = carModels[i];
+            const currentCarCount = await Car.countDocuments({
+              currentHub: hub._id,
+              carModel: item._id,
+            });
+            const goingOutCarCount = await Rental.countDocuments({
+              startDate: { $lte: startDate },
+              endDate: { $gte: startDate },
+              status: 'UPCOMING',
+            });
+            console.log(currentCarCount, goingOutCarCount);
+
+            if (currentCarCount - goingOutCarCount > 0) {
+              data.push({ hub, carModel: item });
+            }
+          }
         }
       })
     );
+    console.log('come here!!!');
 
     return res.status(httpStatus.OK).json(data);
   } catch (error) {

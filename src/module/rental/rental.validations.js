@@ -15,6 +15,7 @@ export default {
       totalCost: Joi.number().min(0),
       description: Joi.string(),
       payment: Joi.string(),
+      nonce: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

@@ -2,6 +2,8 @@ import HTTPStatus from 'http-status';
 import RentalSharingRequest from './rentalSharingRequest.model';
 import Sharing from '../sharing/sharing.model';
 import { sendNotification } from '../../utils/notification';
+import Notification from '../notification/notification.model';
+import Rental from '../rental/rental.model';
 
 export const getRentalSharingRequest = async (req, res) => {
   try {
@@ -71,8 +73,9 @@ export const addRentalSharingRequest = async (req, res) => {
       throw new Error('This sharing already transfer');
     }
 
-    const rentalRequest = await RentalSharingRequest.create(req.body);
-
+    const rentalRequest = await (await RentalSharingRequest.create(
+      req.body
+    )).populate('customer');
     sendNotification({
       fcmToken: sharingObj.rental.customer.fcmToken,
       title: 'Some one want to hire your car',
@@ -83,6 +86,25 @@ export const addRentalSharingRequest = async (req, res) => {
         selectedId: sharingObj.rental._id.toString(),
         newId: rentalRequest._id.toString(),
       },
+    });
+
+    Notification.create({
+      customer: sharingObj.rental.customer._id,
+      actor: rentalRequest.customer._id,
+      navigatorData: {
+        screenName: 'RentHistoryItemDetailScreen',
+        selectedId: sharingObj.rental._id,
+      },
+      detail: [
+        {
+          detailType: 'bold',
+          value: rentalRequest.customer.fullName,
+        },
+        {
+          detailType: 'normal',
+          value: ' request taking your sharing car',
+        },
+      ],
     });
 
     return res.status(HTTPStatus.OK).json(rentalRequest);
@@ -122,10 +144,15 @@ export const declineRentalSharingRequest = async (req, res) => {
     const { id } = req.params;
     const rentalSharingRequest = await RentalSharingRequest.findById(
       id
-    ).populate('customer');
+    ).populate('customer sharing');
     if (!rentalSharingRequest) {
       throw new Error('Can not find rental sharing request');
     }
+
+    const rental = await Rental.findById(
+      rentalSharingRequest.sharing.rental
+    ).polulate('carModel');
+
     rentalSharingRequest.status = 'DECLINED';
     sendNotification({
       title: 'Your request has been declined',
@@ -134,6 +161,20 @@ export const declineRentalSharingRequest = async (req, res) => {
         screenName: 'HistoryStack',
         action: 'NAVIGATE',
       },
+    });
+
+    Notification.create({
+      customer: rentalSharingRequest.customer._id,
+      navigatorData: {},
+      actor: rental.customer,
+      detail: [
+        {
+          detailType: 'normal',
+          value: `Your request to book the sharing car ${
+            rental.carModel.name
+          } has been declined`,
+        },
+      ],
     });
 
     await rentalSharingRequest.save();
@@ -160,6 +201,10 @@ export const acceptRentalSharingRequest = async (req, res) => {
       throw new Error('Cannot find sharing!');
     }
 
+    const rental = await Rental.findById(
+      acceptRentalSharingRequest.sharing.rental
+    ).populate('carModel');
+
     const rentalSharingRequests = await RentalSharingRequest.find({
       sharing: sharing._id,
     }).populate('customer');
@@ -185,6 +230,20 @@ export const acceptRentalSharingRequest = async (req, res) => {
               action: 'NAVIGATE',
             },
           });
+
+          Notification.create({
+            customer: rentalSharing.customer._id,
+            navigatorData: {},
+            actor: rental.customer,
+            detail: [
+              {
+                detailType: 'normal',
+                value: `Your request to book the sharing car ${
+                  rental.carModel.name
+                } has been accepted`,
+              },
+            ],
+          });
         } else if (rentalSharing.status === 'PENDING') {
           sendNotification({
             title: 'Your request has been declined',
@@ -194,6 +253,21 @@ export const acceptRentalSharingRequest = async (req, res) => {
               action: 'NAVIGATE',
             },
           });
+
+          Notification.create({
+            customer: rentalSharing.customer._id,
+            navigatorData: {},
+            actor: rental.customer,
+            detail: [
+              {
+                detailType: 'normal',
+                value: `Your request to book the sharing car ${
+                  rental.carModel.name
+                } has been declined`,
+              },
+            ],
+          });
+
           rentalSharing.status = 'DECLINED';
           await rentalSharing.save();
         }

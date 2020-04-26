@@ -5,13 +5,14 @@ export default {
     body: {
       username: Joi.string()
         .min(5)
-        .max(20)
+        .max(50)
         .required(),
       role: Joi.string().required(),
       password: Joi.string()
         .min(6)
         .max(120)
         .required(),
+      fullName: Joi.string().required(),
     },
   },
   login: {
@@ -22,7 +23,7 @@ export default {
         .required(),
       username: Joi.string()
         .min(5)
-        .max(20)
+        .max(50)
         .required(),
     },
     options: {

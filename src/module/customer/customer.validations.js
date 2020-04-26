@@ -22,9 +22,14 @@ export default {
       email: Joi.string(),
       phone: Joi.string(),
       fcmToken: Joi.string(),
+      paypalCard: Joi.array().items(
+        Joi.object({
+          email: Joi.string(),
+        })
+      ),
     },
     options: {
-      allowUnknownBody: false,
+      allowUnknownBody: true,
     },
   },
 };

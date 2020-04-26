@@ -4,9 +4,7 @@ import { gateway } from '../../service/paypal';
 
 export const getPaypalAccessToken = async (req, res) => {
   try {
-    const result = await gateway.clientToken.generate({
-      // customerId: req.customer._id,
-    });
+    const result = await gateway.clientToken.generate({});
     return res.status(HTTPStatus.OK).json({ paymentToken: result.clientToken });
   } catch (error) {
     return res.status(HTTPStatus.BAD_REQUEST).json({});

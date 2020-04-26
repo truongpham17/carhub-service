@@ -13,6 +13,7 @@ import extraRoutes from './extra/extra.routes';
 import paymentRoutes from './payment/payment.routes';
 import rentalRoutes from './rental/rental.routes';
 import leaseRoutes from './lease/lease.routes';
+import notificationRoutes from './notification/notification.routes';
 import sharingRoutes from './sharing/sharing.routes';
 import transactionRoutes from './transaction/transaction.routes';
 import logRoutes from './log/log.routes';
@@ -39,4 +40,5 @@ export default app => {
   app.use('/log', logRoutes);
   app.use('/transfer', transferRoutes);
   app.use('/rentalSharingRequest', rentalSharingRequest);
+  app.use('/notification', notificationRoutes);
 };

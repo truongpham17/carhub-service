@@ -23,6 +23,7 @@ export const getRental = async (req, res) => {
   try {
     let rentals;
     let total;
+    console.log(req.user);
     switch (req.user.role) {
       case 'CUSTOMER':
         rentals = await Rental.find({ customer: req.customer._id })
@@ -57,6 +58,7 @@ export const getRental = async (req, res) => {
     }
     return res.status(HTTPStatus.OK).json({ rentals, total });
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };
@@ -201,6 +203,29 @@ export const submitTransaction = async (req, res) => {
             },
           });
 
+          Notification.create({
+            customer: rental.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: rental._id,
+            },
+            detail: [
+              {
+                type: 'normal',
+                value: 'Your car ',
+              },
+              {
+                type: 'bold',
+                value: rental.car.carModel.name,
+              },
+              {
+                type: 'normal',
+                value: ` has been rented. Your earn ${rental.totalCost *
+                  LEASE_PRICE_PERCENTAGE}`,
+              },
+            ],
+          });
+
           await Log.create({
             type: 'SOME_ONE_RENT_YOUR_CAR',
             title: 'Rented by someone',
@@ -246,16 +271,29 @@ export const submitTransaction = async (req, res) => {
         if (toStatus === 'SHARED') {
           sendNotification({
             title: 'Sharing request',
-            body:
-              'Someone has requested to take your sharing car. Click to see more information',
+            body: 'Success transfer car',
             fcmToken,
             data: {
               action: 'NAVIGATE',
-              screenName: 'LeaseHistoryItemDetailScreen',
+              screenName: 'RentHistoryItemDetailScreen',
               screenProps: {
                 selectedId: rental._id.toString(),
               },
             },
+          });
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'RentHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                type: 'normal',
+                value: 'Success transfer your rental car',
+              },
+            ],
           });
 
           log = { type: 'CONFIRM_SHARING', title: 'Confirm sharing car' };

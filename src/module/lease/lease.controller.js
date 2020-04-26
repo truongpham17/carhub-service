@@ -6,6 +6,7 @@ import Transaction from '../transaction/transaction.model';
 import Log from '../log/log.model';
 import Car from '../car/car.model';
 import { sendNotification } from '../../utils/notification';
+import Notification from '../notification/notification.model';
 import { LEASE_PRICE_PERCENTAGE } from '../../constant/policy';
 
 export const getLeaseList = async (req, res) => {
@@ -142,6 +143,28 @@ export const submitTransaction = async (req, res) => {
               lease.hub.address
             } at ${moment(lease.startDate).format('MMM DD YYYY')}.`,
           };
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                detailType: 'normal',
+                value: 'Your lease request with ',
+              },
+              {
+                detailType: 'bold',
+                value: lease.car.carModel.name,
+              },
+              {
+                detailType: 'normal',
+                value: ' has been accepted',
+              },
+            ],
+          });
         } else if (toStatus === 'DECLINED') {
           log = {
             type: 'DECLINE',
@@ -153,6 +176,28 @@ export const submitTransaction = async (req, res) => {
             body:
               'Sorry, but for some reason, your lease request has been declined. Click here to see more information',
           };
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                detailType: 'normal',
+                value: 'Your lease request with ',
+              },
+              {
+                detailType: 'bold',
+                value: lease.car.carModel.name,
+              },
+              {
+                detailType: 'normal',
+                value: ' has been declined',
+              },
+            ],
+          });
         } else if (toStatus === 'CANCEL') {
           log = {
             type: 'CANCEL',
@@ -196,6 +241,29 @@ export const submitTransaction = async (req, res) => {
           },
           fcmToken,
         });
+
+        Notification.create({
+          customer: lease.car.customer._id,
+          navigatorData: {
+            screenName: 'LeaseHistoryItemDetailScreen',
+            selectedId: lease._id,
+          },
+          detail: [
+            {
+              detailType: 'normal',
+              value: 'Your car ',
+            },
+            {
+              detailType: 'bold',
+              value: lease.car.carModel.name,
+            },
+            {
+              detailType: 'normal',
+              value: ' has been placed at hub successfully',
+            },
+          ],
+        });
+
         break;
       case 'AVAILABLE':
       case 'WAIT_TO_RETURN':
@@ -228,6 +296,28 @@ export const submitTransaction = async (req, res) => {
               screenName: 'LeaseHistoryItemDetailScreen',
               selectedId: lease._id.toString(),
             },
+          });
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                detailType: 'normal',
+                value: 'Your car ',
+              },
+              {
+                detailType: 'bold',
+                value: lease.car.carModel.name,
+              },
+              {
+                detailType: 'normal',
+                value: ' has been rented',
+              },
+            ],
           });
         }
 

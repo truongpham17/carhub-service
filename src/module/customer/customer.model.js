@@ -11,7 +11,6 @@ const CustomerSchema = new Schema({
   },
   avatar: {
     type: String,
-    require: true,
   },
   dateOfBirth: {
     type: Date,
@@ -26,6 +25,9 @@ const CustomerSchema = new Schema({
   license: {
     type: Schema.Types.ObjectId,
     ref: 'License',
+  },
+  paypalCard: {
+    type: [{ email: String }],
   },
   fcmToken: {
     type: String,

@@ -37,9 +37,7 @@ export const getAccountList = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log(username, password);
     const account = await Account.findOne({ username });
-    console.log(account);
     if (!account || !account.validatePassword(password)) {
       throw new Error('Wrong username or password');
     }
@@ -96,7 +94,7 @@ export const getAccount = async (req, res) => {
 
 export const createAccount = async (req, res) => {
   try {
-    const { username } = req.body;
+    const { username, fullName, role, password } = req.body;
     if (!username || username.length <= 5) {
       throw new Error('Min length is 6');
     }
@@ -106,15 +104,30 @@ export const createAccount = async (req, res) => {
     if (checkDuplicate) {
       throw new Error('Duplicate user!');
     }
-    const user = await Account.create({
+    const account = await Account.create({
       ...req.body,
-      // password: Account.hashPassword(req.password),
     });
 
-    user.password = user.hashPassword(req.password);
-    await user.save();
+    account.password = account.hashPassword(password);
 
-    return res.status(HTTPStatus.CREATED).json(user.toAuthJSON());
+    let accountDetail = {};
+
+    switch (role) {
+      case 'CUSTOMER':
+        accountDetail = await Customer.create({
+          account: account._id,
+          fullName,
+        });
+        break;
+      default:
+        throw new Error('Not specified account role');
+    }
+
+    await account.save();
+
+    return res
+      .status(HTTPStatus.CREATED)
+      .json({ ...account.toAuthJSON(), ...accountDetail.toJSON() });
   } catch (error) {
     console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
