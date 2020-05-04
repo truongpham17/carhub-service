@@ -4,7 +4,6 @@ import Customer from '../customer/customer.model';
 
 export const getNotifications = async (req, res) => {
   try {
-    console.log('come here!!');
     const limit = parseInt(req.query.limit, 10) || 50;
     const skip = parseInt(req.query.skip, 10) || 0;
     const { customer } = req;
@@ -16,7 +15,6 @@ export const getNotifications = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log(list);
     const total = await Notification.countDocuments();
     return res.status(HTTPStatus.OK).json({ list, total });
   } catch (error) {

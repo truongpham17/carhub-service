@@ -28,7 +28,7 @@ export const getLeaseList = async (req, res) => {
         leases = await Lease.find({ hub: req.employee.hub })
           .skip(skip)
           .limit(limit)
-          .populate('car hub')
+          .populate('car hub customer')
           .populate({ path: 'car', populate: { path: 'carModel customer' } });
         total = await Lease.count({ hub: req.employee.hub });
         break;
@@ -218,52 +218,86 @@ export const submitTransaction = async (req, res) => {
 
         break;
       case 'ACCEPTED':
-        lease.status = 'AVAILABLE';
-        const car = await Car.findById(lease.car);
-        if (licensePlates) {
-          car.licensePlates = licensePlates;
+        if (toStatus === 'DECLINED') {
+          lease.status = toStatus;
+          log = {
+            type: 'DECLINE',
+            title: 'Hub rejects to receive car',
+          };
+          lease.message = message;
+          notificationData = {
+            title: 'Hub rejects to receive car',
+            body: 'Sorry, but for some reason, we cannot receive your car.',
+          };
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                detailType: 'normal',
+                value: 'Your lease request with ',
+              },
+              {
+                detailType: 'bold',
+                value: lease.car.carModel.name,
+              },
+              {
+                detailType: 'normal',
+                value: ' has been declined',
+              },
+            ],
+          });
+        } else {
+          lease.status = 'AVAILABLE';
+          const car = await Car.findById(lease.car);
+          if (licensePlates) {
+            car.licensePlates = licensePlates;
+          }
+          car.currentHub = lease.hub._id;
+          await car.save();
+
+          log = {
+            type: 'PLACING',
+            title: 'Placing car at hub',
+          };
+          sendNotification({
+            title: 'Placing car successfully',
+            body:
+              'You have placed your car at the hub. Thank you for using our service',
+            data: {
+              action: 'NAVIGATE',
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id.toString(),
+            },
+            fcmToken,
+          });
+
+          Notification.create({
+            customer: lease.car.customer._id,
+            navigatorData: {
+              screenName: 'LeaseHistoryItemDetailScreen',
+              selectedId: lease._id,
+            },
+            detail: [
+              {
+                detailType: 'normal',
+                value: 'Your car ',
+              },
+              {
+                detailType: 'bold',
+                value: lease.car.carModel.name,
+              },
+              {
+                detailType: 'normal',
+                value: ' has been placed at hub successfully',
+              },
+            ],
+          });
         }
-        car.currentHub = lease.hub._id;
-        await car.save();
-
-        log = {
-          type: 'PLACING',
-          title: 'Placing car at hub',
-        };
-        sendNotification({
-          title: 'Placing car successfully',
-          body:
-            'You have placed your car at the hub. Thank you for using our service',
-          data: {
-            action: 'NAVIGATE',
-            screenName: 'LeaseHistoryItemDetailScreen',
-            selectedId: lease._id.toString(),
-          },
-          fcmToken,
-        });
-
-        Notification.create({
-          customer: lease.car.customer._id,
-          navigatorData: {
-            screenName: 'LeaseHistoryItemDetailScreen',
-            selectedId: lease._id,
-          },
-          detail: [
-            {
-              detailType: 'normal',
-              value: 'Your car ',
-            },
-            {
-              detailType: 'bold',
-              value: lease.car.carModel.name,
-            },
-            {
-              detailType: 'normal',
-              value: ' has been placed at hub successfully',
-            },
-          ],
-        });
-
         break;
       case 'AVAILABLE':
       case 'WAIT_TO_RETURN':

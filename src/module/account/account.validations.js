@@ -25,6 +25,7 @@ export default {
         .min(5)
         .max(50)
         .required(),
+      role: Joi.string(),
     },
     options: {
       allowUnknownBody: false,

@@ -60,7 +60,6 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.params.id });
-    console.log(user);
     if (!user) {
       throw new Error('Not found');
     }

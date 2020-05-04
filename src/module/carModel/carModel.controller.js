@@ -66,7 +66,6 @@ export const searchNearByCarModel = async (req, res) => {
               status: 'UPCOMING',
               carModel: item._id,
             });
-            console.log(currentCarCount, goingOutCarCount);
 
             if (currentCarCount - goingOutCarCount > 0) {
               data.push({ hub, carModel: item });
@@ -75,7 +74,6 @@ export const searchNearByCarModel = async (req, res) => {
         }
       })
     );
-    console.log('come here!!!');
 
     return res.status(httpStatus.OK).json(data);
   } catch (error) {
@@ -153,7 +151,6 @@ export const transferCarModel = async (req, res) => {
           carModel: carModel._id,
         }).limit(carModel.quantity);
 
-        console.log(cars);
         if (!cars) {
           throw new Error('Car not found!');
         }

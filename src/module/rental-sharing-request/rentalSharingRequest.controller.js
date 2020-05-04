@@ -192,8 +192,6 @@ export const acceptRentalSharingRequest = async (req, res) => {
       id
     ).populate('customer sharing');
 
-    console.log(acceptedRentalSharing);
-
     if (!acceptedRentalSharing) {
       throw new Error('Can not find rental sharing request');
     }
@@ -216,8 +214,6 @@ export const acceptRentalSharingRequest = async (req, res) => {
       rentalSharingRequests.length > 0
     ) {
       rentalSharingRequests.forEach(async rentalSharing => {
-        console.log('id request', id);
-        console.log(rentalSharing._id);
         if (rentalSharing._id.toString() === id) {
           rentalSharing.status = 'ACCEPTED';
           await rentalSharing.save();

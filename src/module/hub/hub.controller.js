@@ -35,7 +35,6 @@ export const getHubById = async (req, res) => {
 
 export const createHub = async (req, res) => {
   try {
-    console.log(req.body);
     const hub = await Hub.create(req.body);
     return res
       .status(httpStatus.CREATED)

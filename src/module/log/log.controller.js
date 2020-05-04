@@ -40,7 +40,6 @@ export const getLog = async (req, res) => {
 
 export const createLog = async (req, res) => {
   try {
-    console.log(req.body);
     const log = await Log.create(req.body);
     return res.status(httpStatus.CREATED).json(log);
   } catch (error) {

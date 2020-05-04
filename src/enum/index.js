@@ -98,6 +98,7 @@ export default {
         'Take car at hub',
         'Rented by someone',
         'Request take car back',
+        'Hub rejects to receive car',
         // rental
         'Create rental request',
         'Take car at hub',

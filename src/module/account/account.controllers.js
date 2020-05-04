@@ -36,9 +36,12 @@ export const getAccountList = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role = 'CUSTOMER' } = req.body;
     const account = await Account.findOne({ username });
     if (!account || !account.validatePassword(password)) {
+      throw new Error('Wrong username or password');
+    }
+    if (account.role !== role) {
       throw new Error('Wrong username or password');
     }
     let accountDetail = null;

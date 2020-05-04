@@ -119,8 +119,6 @@ export const createCar = async (req, res) => {
 export const updateCar = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
-    console.log(req.body);
     const car = await Car.findById(id);
     Object.keys(req.body).forEach(key => {
       car[key] = req.body[key];
@@ -178,8 +176,6 @@ export const transferLeasingCar = async (req, res) => {
           await car.save();
           return car;
         }
-        console.log(item._id);
-        console.log('car is null');
         throw new Error('Car not found');
       })
     );
@@ -194,8 +190,6 @@ export const transferLeasingCar = async (req, res) => {
 export const createLeasingCar = async (req, res) => {
   try {
     const checkCar = await Car.findOne({ VIN: req.body.vin });
-    console.log(req.body);
-    console.log(checkCar);
     if (checkCar) {
       const inProgressLease = await Lease.findOne({
         car: checkCar._id,
@@ -235,7 +229,7 @@ export const getHubCarList = async (req, res) => {
     const cars = await Car.find({
       $or: [{ currentHub: hub._id }, { hub: hub._id }],
       isActive: true,
-    }).populate('carModel');
+    }).populate('carModel customer');
     const carIds = cars.map(item => item._id.toString());
 
     // get all rentals in the future

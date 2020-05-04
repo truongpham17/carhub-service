@@ -26,10 +26,8 @@ export const getRental = async (req, res) => {
   try {
     let rentals;
     let total;
-    console.log(req.user);
     switch (req.user.role) {
       case 'CUSTOMER':
-        console.log(req.customer._id);
         rentals = await Rental.find({ customer: req.customer._id })
           .skip(skip)
           .limit(limit)
@@ -37,7 +35,6 @@ export const getRental = async (req, res) => {
           .populate('car customer leaser pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
-        console.log(rentals);
         break;
       case 'EMPLOYEE':
         rentals = await Rental.find({
@@ -83,8 +80,6 @@ export const getRentalById = async (req, res) => {
 export const addRental = async (req, res) => {
   try {
     const { nonce, ...rentalData } = req.body;
-    console.log(rentalData);
-    console.log(nonce);
     const rental = await Rental.create(rentalData);
     await Transaction.create({
       sender: req.customer._id,
@@ -102,7 +97,6 @@ export const addRental = async (req, res) => {
     // };
 
     // const transaction = await gateway.transaction.sale(saleRequest);
-    // console.log(transaction);
     await Log.create({
       type: 'CREATE',
       title: 'Create rental request',
