@@ -205,6 +205,7 @@ export const submitTransaction = async (req, res) => {
           };
         }
         if (notificationData) {
+          console.log('send notification');
           sendNotification({
             ...notificationData,
             data: {
@@ -254,9 +255,9 @@ export const submitTransaction = async (req, res) => {
         } else {
           lease.status = 'AVAILABLE';
           const car = await Car.findById(lease.car);
-          if (licensePlates) {
-            car.licensePlates = licensePlates;
-          }
+          // if (licensePlates) {
+          //   car.licensePlates = licensePlates;
+          // }
           car.currentHub = lease.hub._id;
           await car.save();
 

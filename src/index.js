@@ -34,14 +34,6 @@ admin.initializeApp({
 //   })
 //   .then(() => console.log('success'))
 //   .catch(error => console.log(error));
-
-distanceInKmBetweenEarthCoordinates(
-  10.8460177,
-  106.7970111,
-  10.865486,
-  106.761969
-);
-
 configMiddleware(app);
 
 routesConfig(app);

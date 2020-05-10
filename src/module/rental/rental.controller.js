@@ -1,4 +1,5 @@
 import HTTPStatus from 'http-status';
+import moment from 'moment';
 import Rental from './rental.model';
 import Log from '../log/log.model';
 import Car from '../car/car.model';
@@ -39,7 +40,7 @@ export const getRental = async (req, res) => {
       case 'EMPLOYEE':
         rentals = await Rental.find({
           pickupHub: req.employee.hub,
-          status: 'UPCOMING',
+          // status: 'UPCOMING',
         })
           .skip(skip)
           .limit(limit)
@@ -159,7 +160,7 @@ export const submitTransaction = async (req, res) => {
 
     // 'UPCOMING', 'CURRENT', 'OVERDUE', 'SHARING', 'SHARED', 'PAST'
     const { status } = rental;
-    const { toStatus, car } = req.body;
+    const { toStatus, car, message } = req.body;
 
     let log = {};
     let carObj;
@@ -167,6 +168,38 @@ export const submitTransaction = async (req, res) => {
     let rentalDuplicate;
     switch (status) {
       case 'UPCOMING':
+        if (toStatus === 'CANCEL') {
+          rental.status = toStatus;
+          // rental.isActive = false;
+          await Log.create({
+            type: 'USER_CANCEL',
+            title: 'User cancel request',
+            detail: rental._id,
+          });
+          await rental.save();
+          return res.status(HTTPStatus.OK).json({});
+        }
+
+        // employee reject transaction
+        if (toStatus === 'DECLINED') {
+          rental.status = toStatus;
+          await Log.create({
+            type: 'CANCEL_TAKE_CAR',
+            title: 'Not accept tranfer car',
+            detail: rental._id,
+          });
+          rental.message = message;
+          await rental.save();
+
+          sendNotification({
+            title: 'Your transaction has been declined',
+            body: `Sorry. Your transaction has been declined. We will refund all the deposit`,
+            fcmToken: rental.customer.fcmToken,
+            data: {},
+          });
+
+          return res.status(HTTPStatus.OK).json({});
+        }
         if (toStatus !== 'CURRENT') {
           rental.numberDeclined = rental.numberDeclined
             ? rental.numberDeclined + 1
@@ -182,13 +215,18 @@ export const submitTransaction = async (req, res) => {
         rental.status = 'CURRENT';
         log = { type: 'RECEIVE', title: 'Take car at hub' };
 
-        carObj = await Car.findById(car);
+        carObj = await Car.findById(car).populate('carModel');
         if (!carObj) {
           throw new Error(RENTAL_NOT_FOUND_CAR);
         }
 
-        if (carObj.carModel.toString() !== rental.carModel.toString()) {
-          throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
+        if (carObj.carModel._id.toString() !== rental.carModel.toString()) {
+          rental.carModel = carObj.carModel._id;
+          rental.totalCost =
+            moment(rental.endDate).diff(rental.startDate, 'days') *
+            carObj.carModel.price;
+          await rental.save();
+          // throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
         }
 
         rentalDuplicate = await Rental.findOne({
@@ -354,7 +392,7 @@ export const submitTransaction = async (req, res) => {
       await carObj.save();
     }
     await rental.save();
-    if (log) {
+    if (log && log.type) {
       await Log.create({ detail: rental._id, ...log });
     }
 

@@ -301,9 +301,14 @@ export const checkAvailableCarForRental = async (req, res) => {
       throw new Error(RENTAL_NOT_FOUND_RENTAL);
     }
 
+    let isNotMatch = false;
+
     // if rental and car not match model
     if (carObj.carModel._id.toString() !== rental.carModel.toString()) {
-      throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
+      // rental.carModel = carObj.carModel._id.toString();
+      // await rental.save();
+      isNotMatch = true;
+      // throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
     }
 
     // if this car already in use
@@ -316,7 +321,7 @@ export const checkAvailableCarForRental = async (req, res) => {
       throw new Error(RENTAL_CAR_ALREADY_IN_USE);
     }
 
-    return res.status(httpStatus.OK).json(carObj);
+    return res.status(httpStatus.OK).json({ ...carObj.toJSON(), isNotMatch });
   } catch (error) {
     console.log(error);
     console.log(error.message);

@@ -10,6 +10,8 @@ export default {
       ENUM: [
         'UPCOMING', // Customer request hire car
 
+        'CANCEL', // Customer cancel booking
+
         'DECLINED', // Employee decline customer's request
 
         'CURRENT', // Customer get rental car
@@ -101,6 +103,7 @@ export default {
         'Hub rejects to receive car',
         // rental
         'Create rental request',
+        'Booking request decline',
         'Take car at hub',
         'Request sharing car',
         'Cancel sharing car',

@@ -1,4 +1,5 @@
 import httpStatus from 'http-status';
+import fetch from 'node-fetch';
 import CarModel from './carModel.model';
 import Hub from '../hub/hub.model';
 import Car from '../car/car.model';
@@ -41,11 +42,35 @@ export const searchNearByCarModel = async (req, res) => {
 
     // filter all hub nearby user (<30km)
     const hubFilter = hubsPlusDistance.filter(hub => hub.distance < 30);
+    const hubWithRealDistance = [];
+    for (let i = 0; i < hubFilter.length; i++) {
+      const hubItem = hubFilter[i];
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=${
+          hubItem.geometry.lat
+        },${
+          hubItem.geometry.lng
+        }&destinations=${lat},${lng}&key=AIzaSyAUkXe8bNKtkVADuufFsYQZGrTpxWQCW4Y`
+      );
+      const mapData = await response.json();
+      try {
+        if (mapData.rows[0].elements[0].distance.value) {
+          const { value } = mapData.rows[0].elements[0].distance;
+          if (value < 30000) {
+            console.log('add new');
+            hubWithRealDistance.push({ ...hubItem, distance: value / 1000 });
+          }
+        }
+      } catch (error) {}
+    }
+
+    console.log(hubWithRealDistance);
+
     const data = [];
 
     // find car model of each hub
     await Promise.all(
-      hubFilter.map(async hub => {
+      hubWithRealDistance.map(async hub => {
         // find all car model from hub (currently having car)
         const modelIds = await Car.find({ currentHub: hub._id }).distinct(
           'carModel'
