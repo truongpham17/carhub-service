@@ -36,6 +36,7 @@ export const getRental = async (req, res) => {
           .populate('car customer leaser pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments({ customer: req.customer._id });
+
         break;
       case 'EMPLOYEE':
         rentals = await Rental.find({
@@ -47,6 +48,25 @@ export const getRental = async (req, res) => {
           .populate('car customer leaser pickupHub pickoffHub payment carModel')
           .populate({ path: 'car', populate: { path: 'carModel' } });
         total = await Rental.countDocuments();
+
+        if (Array.isArray(rentals)) {
+          for (let i = 0; i < rentals.length; i++) {
+            const rental = rentals[i];
+            if (rental.status === 'SHARED');
+            const sharings = await Sharing.find({
+              rental: rental._id,
+              isActive: true,
+            })
+              .populate('customer')
+              .sort({
+                createdAt: -1,
+              });
+            if (Array.isArray(sharings) && sharings.length > 0) {
+              rentals[i] = { ...rental.toJSON(), sharing: sharings[0] };
+            }
+          }
+        }
+        console.log(rentals);
         break;
       case 'MANAGER':
         rentals = await Rental.find()
@@ -222,6 +242,10 @@ export const submitTransaction = async (req, res) => {
 
         if (carObj.carModel._id.toString() !== rental.carModel.toString()) {
           rental.carModel = carObj.carModel._id;
+          /**
+           * @implements
+           */
+          rental.price = carObj.carModel.price;
           rental.totalCost =
             moment(rental.endDate).diff(rental.startDate, 'days') *
             carObj.carModel.price;
@@ -331,17 +355,24 @@ export const submitTransaction = async (req, res) => {
 
         lease = await Lease.findOne({ car: rental.car, status: 'SHARING' });
         if (lease) {
-          lease.status = 'AVAILABEL';
+          lease.status = 'AVAILABLE';
         }
 
         break;
       case 'OVERDUE':
+      case 'SHARED':
+        console.log('come here!!!!');
         rental.status = 'PAST';
         log = { type: 'RETURN', title: 'Return car' };
 
         lease = await Lease.findOne({ car: rental.car, status: 'SHARING' });
         if (lease) {
-          lease.status = 'AVAILABEL';
+          lease.status = 'AVAILABLE';
+        }
+        const carRental = await Car.findById(rental.car);
+        if (carRental) {
+          carRental.currentHub = rental.pickoffHub;
+          await carRental.save();
         }
 
         break;

@@ -294,6 +294,11 @@ const submitTransaction = async (req, res) => {
 
         if (carObj.carModel._id.toString() !== rental.carModel.toString()) {
           rental.carModel = carObj.carModel._id;
+          /**
+           * @implements
+           */
+
+          rental.price = carObj.carModel.price;
           rental.totalCost = (0, _moment.default)(rental.endDate).diff(rental.startDate, 'days') * carObj.carModel.price;
           await rental.save(); // throw new Error(RENTAL_NOT_MATCH_CAR_MODEL);
         }
@@ -408,12 +413,14 @@ const submitTransaction = async (req, res) => {
         });
 
         if (lease) {
-          lease.status = 'AVAILABEL';
+          lease.status = 'AVAILABLE';
         }
 
         break;
 
       case 'OVERDUE':
+      case 'SHARED':
+        console.log('come here!!!!');
         rental.status = 'PAST';
         log = {
           type: 'RETURN',
@@ -425,7 +432,14 @@ const submitTransaction = async (req, res) => {
         });
 
         if (lease) {
-          lease.status = 'AVAILABEL';
+          lease.status = 'AVAILABLE';
+        }
+
+        const carRental = await _car.default.findById(rental.car);
+
+        if (carRental) {
+          carRental.currentHub = rental.pickoffHub;
+          await carRental.save();
         }
 
         break;
