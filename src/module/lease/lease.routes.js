@@ -9,6 +9,7 @@ import {
 } from './lease.controller';
 import validation from './lease.validations';
 import { auth } from '../../service/passport';
+import './lease.scheduler.js';
 
 const routes = new Router();
 

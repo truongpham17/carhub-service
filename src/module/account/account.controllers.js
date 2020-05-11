@@ -71,6 +71,7 @@ export const login = async (req, res) => {
       }
     }
   } catch (error) {
+    console.log(error);
     return res.status(HTTPStatus.BAD_REQUEST).json(error.message);
   }
 };

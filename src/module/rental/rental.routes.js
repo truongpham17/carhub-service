@@ -11,6 +11,7 @@ import {
 } from './rental.controller';
 import { auth } from '../../service/passport';
 import Validations from './rental.validations';
+import './rental.scheduler';
 
 const routes = new Router();
 
