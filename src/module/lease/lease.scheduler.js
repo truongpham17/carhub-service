@@ -3,13 +3,11 @@ import Lease from './lease.model';
 import { sendNotification } from '../../utils/notification';
 
 schedule.scheduleJob('0 0 17 * * *', async function() {
-  console.log(1);
   const overdueLeases = await Lease.find({
     isActive: true,
     status: 'ACCEPTED',
     startDate: {
       $gte: new Date(Date.now() - 86400000),
-      // $lte: new Date(),
     },
   }).populate('customer');
   if (overdueLeases && overdueLeases.length > 0) {
@@ -25,4 +23,18 @@ schedule.scheduleJob('0 0 17 * * *', async function() {
       await lease.save();
     });
   }
+});
+
+schedule.scheduleJob('0 0 17 * * *', async function() {
+  const returnLeases = await Lease.find({
+    isActive: true,
+    status: 'AVAILABLE',
+    endDate: {
+      $gte: new Date(),
+    },
+  });
+  returnLeases.forEach(async lease => {
+    lease.status = 'WAIT_TO_RETURN';
+    await lease.save();
+  });
 });

@@ -72,9 +72,9 @@ export const updateEmployee = async (req, res) => {
       throw new Error('Employee not found!');
     }
 
-    if (!authAdminOrUser(req, employee.account)) {
-      throw new Error('Access denied');
-    }
+    // if (!authAdminOrUser(req, employee.account)) {
+    //   throw new Error('Access denied');
+    // }
 
     Object.keys(req.body).forEach(key => {
       employee[key] = req.body[key];
@@ -84,6 +84,7 @@ export const updateEmployee = async (req, res) => {
 
     return res.status(HTTPStatus.OK).json(employee.toJSON());
   } catch (e) {
+    console.log(e);
     return res.status(HTTPStatus.BAD_REQUEST).json(e.message || e);
   }
 };

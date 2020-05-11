@@ -9,13 +9,11 @@ var _notification = require("../../utils/notification");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _nodeSchedule.default.scheduleJob('0 0 17 * * *', async function () {
-  console.log(1);
   const overdueLeases = await _lease.default.find({
     isActive: true,
     status: 'ACCEPTED',
     startDate: {
-      $gte: new Date(Date.now() - 86400000) // $lte: new Date(),
-
+      $gte: new Date(Date.now() - 86400000)
     }
   }).populate('customer');
 
@@ -31,4 +29,18 @@ _nodeSchedule.default.scheduleJob('0 0 17 * * *', async function () {
       await lease.save();
     });
   }
+});
+
+_nodeSchedule.default.scheduleJob('0 0 17 * * *', async function () {
+  const returnLeases = await _lease.default.find({
+    isActive: true,
+    status: 'AVAILABLE',
+    endDate: {
+      $gte: new Date()
+    }
+  });
+  returnLeases.forEach(async lease => {
+    lease.status = 'WAIT_TO_RETURN';
+    await lease.save();
+  });
 });

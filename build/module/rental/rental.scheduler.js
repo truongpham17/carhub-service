@@ -13,7 +13,7 @@ var _notification = require("../../utils/notification");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // finding overdue renting period
-_nodeSchedule.default.scheduleJob('0 0 8 * * *', async function () {
+_nodeSchedule.default.scheduleJob('0 0 10 * * *', async function () {
   const overdueRentals = await _rental.default.find({
     isActive: true,
     status: 'CURRENT',
@@ -37,7 +37,7 @@ _nodeSchedule.default.scheduleJob('0 0 8 * * *', async function () {
 }); // finding overdue rent request
 
 
-_nodeSchedule.default.scheduleJob('0 0 8 * * *', async function () {
+_nodeSchedule.default.scheduleJob('0 0 10 * * *', async function () {
   const overdueRentals = await _rental.default.find({
     isActive: true,
     status: 'UPCOMING',

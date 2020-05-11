@@ -5,7 +5,7 @@ import Sharing from '../sharing/sharing.model';
 import { sendNotification } from '../../utils/notification';
 
 // finding overdue renting period
-schedule.scheduleJob('0 0 8 * * *', async function() {
+schedule.scheduleJob('0 0 10 * * *', async function() {
   const overdueRentals = await Rental.find({
     isActive: true,
     status: 'CURRENT',
@@ -29,7 +29,7 @@ schedule.scheduleJob('0 0 8 * * *', async function() {
 });
 
 // finding overdue rent request
-schedule.scheduleJob('0 0 8 * * *', async function() {
+schedule.scheduleJob('0 0 10 * * *', async function() {
   const overdueRentals = await Rental.find({
     isActive: true,
     status: 'UPCOMING',
