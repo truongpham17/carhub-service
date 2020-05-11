@@ -24,7 +24,8 @@ var _default = {
       totalCost: _joi.default.number().min(0),
       description: _joi.default.string(),
       payment: _joi.default.string(),
-      nonce: _joi.default.string()
+      nonce: _joi.default.string(),
+      deposit: _joi.default.number()
     },
     options: {
       allowUnknownBody: false

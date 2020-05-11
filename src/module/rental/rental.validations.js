@@ -16,6 +16,7 @@ export default {
       description: Joi.string(),
       payment: Joi.string(),
       nonce: Joi.string(),
+      deposit: Joi.number(),
     },
     options: {
       allowUnknownBody: false,

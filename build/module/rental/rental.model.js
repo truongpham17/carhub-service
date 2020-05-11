@@ -108,6 +108,10 @@ const RentalSchema = new _mongoose.Schema({
   },
   message: {
     type: String
+  },
+  deposit: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
